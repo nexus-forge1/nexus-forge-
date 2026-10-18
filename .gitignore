@@ -56,3 +56,10 @@ next-env.d.ts
 .tanstack
 .gitconfig
 .macaly-git-wrapper.sh
+
+# Local secrets and environment configuration. Never commit real credentials.
+.env
+.env.local
+.env.*
+!.env.example
+.cody/credentials.json
