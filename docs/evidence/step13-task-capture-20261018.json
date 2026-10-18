@@ -1,0 +1,59 @@
+{
+  "step": 13,
+  "status": "OPEN_OPERATIONAL_EVIDENCE",
+  "observedAt": "2026-10-18T19:19:31Z",
+  "capture": {
+    "trigger": "immediate request to existing enabled daily task; not timer-triggered",
+    "capturedAt": "2026-10-18T19:15:02.784Z",
+    "verifiedAt": "2026-10-18T19:16:01.728977Z",
+    "bytes": 1554319,
+    "sha256": "82b4d514a008cdfdb21a7429b181154d301e278ea59b2f7c3fa9749498b23892",
+    "dataTables": 75,
+    "dataDocuments": 2011,
+    "independentRetrieval": true,
+    "sourceCopyMatch": true,
+    "zipCrc": true,
+    "offlineCheckerExit": 0,
+    "relationshipIssues": 0,
+    "privateMediaRows": 0,
+    "storagePayloads": 0,
+    "freshAtVerification": true
+  },
+  "media": {
+    "currentOriginalAndRetainedCopyCompared": true,
+    "bytes": 1191209,
+    "sha256": "e6ec36540b03f43123ac7157365acefcbafd5d8941801bbf3c6e8772598c8171",
+    "productionAppUploads": "empty at capture observation"
+  },
+  "retention": {
+    "zipItems": 12,
+    "namedLiveExportItems": 8,
+    "observedLiveCaptureDates": 3,
+    "thirtyDailyPointsEstablished": false,
+    "deletions": 0
+  },
+  "sourceRepair": {
+    "reason": "task observed GitHub 404 for new verifier and guide",
+    "repository": "nexus-forge1/nexus-forge-",
+    "paths": [
+      "scripts/check-recovery-point.py",
+      "docs/STEP_13_RECOVERY_VERIFICATION.md",
+      "__tests__/backup-verifier.test.ts"
+    ],
+    "exactReadbackMatch": true,
+    "commit": "abc022fa954b37aa8dbc57a77f5e29f999acb51c",
+    "wholeRepositoryParityEstablished": false
+  },
+  "validation": {
+    "verifierTestsPassed": 9,
+    "fullSuiteRerun": false
+  },
+  "existingRestore": "prior approved Managed Testing restore and exact return retained; not repeated",
+  "remaining": [
+    "completed timer-triggered capture evidence",
+    "ongoing freshness and retained daily-point coverage",
+    "timed full-service recovery within four hours"
+  ],
+  "restorePerformed": false,
+  "paymentsActivated": false
+}
