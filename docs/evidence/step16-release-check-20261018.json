@@ -1,0 +1,47 @@
+{
+  "step": 16,
+  "decision": "HOLD",
+  "sourceCommitTested": "420cbd79ded77d71a86a1a1c373b76f069443de4",
+  "regression": {
+    "tests": 927,
+    "files": 162,
+    "passed": true,
+    "durationSeconds": 150.21
+  },
+  "productionBuild": {
+    "passed": true,
+    "command": "npm run build"
+  },
+  "live": {
+    "observedAt": "2026-10-18T19:24:03.980Z",
+    "checks": 44,
+    "passed": 44,
+    "p95Ms": 84,
+    "anonymousAccessDenied": true
+  },
+  "sourceSync": {
+    "wholeRepositoryParityEstablished": false,
+    "macalyNativeConnection": "Settings shows Create on GitHub; no existing repository connection",
+    "macalyManagedGithubToolkits": 0,
+    "sampledMismatches": [
+      "package.json",
+      "pnpm-lock.yaml"
+    ],
+    "sampledMissingGithubFiles": [
+      "convex/evidenceAdmission.ts",
+      "src/lib/completion-plan.ts"
+    ],
+    "existingRepository": "nexus-forge1/nexus-forge-",
+    "newRepositoryCreated": false,
+    "previousStep13ThreeFileRepairRetained": true
+  },
+  "remaining": [
+    "synchronize and validate the complete existing platform repository; current repository CI does not establish Macaly source acceptance",
+    "Step13 recurring retention/freshness and full-service recovery evidence",
+    "Step14 full-application interruption controls",
+    "Step15 actual matching provider invoices",
+    "Step7 genuine Workspace tenant sign-in"
+  ],
+  "paymentsActivated": false,
+  "productionDataChanged": false
+}
