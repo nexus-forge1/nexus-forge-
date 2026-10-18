@@ -22,7 +22,7 @@
           "value": ""
         },
         {
-          "action": "assertTextEquals",
+          "action": "assertText",
           "selector": "#result",
           "value": "14"
         },
