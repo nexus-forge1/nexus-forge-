@@ -1,0 +1,20 @@
+{
+  "version": "production-dependency-audit-v1",
+  "observedAt": "2026-10-18T06:13:02.202Z",
+  "command": "pnpm audit --prod --json",
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "dependencies": 306,
+    "devDependencies": 0,
+    "optionalDependencies": 91,
+    "totalDependencies": 397
+  },
+  "lockfileSha256": "86135a3ef1145628811b2342314f039f6f318f4d550c25c67a66fed262f2a098",
+  "scope": "Production dependency advisory observation only; not a whole-application security clearance"
+}

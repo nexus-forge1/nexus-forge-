@@ -93,5 +93,17 @@
   "/generality": {
     "title": "Generality Research — NEXUS FORGE",
     "description": "Measure bounded transfer across preregistered training and held-out task domains."
+  },
+  "/billing": {
+    "title": "Billing and Usage — NEXUS FORGE",
+    "description": "Review your subscription, prepaid usage credits and private payment receipts in NEXUS FORGE."
+  },
+  "/checkout": {
+    "title": "Secure Checkout — NEXUS FORGE",
+    "description": "Complete your selected NEXUS FORGE subscription or prepaid credit purchase through secure checkout."
+  },
+  "/pricing": {
+    "title": "Plans and Usage Pricing — NEXUS FORGE",
+    "description": "Compare NEXUS FORGE paid subscriptions and pay-per-use credits, with published allowances and token-based usage rates."
   }
 }

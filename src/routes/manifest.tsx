@@ -1,3 +1,7 @@
+import { assessBlueprint } from '../../convex/blueprintCompleteness'
+import { BlueprintCompleteness } from '../components/blueprint-completeness'
+import { OpportunityContext } from '../components/opportunity-context'
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useMutation, useQuery } from 'convex/react'
 import { useEffect, useState } from 'react'
@@ -5,7 +9,7 @@ import { api } from '../../convex/_generated/api'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { getCompleteReceiptStrategies, getReceiptStrategyRows } from '../lib/manifest-receipt'
 
-export const Route = createFileRoute('/manifest')({ component: ManifestIntelligencePage })
+export const Route = createFileRoute('/manifest')({ head: () => routeHead("/manifest"), component: ManifestIntelligencePage })
 
 type SavedBlueprint = {
   _id: string
@@ -73,7 +77,7 @@ function ManifestIntelligencePage() {
       setBlueprint(result.blueprint)
       setLatestSynthesisKey(result.blueprintKey)
       setStrategiesOpened(false)
-      setNotice(result.saved ? result.strategyCount === 3 ? 'Blueprint saved privately with all three structured strategies. Next: verify this exact receipt below, then review the strategies.' : result.strategyCount > 0 ? `Blueprint saved privately; ${result.strategyCount} structured strateg${result.strategyCount === 1 ? 'y' : 'ies'} saved. Three are required. Next: inspect the receipt and retry if the ledger is incomplete.` : 'Blueprint saved privately, but no valid structured strategy records were returned. Next: inspect the receipt below; the workflow will not skip this missing evidence.' : 'Blueprint generated. Check the receipt before continuing.')
+      setNotice(!assessBlueprint(result.blueprint).complete ? 'Incomplete AI draft saved with its usage receipts. Review the missing sections below; no extra inference is started automatically.' : result.saved ? result.strategyCount === 3 ? 'Blueprint saved privately with all three structured strategies. Next: verify this exact receipt below, then review the strategies.' : result.strategyCount > 0 ? `Blueprint saved privately; ${result.strategyCount} structured strateg${result.strategyCount === 1 ? 'y' : 'ies'} saved. Three are required. Next: inspect the receipt and retry if the ledger is incomplete.` : 'Blueprint saved privately, but no valid structured strategy records were returned. Next: inspect the receipt below; the workflow will not skip this missing evidence.' : 'Blueprint generated. Check the receipt before continuing.')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Manifest synthesis failed. Check AI provider health and try again later.')
     } finally {
@@ -99,6 +103,8 @@ function ManifestIntelligencePage() {
   const latestReceiptBlueprint = latestSynthesisKey ? history.find(row => row.key === latestSynthesisKey) : undefined
   const latestReceiptStrategyRows = latestSynthesisKey ? getReceiptStrategyRows(strategies, latestSynthesisKey) : []
   const latestReceiptStrategies = latestSynthesisKey ? getCompleteReceiptStrategies(strategies, latestSynthesisKey) : []
+  const blueprintCheck = assessBlueprint(blueprint)
+  const canHandoff = !!latestReceiptBlueprint && latestReceiptStrategies.length === 3 && blueprintCheck.complete && readBlueprint(latestReceiptBlueprint).blueprint === blueprint
   const experiments = (experimentRows ?? []) as Array<{ _id: string; _creationTime: number; key: string; value: string; confidence: number; source: string }>
   const strategyContext = strategies.map(row => {
     let item: Record<string, unknown> = {}
@@ -200,8 +206,8 @@ function ManifestIntelligencePage() {
       <div className="manifest-brief"><span className="section-kicker">OUTCOME SYNTHESIS</span><p>Describe one result you want. NEXUS FORGE will draft a blueprint and save its evidence. Nothing is deployed or executed from this page.</p></div>
 
       <section className="glass-card research-card manifest-next-step" aria-live="polite" aria-labelledby="manifest-next-step-title">
-        <div className="panel-title"><span id="manifest-next-step-title">YOUR NEXT STEP</span><span className="status-chip">STEP {latestSynthesisKey ? latestReceiptBlueprint && latestReceiptStrategies.length === 3 ? strategiesOpened ? '4 OF 4' : '3 OF 4' : '2 OF 4' : '1 OF 4'}</span></div>
-        {!latestSynthesisKey ? <><h3>1. Create the blueprint</h3><p>Start with the goal above. After synthesis, this guide will move to receipt verification automatically.</p><button className="primary-button" onClick={() => document.getElementById('manifest-intent')?.focus()}>Start with the outcome ↑</button></> : !latestReceiptBlueprint || latestReceiptStrategies.length !== 3 ? <><h3>2. Verify the exact receipt</h3><p>{latestReceiptBlueprint ? `Blueprint receipt found. ${latestReceiptStrategies.length} of 3 complete strategy records are confirmed for this exact synthesis.` : 'Waiting for the saved blueprint to appear in your private ledger.'} Do not continue to build until the receipt and all three complete strategy records are confirmed.</p><button className="primary-button" onClick={() => document.getElementById('manifest-live-check-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Check receipt evidence ↓</button></> : !strategiesOpened ? <><h3>3. Review the three strategies</h3><p>The exact blueprint and all three complete strategy records are now visible. Open the strategy ledger and compare the approaches before choosing what to build.</p><button className="primary-button" onClick={() => { const panel = document.getElementById('manifest-strategy-ledger'); if (panel instanceof HTMLDetailsElement) panel.open = true; setStrategiesOpened(true); requestAnimationFrame(() => panel?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}>Review strategies ↓</button></> : <><h3>4. Continue the work</h3><p>Receipt checks passed and the strategy ledger has been opened. Carry the selected goal and blueprint into a governed mission; execution and external delivery remain governed by the existing workflow.</p><Link className="primary-button" to="/mission" onClick={() => { window.sessionStorage.setItem('nexus-forge-manifest-handoff', JSON.stringify({ intent, domain, budget, horizon, constraints, acceptanceCriteria, blueprint, sourceMemoryId: latestReceiptBlueprint?._id })); }}>Create a governed mission →</Link></>}
+        <div className="panel-title"><span id="manifest-next-step-title">YOUR NEXT STEP</span><span className="status-chip">STEP {latestSynthesisKey ? canHandoff ? strategiesOpened ? '4 OF 4' : '3 OF 4' : '2 OF 4' : '1 OF 4'}</span></div>
+        {!latestSynthesisKey ? <><h3>1. Create the blueprint</h3><p>Start with the goal above. After synthesis, this guide will move to receipt verification automatically.</p><button className="primary-button" onClick={() => document.getElementById('manifest-intent')?.focus()}>Start with the outcome ↑</button></> : !canHandoff ? <><h3>2. Verify the exact receipt</h3><p>{latestReceiptBlueprint ? `Blueprint receipt found. ${latestReceiptStrategies.length} of 3 complete strategy records are confirmed for this exact synthesis.` : 'Waiting for the saved blueprint to appear in your private ledger.'} Do not continue to build until the receipt, required blueprint sections and all three complete strategy records are confirmed.</p><button className="primary-button" onClick={() => document.getElementById('manifest-live-check-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Check receipt evidence ↓</button></> : !strategiesOpened ? <><h3>3. Review the three strategies</h3><p>The exact blueprint and all three complete strategy records are now visible. Open the strategy ledger and compare the approaches before choosing what to build.</p><button className="primary-button" onClick={() => { const panel = document.getElementById('manifest-strategy-ledger'); if (panel instanceof HTMLDetailsElement) panel.open = true; setStrategiesOpened(true); requestAnimationFrame(() => panel?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}>Review strategies ↓</button></> : <><h3>4. Continue the work</h3><p>Receipt checks passed and the strategy ledger has been opened. Carry the selected goal and blueprint into a governed mission; execution and external delivery remain governed by the existing workflow.</p><Link className="primary-button" to="/mission" onClick={() => { window.sessionStorage.setItem('nexus-forge-manifest-handoff', JSON.stringify({ intent, domain, budget, horizon, constraints, acceptanceCriteria, blueprint, sourceMemoryId: latestReceiptBlueprint?._id })); }}>Create a governed mission →</Link></>}
       </section>
 
       <div className="console-grid">
@@ -221,8 +227,8 @@ function ManifestIntelligencePage() {
           {notice && <p className="receipt" role="status">{notice}</p>}
         </div>
         <div className="glass-card research-card">
-          <div className="panel-title"><span>BLUEPRINT OUTPUT</span><span className="live-pill">{blueprint ? 'DRAFT READY' : 'AWAITING INTENT'}</span></div>
-          {blueprint ? <><div className="decision-line"><span>STATUS</span><strong>AI-GENERATED PROPOSAL</strong></div><div className="manifest-blueprint" aria-label="Generated blueprint">{blueprint}</div><div className="hero-actions"><button className="secondary-button" onClick={() => { void navigator.clipboard?.writeText(blueprint).then(() => setNotice('Blueprint copied to clipboard.')).catch(() => setError('Clipboard access was unavailable. Select and copy the blueprint text manually.')) }}>Copy blueprint</button><Link className="secondary-button" to="/mission" onClick={() => { window.sessionStorage.setItem('nexus-forge-manifest-handoff', JSON.stringify({ intent, domain, budget, horizon, constraints, acceptanceCriteria, blueprint, sourceMemoryId: latestReceiptBlueprint?._id })); }}>Create a governed mission →</Link></div></> : <div className="empty-state"><h3>Your next possibility starts here.</h3><p>Generate a blueprint to receive a concrete design, first experiment, architecture, guardrails, success metrics, and a practical next action.</p></div>}
+          <div className="panel-title"><span>BLUEPRINT OUTPUT</span><span className="live-pill">{blueprint ? blueprintCheck.complete ? 'DRAFT SECTIONS PRESENT' : 'INCOMPLETE DRAFT' : 'AWAITING INTENT'}</span></div>
+          {blueprint ? <><BlueprintCompleteness blueprint={blueprint}/><div className="decision-line"><span>STATUS</span><strong>AI-GENERATED PROPOSAL</strong></div><div className="manifest-blueprint" aria-label="Generated blueprint">{blueprint}</div><div className="hero-actions"><button className="secondary-button" onClick={() => { void navigator.clipboard?.writeText(blueprint).then(() => setNotice('Blueprint copied to clipboard.')).catch(() => setError('Clipboard access was unavailable. Select and copy the blueprint text manually.')) }}>Copy blueprint</button>{canHandoff ? <Link className="secondary-button" to="/mission" onClick={() => { window.sessionStorage.setItem('nexus-forge-manifest-handoff', JSON.stringify({ intent, domain, budget, horizon, constraints, acceptanceCriteria, blueprint, sourceMemoryId: latestReceiptBlueprint?._id })); }}>Create a governed mission →</Link> : <p>Complete the required blueprint sections and exact receipt checks before guided mission handoff.</p>}</div></> : <div className="empty-state"><h3>Your next possibility starts here.</h3><p>Generate a blueprint to receive a concrete design, first experiment, architecture, guardrails, success metrics, and a practical next action.</p></div>}
         </div>
       </div>
 
@@ -287,6 +293,7 @@ function ManifestIntelligencePage() {
       </div>
       </details>
 
+      <OpportunityContext key={latestSynthesisKey} strategies={latestReceiptStrategyRows} />
       <details className="manifest-secondary"><summary>Advanced · Saved research evidence</summary>
       <div className="glass-card research-card" aria-labelledby="manifest-source-evidence-title">
         <div className="panel-title"><span id="manifest-source-evidence-title">SOURCE-BACKED RESEARCH CONTEXT</span><span className="live-pill">{researchEvidenceRows?.length ?? 0} RECORDS</span></div>
@@ -394,7 +401,7 @@ function ManifestIntelligencePage() {
         <p className="muted-copy">Saved plans help preserve continuity. A saved plan is not proof that its proposed work has been executed or that its goals have been achieved.</p>
         {savedRows === undefined ? <p>Loading saved blueprints…</p> : history.length === 0 ? <p>No blueprints saved yet. Your first synthesis will appear here.</p> : history.map(row => {
           const item = readBlueprint(row)
-          return <button key={row._id} className="portfolio-row" onClick={() => { setIntent(item.intent); setDomain(item.domain); setBudget(item.budget); setHorizon(item.horizon); setConstraints(item.constraints); setAcceptanceCriteria(item.acceptanceCriteria); setBlueprint(item.blueprint); setNotice('Loaded a saved blueprint. Review it before using it for a new mission.'); setError('') }}>
+          return <button key={row._id} className="portfolio-row" onClick={() => { setIntent(item.intent); setDomain(item.domain); setBudget(item.budget); setHorizon(item.horizon); setConstraints(item.constraints); setAcceptanceCriteria(item.acceptanceCriteria); setBlueprint(item.blueprint); setLatestSynthesisKey(row.key); setStrategiesOpened(false); setNotice('Loaded a saved blueprint. Review it before using it for a new mission.'); setError('') }}>
             <div className="portfolio-main"><strong>{item.intent}</strong><p>{item.domain} · {item.horizon} · budget cap ${item.budget}</p></div>
             <div className="portfolio-cell"><small>TYPE</small><b>BLUEPRINT</b></div>
             <div className="portfolio-cell"><small>CONFIDENCE</small><b>{Math.round(row.confidence * 100)}% RECORD</b></div>

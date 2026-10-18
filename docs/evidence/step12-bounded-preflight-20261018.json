@@ -1,0 +1,45 @@
+{
+  "version": "step12-bounded-preflight-v1",
+  "observedAt": "2026-10-18T13:50:47.870Z",
+  "sourceRevision": "fa1e6f4e2bda57933ab5b5c3a4dbaa28f30a3133",
+  "sha256": {
+    "convex/executionRequirements.ts": "a4a6a2acdfb2e9479034a8398ee60e187dbcf40a0fff3cb7c43f96c0087cc6c5",
+    "convex/portfolio.ts": "f77eed25cf61f16bf33dc7d1d01c4a698cfc8d22e818afb463e9f2521e4ba063",
+    "convex/orchestration.ts": "cdc06f714101b8e12392924bb424a60b5c39d8f8afb069f6d077be1a810bd114",
+    "convex/schema.ts": "3c59f7338dcc6b6bdcca5d3b0e109aad8a31f16043af180c58788eb3e130be58",
+    "src/components/mission-control.tsx": "d4b965b3e1f27a9469676d4c759eb1862b4c472bd667fcfba26cb2b2154beb95",
+    "src/components/portfolio-intelligence.tsx": "1b4e4bbf2a9c199626fedd9af8f756788c436910d3935c95e9305f04bbb79b6e",
+    "__tests__/convex/execution-requirements.test.ts": "e52e95fe64372c5fd30b48eedbaf4dd104aab1cf60c64e570fb60a214c3603a6"
+  },
+  "verification": {
+    "targetedTests": 28,
+    "targetedFiles": 5,
+    "fullTests": 809,
+    "fullFiles": 145,
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "deterministicFixtures": true,
+    "newRealInferenceRun": false
+  },
+  "scope": {
+    "dependencyLimit": 20,
+    "retainedReservationLimit": 20,
+    "activeHoldersPerKeyLimit": 50,
+    "incompleteEvidenceBlocksExecution": true,
+    "refusalsPreserveReservationsRunsAuditsAndSchedules": true,
+    "foreignConflictMissionIdsOmitted": true,
+    "releasedHistoryExcludedFromHolderLookup": true,
+    "escalationStopRetained": true,
+    "missionWindowScopeDisclosed": true,
+    "cancelledExcludedFromActive": true,
+    "wholeApplicationSecurityReviewComplete": false
+  },
+  "remaining": [
+    "Public requirement-list and release cleanup reads",
+    "Continuation historical reservation review",
+    "Remaining public ownership/secret/egress inventory",
+    "Audit and automatic-evidence growth",
+    "Legacy capacity overview fan-out"
+  ],
+  "paymentActivationStep": 17
+}

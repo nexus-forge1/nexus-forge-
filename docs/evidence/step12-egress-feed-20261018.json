@@ -1,0 +1,113 @@
+{
+  "version": "step12-egress-feed-v1",
+  "date": "2026-10-18",
+  "sourceRevision": "8431690b8bcaecf77c3b0aaf8d1c8f1d48652108",
+  "hashes": {
+    "convex/research.ts": "190ab89ab331bb68e9f9cc968864c13dce05d0598957817eed1b07bd754f0dd2",
+    "convex/readiness.ts": "872678a1d74f195a0786dd1271efabdfe6580143584c953399aca9c13b600e5f",
+    "convex/outcomeFeeds.ts": "e09c1ecc156c843509ff20cacf6974749beec0f00459137325b6e100aa6e0db6",
+    "convex/productEvidenceImport.ts": "b938727a3483185cbcda8b55d5f81b9d61cded1f1ff92f2760150071553e7d7d",
+    "convex/schema.ts": "45afe896d874cfe8dcf1e12d70aeffbd60ed594beec0bc4033a654b399d8f22a",
+    "convex/frontierModel.ts": "32281734635ba2da28fb40071c7728edd928ba4e6c0a88c89c70c3a30ea9f85d",
+    "src/components/runtime-workbench.tsx": "f3c3de1c14d2505a2692036960fe966f4967d0ec9dea4d8c23fbf62d61948f29",
+    "src/lib/completion-plan.ts": "37b417e78b8c22a2b5e0d25812982818ba51cf08d1b7eefc8ba213d5c5bb2fe4",
+    "__tests__/research-gateway-bounds.test.ts": "0283000a2dbcee0d8a41dafcc8797397253e0b60343fcea8b7f70552cb8145bd",
+    "__tests__/convex/feed-growth-bounds.test.ts": "b4d6f24cedbe03cc585979d374cc5ee456c146e5505285068037eb1d59db48f4",
+    "__tests__/convex/readiness-egress.test.ts": "b53362b7ead20153b3be96a1523d275f65d54b7d8addc0f3ef7a87aece557631",
+    "__tests__/scheduled-outcome-feed.test.ts": "99d2d3e20fe16e6d29a2aafc7b6745644874e1c1d8505a707c2f3975e4c12f4d",
+    "__tests__/convex/seven-runtime.test.ts": "dc85ca5ae568727ce5eda367265749797fc59dfee3fbb5dfee516dde1c5c5dc3"
+  },
+  "verification": {
+    "fullTests": 863,
+    "testFiles": 154,
+    "passed": true,
+    "durationSeconds": 148.78,
+    "fullLog": "/tmp/step12-egress-feed-full-final.log",
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "browser": {
+      "version": "step12-deployed-egress-v1",
+      "observedAt": "2026-10-18T16:44:20.418Z",
+      "beforeRuns": 0,
+      "passed": true,
+      "negative": {
+        "runId": "mx7adw5p12w0dh3bsjjy4yq1qs8ghyzy",
+        "url": "https://example.com/",
+        "passedCount": 5,
+        "totalCount": 6,
+        "failedChecks": [
+          "viewport"
+        ]
+      },
+      "positive": {
+        "runId": "mx7bfafb3r392gxx0z1k8b0kj58gg75k",
+        "url": "https://www.network-x-ai.com/",
+        "passedCount": 6,
+        "totalCount": 6
+      },
+      "billingUnchanged": true,
+      "noInference": true,
+      "noCheckout": true,
+      "reloadHistoryRetained": true,
+      "mobile": {
+        "viewport": 375,
+        "documentWidth": 375
+      },
+      "browserErrors": [],
+      "verifiedAt": "2026-10-18T16:46:03.300Z"
+    },
+    "feedFixtures": [
+      "concurrent claim single winner",
+      "duplicate completion schedules one successor",
+      "168th check pauses without successor",
+      "owned manual restart fences stale generation",
+      "legacy missing sequence accepted once",
+      "old report beyond recent 100 deduplicated without deletion",
+      "mission-owner changes block network admission"
+    ]
+  },
+  "secretScreen": {
+    "observedAt": "2026-10-18T16:49:13.305Z",
+    "sourceFilesScreened": 281,
+    "suspectSecretLiteralFiles": [],
+    "clientEnvNames": [
+      "VITE_CONVEX_URL",
+      "VITE_STRIPE_MODE",
+      "VITE_STRIPE_PUBLISHABLE_KEY"
+    ],
+    "configuredPublicEnvNames": [
+      "VITE_CONVEX_SITE_URL",
+      "VITE_CONVEX_URL",
+      "VITE_STRIPE_MODE",
+      "VITE_STRIPE_PUBLISHABLE_KEY"
+    ],
+    "scope": "Automated name and known-literal-pattern screen; no secret values emitted; not whole-application security acceptance"
+  },
+  "remainingFindings": [
+    {
+      "file": "convex/memory.ts",
+      "functions": [
+        "getLearningContext",
+        "getAdaptivePreflight",
+        "getAdaptivePreflightForOperator",
+        "getCouncilMemorySelection"
+      ],
+      "status": "OPEN",
+      "issue": "Post-filtered take does not bound raw skipped historical rows or payload reads."
+    },
+    {
+      "file": "convex/verification.ts",
+      "functions": [
+        "recordMeasuredOutcome",
+        "recordOutcomeInternal"
+      ],
+      "status": "OPEN",
+      "issue": "Repeated measurement of an unchanged verified delivery creates another verification, audit, lesson and measurement. Add replay-safe admission without losing settlement evidence."
+    }
+  ],
+  "wholeApplicationSecurityReviewComplete": false,
+  "automaticEvidenceAuditGrowthReviewComplete": false,
+  "realInference": false,
+  "paymentsActivated": false,
+  "historyDeleted": false
+}

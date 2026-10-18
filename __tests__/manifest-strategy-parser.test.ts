@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 import { extractManifestStrategies } from "../convex/manifestStrategyParser";
 
 const candidate = { name: "Small pilot", mechanism: "Test one user segment", prerequisites: "A reachable pilot audience", timeToEvidence: "Within one week", expectedValue: "Evidence about activation", reversibility: "Easy to stop", failureMode: "Too few participants", unverifiedAssumptions: "Pilot users resemble target users" };
-const three = [candidate, { ...candidate, name: "Second path" }, { ...candidate, name: "Third path" }];
+const three = [candidate, { ...candidate, name: "Second path", mechanism: "Build a self-service prototype" }, { ...candidate, name: "Third path", mechanism: "Deliver a manual concierge pilot" }];
 const fence = String.fromCharCode(96).repeat(3);
 
 describe("Manifest strategy extraction", () => {
+  it("rejects repeated names and renamed copies of the same mechanism", () => {
+    expect(extractManifestStrategies(JSON.stringify([candidate, {...three[1], name: "SMALL—PILOT"}, three[2]])).validJson).toBe(false);
+    expect(extractManifestStrategies(JSON.stringify([candidate, {...three[1], mechanism: "TEST ONE USER SEGMENT!"}, three[2]])).validJson).toBe(false);
+  });
   it("extracts exactly three valid candidates and leaves readable Markdown", () => {
     const raw = ["## Blueprint", "Run a small pilot.", "", fence + "manifest-strategies", JSON.stringify(three), fence].join("\n");
     const result = extractManifestStrategies(raw);

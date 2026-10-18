@@ -1,3 +1,4 @@
+import {admitEvidence} from './evidenceAdmission'
 import { v } from 'convex/values'
 import { internalMutation, query } from './_generated/server'
 import { requireOperator, requireOwnedMission } from './permissions'
@@ -9,6 +10,7 @@ export const begin = internalMutation({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get(args.missionId)
     if (!mission) throw new Error('Mission not found')
+    await admitEvidence(ctx.db.query('platformTaskRuns').withIndex('by_mission',q=>q.eq('missionId',args.missionId)),'Mission task')
     return await ctx.db.insert('platformTaskRuns', { ...args, ownerKey: mission.ownerKey, status: 'pending', startedAt: Date.now() })
   },
 })

@@ -1,0 +1,29 @@
+{
+  "version": "step12-continuation-history-v1",
+  "observedAt": "2026-10-18T16:04:54.672Z",
+  "sourceRevision": "36c3c0ce8b2bd782401143e9d686bb0973b1e2b1",
+  "sha256": {
+    "convex/continuationPolicy.ts": "40736e22e315120f40e06f630097614e8d34fc27fed55537e25c036ea39da800",
+    "__tests__/convex/continuation-history.test.ts": "ee6e1781fcbf08f94849c2933494db5b03d1cf05165dbd05349ab168244b78df"
+  },
+  "verification": {
+    "targetedTests": 34,
+    "targetedFiles": 3,
+    "fullTests": 828,
+    "fullFiles": 148,
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "deterministicFixtures": true,
+    "newRealInference": false
+  },
+  "scope": {
+    "releasedCompetingHistoryExcluded": true,
+    "resolvedIncidentHistoryExcluded": true,
+    "originalResourcesMustRemainHeld": true,
+    "cleanupAndMissionReviewBlockContinuation": true,
+    "unresolvedIncidentsStillBlock": true,
+    "unknownOrExcessiveEvidenceStillBlocks": true,
+    "wholeApplicationSecurityReviewComplete": false
+  },
+  "paymentActivationStep": 17
+}

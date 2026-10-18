@@ -1,3 +1,5 @@
+import {RequirementHistory} from './requirement-history';
+import {PortfolioHistoryNotice} from "./portfolio-history-notice";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -44,10 +46,11 @@ export function MissionControl({
   );
   const decision = useQuery(api.portfolio.decisionSnapshot);
   const learning = useQuery(api.portfolio.learningSnapshot);
-  const preflight = useQuery(
-    api.memory.getAdaptivePreflightForOperator,
+  const preflightStatus = useQuery(
+    api.memory.adaptivePreflightStatus,
     missionId ? { missionId } : "skip",
   );
+  const preflight = preflightStatus?.ok ? preflightStatus.value : undefined;
   const orchestration = useQuery(
     api.orchestration.preflight,
     missionId ? { missionId } : "skip",
@@ -268,7 +271,7 @@ export function MissionControl({
           <span>ADAPTIVE PREFLIGHT</span>
           <span className="live-pill">● LEARNING / ADVISORY</span>
         </div>
-        {preflight ? (
+        {preflightStatus?.ok === false ? <><p role="alert">{preflightStatus.message}</p><Link className="secondary-button" to="/evidence">Review retained memory →</Link></> : preflight ? (
           <>
             <div className="decision-line">
               <span>WHY THE PLAN MAY CHANGE</span>
@@ -399,7 +402,7 @@ export function MissionControl({
                   <strong>{r.key}</strong>
                   <small>
                     {r.mode.toUpperCase()} resource ·{" "}
-                    {r.available ? "available" : `held by ${r.heldByMission}`}
+                    {r.available ? "available" : r.heldByMission ? `held by ${r.heldByMission}` : "held by another mission"}
                   </small>
                 </div>
                 <span className="status-chip">
@@ -417,6 +420,7 @@ export function MissionControl({
           <p>{missionId ? "Loading dependency and resource preflight…" : "Select a mission to inspect dependency and resource preflight."}</p>
         )}
       </div>
+      {missionId&&<RequirementHistory key={missionId} missionId={missionId}/>}
       <div className="glass-card research-card">
         <div className="panel-title">
           <span>PORTFOLIO DECISION QUEUE</span>
@@ -424,6 +428,7 @@ export function MissionControl({
         </div>
         {decision ? (
           <>
+            <PortfolioHistoryNotice scope={decision.historyScope}/>
             <div className="stats-strip compact">
               <div>
                 <strong>{decision.totalMissions}</strong>
@@ -552,6 +557,7 @@ export function MissionControl({
         </div>
         {learning ? (
           <>
+            <PortfolioHistoryNotice scope={learning.historyScope}/>
             <div className="stats-strip compact">
               <div>
                 <strong>{learning.missionsObserved}</strong>

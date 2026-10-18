@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-18",
+  "sourceRevision": "0b1346e530fe354160b4bc08501c36a25653dcad",
+  "hashes": {
+    "convex/runtimeCapacity.ts": "bbbcb281a54fbd968a81e661312bf81593a4861461ec247a466d899f6eb14a7a",
+    "convex/runtimeReceipts.ts": "f6174fa0532a869c48faac48bee87c569813172418e19d6398d93608158ed660",
+    "src/components/runtime-history.tsx": "c9e48451f46e60b24ed9e5b1b1bdc2bd6103e5956dee5ffb63924a362e56c654",
+    "src/components/runtime-workbench.tsx": "f80758b8508286ba4300adefe3af20992b1a32affebcd3a3e2fc65b3bf640238",
+    "__tests__/convex/runtime-read-bounds.test.ts": "b7cce361a8a053ef98f1bbe55b09e5bc8e6f1e765b02c26d3214aaf30971bae0",
+    "__tests__/runtime-history-ui.test.tsx": "52f339f1a3fba74937d476918b2bb3bd3e8b8cf1ad1a4e3d340065028346b7ac",
+    "__tests__/frontier-ui.test.tsx": "91aa46a9ecdb43da93502debcbec2774e6c0cfabff63f3fbc82ad95c14b716a1"
+  },
+  "verification": {
+    "fullTests": 839,
+    "files": 151,
+    "passed": true,
+    "durationSeconds": 149.51,
+    "log": "/tmp/step12-runtime-full-final.log",
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "fixtures": [
+      "510 retained archived rows fail closed for new admission",
+      "exact completed replay preserved",
+      "pending settlement preserved after read limit",
+      "large archived bodies bounded",
+      "unknown active kinds counted",
+      "45 original receipts paginated without duplication",
+      "anonymous and foreign isolation",
+      "server page-size enforcement",
+      "component cursor navigation and loading guidance"
+    ]
+  },
+  "realBrowserSession": false,
+  "realInference": false,
+  "historyDeleted": false,
+  "paymentsActivated": false,
+  "wholeApplicationSecurityReviewComplete": false,
+  "remainingStep12Areas": [
+    "ownership, secrets, webhooks and external request inventory",
+    "automatic evidence and audit growth controls"
+  ]
+}

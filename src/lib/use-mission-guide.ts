@@ -16,9 +16,19 @@ export function useMissionGuide() {
   ]
   const pendingStage = stages.find(stage => !stage.done)
   const latestDelivery = deliveries[0]
-  const recovery = latestDelivery?.stage === 'blocked' && stages.slice(0, 6).every(stage => stage.done)
+  const executionOpen = mission?.status !== 'complete' && mission?.status !== 'cancelled' && mission?.status !== 'review'
+  const recovery = executionOpen && latestDelivery?.stage === 'blocked' && stages.slice(0, 6).every(stage => stage.done)
     ? { title: 'Resolve blocked delivery', done: false, path: '/delivery', note: latestDelivery.status + '. Review the delivery record and recovery controls before continuing.' }
     : undefined
-  return { ...state, stages, nextStage: recovery ?? pendingStage, completed: stages.filter(stage => stage.done).length, recovery }
+  const statusStep = mission?.status === 'review'
+    ? { title: 'Resolve portfolio review', done: false, path: '/portfolio', note: 'The mission is on hold. Review its portfolio decision before any further execution.' }
+    : mission?.status === 'cancelled'
+      ? { title: 'Define a new mission contract', done: false, path: '/mission', note: 'This mission is cancelled. Its saved evidence remains available; choose or create a new mission to continue.' }
+      : mission?.status === 'complete'
+        ? stages[7].done && !stages[8].done
+          ? stages[8]
+          : { title: 'Review recorded outcome', done: false, path: '/learning', note: 'This mission is complete. Review recorded measurements and lessons; missing checkpoints remain unverified. Select a new mission for further execution.' }
+        : undefined
+  return { ...state, stages, nextStage: statusStep ?? recovery ?? pendingStage, completed: stages.filter(stage => stage.done).length, recovery }
 
 }

@@ -32,6 +32,6 @@ export const addTrial = mutation({args:{protocolId:v.id('labProtocols'),caseKey:
  const id=await ctx.db.insert('labTrials',{...data,createdAt:Date.now()});await audit(ctx,ownerKey,p.kind,'trial-recorded',String(id));return id;
 }})
 export const close = mutation({args:{protocolId:v.id('labProtocols')},handler:async(ctx,{protocolId})=>{const ownerKey=await requireOperator(ctx),p=await ctx.db.get(protocolId);if(!p||p.ownerKey!==ownerKey)throw new ConvexError('Protocol not found or access denied');if(p.status==='closed')return;
- const trials=await ctx.db.query('labTrials').withIndex('by_protocol',q=>q.eq('protocolId',protocolId)).take(100);if(!summarize(trials,p.direction,p.target,p.minimumSamples,p.domains,p.heldOutDomains).ready)throw new ConvexError('Collect minimum samples in every preregistered domain before closing');
+ const trials=await ctx.db.query('labTrials').withIndex('by_protocol',q=>q.eq('protocolId',protocolId)).take(100);if(!summarize(trials,p.direction,p.target,p.minimumSamples,p.domains,p.heldOutDomains).ready)throw new ConvexError('Collect the minimum samples in total and cover every preregistered domain before closing');
  await ctx.db.patch(protocolId,{status:'closed'});await audit(ctx,ownerKey,p.kind,'protocol-closed',String(protocolId));
 }})

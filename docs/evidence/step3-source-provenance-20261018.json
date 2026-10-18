@@ -1,0 +1,30 @@
+{
+  "version": "step3-source-acceptance-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T01:12:02.156Z",
+  "passed": true,
+  "missionId": "k9741ysjwr8mv5tt0phf8jnvb98ghqdg",
+  "researchId": "kn798f0c9azxmdrr28s3n2b5c98gg80h",
+  "captureId": "tx7a0qngdbedgbzq7g0hvzkm998gh1pg",
+  "reviewId": "th76hs3ksqkxp7q9cy93dxf0k18ggv3m",
+  "source": {
+    "finalUrl": "https://example.com/",
+    "title": "Example Domain",
+    "httpStatus": 200,
+    "bodyBytes": 577,
+    "textSha256": "06fe21c5fbf716d5b7fc1ef87cd418a375d9523ad36a951a1e3182a8f42526af",
+    "hashVerified": true,
+    "publicationStatus": "unknown"
+  },
+  "sourceExcerptBasis": "retrieved_source",
+  "exactExcerptPinned": true,
+  "billingUnchanged": true,
+  "browser": {
+    "sourceBasisSelectable": true,
+    "unknownDateDisplayed": true,
+    "pinnedReviewPersistedAfterReload": true,
+    "signedOut": true,
+    "closed": true
+  },
+  "scope": "One illustrative public page captured through configured protected egress; provenance and persistence acceptance only, not factual or scientific certification."
+}

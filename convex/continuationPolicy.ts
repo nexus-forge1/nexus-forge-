@@ -1,3 +1,4 @@
+import {boundedHistory,historyBudget,includeHistoryRow} from './portfolioHistory'
 import type { QueryCtx } from './_generated/server'
 import type { Doc } from './_generated/dataModel'
 type ReadCtx=Pick<QueryCtx,'db'>
@@ -5,21 +6,23 @@ export const councilStages=['council-plan','council-Vision Architect','council-R
 const roles=['planner','wave1','wave1','wave1','wave2','wave2','critic','planner']
 export async function continuationPreflight(ctx:ReadCtx,claim:Doc<'executionClaims'>,admission=false):Promise<string|null>{
  const runId=ctx.db.normalizeId('missionRuns',claim.workKey.slice(7)),run=runId?await ctx.db.get(runId):null,mission=await ctx.db.get(claim.missionId)
- if(!run||!mission||run.missionId!==mission._id||!mission.approved||mission.status==='complete'||mission.status==='cancelled')return 'Mission or runner no longer permits continuation.'
+ if(!run||!mission||run.missionId!==mission._id||!mission.approved||mission.status==='complete'||mission.status==='cancelled'||mission.status==='review')return 'Mission or runner no longer permits continuation.'
  if(run.status!=='paused'||run.currentStage!=='execution_recovery'||Date.now()>=run.deadlineAt)return 'Continuation requires the original recovery checkpoint and unexpired deadline.'
  if(admission&&run.retries>=run.maxRetries)return 'The original retry allowance is exhausted.'
  const latest=await ctx.db.query('missionRuns').withIndex('by_mission',q=>q.eq('missionId',mission._id)).order('desc').first()
  if(latest?._id!==run._id)return 'A newer mission run exists.'
  const decision=await ctx.db.query('portfolioDecisions').withIndex('by_mission',q=>q.eq('missionId',mission._id)).order('desc').first()
  if(decision&&decision.decision!=='approve')return 'Portfolio authorization no longer permits continuation.'
- const deps=await ctx.db.query('missionDependencies').withIndex('by_mission',q=>q.eq('missionId',mission._id)).take(21)
- if(deps.length>20)return 'Dependency evidence exceeds the bounded recovery review.'
- for(const d of deps){const m=await ctx.db.get(d.dependsOnMissionId);if(!m||m.ownerKey!==mission.ownerKey||d.kind==='blocks'&&m.status!=='complete')return 'A mission dependency is unavailable or incomplete.'}
- const resources=await ctx.db.query('missionResources').withIndex('by_mission',q=>q.eq('missionId',mission._id)).take(21)
- if(resources.length>20)return 'Resource evidence exceeds the bounded recovery review.'
- for(const r of resources){if(r.status!=='held')return 'Original resources must remain held before continuation.';const holders=await ctx.db.query('missionResources').withIndex('by_resource',q=>q.eq('resourceKey',r.resourceKey)).take(51);if(holders.length>50||holders.some(h=>h.missionId!==mission._id&&h.status==='held'&&(h.mode==='exclusive'||r.mode==='exclusive')))return 'A resource has conflicting or excessive reservations.'}
- const incidents=await ctx.db.query('incidents').withIndex('by_mission',q=>q.eq('missionId',mission._id)).take(51)
- if(incidents.length>50||incidents.some(i=>i.status!=='resolved'))return 'Resolve outstanding incidents before continuing Council work.'
+ const cleanup=await ctx.db.query('resourceReleaseJobs').withIndex('by_mission',q=>q.eq('missionId',mission._id)).unique()
+ if(cleanup&&cleanup.status!=='complete')return 'Resource cleanup must finish and any cleanup review must be resolved before continuation.'
+ const budget=historyBudget()
+ const deps=await boundedHistory(ctx.db.query('missionDependencies').withIndex('by_mission',q=>q.eq('missionId',mission._id)),budget,20)
+ if(!budget.complete)return 'Dependency evidence exceeds the bounded recovery review.'
+ for(const d of deps){const m=await ctx.db.get(d.dependsOnMissionId);if(m&&!includeHistoryRow(budget,m))return 'Dependency evidence exceeds the bounded recovery review.';if(!m||m.ownerKey!==mission.ownerKey||d.kind==='blocks'&&m.status!=='complete')return 'A mission dependency is unavailable or incomplete.'}
+ const resources=await boundedHistory(ctx.db.query('missionResources').withIndex('by_mission',q=>q.eq('missionId',mission._id)),budget,20)
+ if(!budget.complete)return 'Resource evidence exceeds the bounded recovery review.'
+ for(const r of resources){if(r.status!=='held')return 'Original resources must remain held before continuation.';const holders=await boundedHistory(ctx.db.query('missionResources').withIndex('by_resource_status',q=>q.eq('resourceKey',r.resourceKey).eq('status','held')),budget,50);if(!budget.complete||holders.some(h=>h.missionId!==mission._id&&(h.mode==='exclusive'||r.mode==='exclusive')))return 'A resource has conflicting or excessive reservations.'}
+ for(const status of ['open','escalated']as const)if(await ctx.db.query('incidents').withIndex('by_mission_status',q=>q.eq('missionId',mission._id).eq('status',status)).first())return 'Resolve outstanding incidents before continuing Council work.'
  if(await ctx.db.query('artifacts').withIndex('by_mission',q=>q.eq('missionId',mission._id)).first()||await ctx.db.query('deliveries').withIndex('by_mission',q=>q.eq('missionId',mission._id)).first())return 'Later mission handoffs exist and require separate reconciliation.'
  if(admission)for(const scope of ['tick','council'])for(const status of ['running','uncertain'] as const){const locks=await ctx.db.query('executionClaims').withIndex('by_missionId_and_scope_and_status',q=>q.eq('missionId',mission._id).eq('scope',scope).eq('status',status)).take(2);if(locks.some(x=>x._id!==claim._id))return 'Another mission execution is active or uncertain.'}
  return null

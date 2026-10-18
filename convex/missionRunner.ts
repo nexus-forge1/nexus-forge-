@@ -1,3 +1,5 @@
+import {admitEvidence} from './evidenceAdmission'
+import { validateMissionBudget } from "./missionContract";
 import { v } from "convex/values";
 import { action, internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
@@ -24,13 +26,16 @@ export const get: any = (query as any)({
 async function startApprovedInternal(c: any, missionId: any) {
   const m = await c.db.get(missionId);
   if (!m) throw Error("Mission not found");
+  if (m.status === "cancelled" || m.status === "review") throw Error("Cancelled or review-held missions cannot start execution");
   if (!m.approved) throw Error("Mission requires approval before execution");
   if (m.status === "complete") return null;
+  validateMissionBudget(m.budget);
   const existing = await c.db.query("missionRuns").withIndex("by_mission", q => q.eq("missionId", missionId)).order("desc").first();
   if (existing && (existing.status === "running" || existing.status === "paused")) {
     await c.scheduler.runAfter(0, (internal as any).missionRunner.tickInternal, { runId: existing._id });
     return existing._id;
   }
+  await admitEvidence(c.db.query("missionRuns").withIndex("by_mission",(q:any)=>q.eq("missionId",missionId)),'Mission run');
   const now = Date.now();
   const id = await c.db.insert("missionRuns", { missionId, startedAt: now, deadlineAt: now + WINDOW, maxRetries: RETRIES, retries: 0, status: "running", currentStage: "orchestration", nextActionAt: now });
   await audit(c, missionId, "execution", "execute_approved_mission", "started", "Bounded 20-minute mission run started", id);
@@ -49,6 +54,7 @@ export const setState: any = (internalMutation as any)({
   handler: async (c: any, a: any): Promise<null> => {
     const r = (await c.db.get(a.runId)) as Doc<"missionRuns"> | null; if (!r) throw Error("Mission run not found");
     const retries = a.retries ?? r.retries;
+    if(r.status===a.status&&r.currentStage===a.currentStage&&r.lastError===a.lastError&&r.retries===retries){await c.db.patch(a.runId,{nextActionAt:a.nextActionAt});return null;}
     await c.db.patch(a.runId, { status: a.status, currentStage: a.currentStage, nextActionAt: a.nextActionAt, lastError: a.lastError, retries });
     const retryNote = retries > r.retries ? ` Retry ${retries}/${r.maxRetries}.` : "";
     await audit(c, r.missionId, "run", "state_transition", a.status, `Stage ${r.currentStage} → ${a.currentStage}.${retryNote}${a.lastError ? ` ${a.lastError}` : ""}`, a.runId);
@@ -85,6 +91,18 @@ export const tickInternal: any = (internalAction as any)({
       await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "complete", currentStage: "complete", nextActionAt: now, lastError: undefined });
       await audit(c, r.missionId, "outcome", "mission_complete", "complete", "Mission was already complete when the runner tick arrived; no timeout escalation was created.", r._id);
       return null;
+    }
+    if (m?.status === "cancelled" || m?.status === "review") {
+      await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+      await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: m.status === "cancelled" ? "blocked" : "paused", currentStage: m.status === "cancelled" ? "mission_cancelled" : "awaiting_portfolio_review", nextActionAt: now, lastError: "Mission cancellation or portfolio review prevents further execution." });
+      return null;
+    }
+    if (m?.approved) {
+      try { validateMissionBudget(m.budget); } catch {
+        await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+        await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "invalid_mission_budget", nextActionAt: now, lastError: "Mission spend cap must be a finite amount from $0 to $500. Create a valid mission contract before executing." });
+        return null;
+      }
     }
     if (!m?.approved) { await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "paused", currentStage: "awaiting_mission_approval", nextActionAt: Date.now() + 60000, lastError: "Human mission approval is required." }); return null; }
     if (now >= r.deadlineAt) {

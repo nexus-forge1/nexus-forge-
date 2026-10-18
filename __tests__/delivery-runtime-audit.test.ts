@@ -67,7 +67,7 @@ describe("audited delivery runtime contracts", () => {
       .mockResolvedValueOnce(new Response("{}", { status: 200 }))
       .mockResolvedValueOnce(new Response("{}", { status: 200 }))
       .mockResolvedValueOnce(new Response("", { status: 404 }))
-      .mockResolvedValueOnce(new Response("{}", { status: 200 }))
+      .mockResolvedValueOnce(Response.json({commit:{sha:"a".repeat(40)}}))
       .mockResolvedValueOnce(new Response(null, { status: 204 }))
     vi.stubGlobal("fetch", fetchMock)
     const result = await owner.action(api.delivery.executeApproved, { id })

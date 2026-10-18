@@ -1,3 +1,5 @@
+import {boundedText} from "./boundedResponse";
+
 type ProviderName = "cloudflare" | "groq" | "mistral" | "cerebras" | "openrouter" | "huggingface";
 type ChatRole = "planner" | "wave1" | "wave2" | "critic" | "research";
 
@@ -52,6 +54,7 @@ async function call(provider: ProviderName, prompt: string, maxTokens: number, o
     : `${cfg.url}/chat/completions`;
   const response = await fetch(endpoint, {
     method: "POST",
+    redirect: "error",
     signal: AbortSignal.timeout(25000),
     headers: {
       "Content-Type": "application/json",
@@ -60,9 +63,9 @@ async function call(provider: ProviderName, prompt: string, maxTokens: number, o
     },
     body: JSON.stringify({ ...(openRouterModels ? { models: openRouterModels } : { model }), messages: [{ role: "user", content: boundedPrompt }], max_tokens: boundedMaxTokens, temperature: 0.15 }),
   });
-  const body = await response.text();
+  const body = await boundedText(response, 1024 * 1024);
   if (!response.ok) {
-    const detail = body.slice(0, 220).replace(/\s+/g, " ").trim();
+    const detail = body.replaceAll(key, "[redacted]").slice(0, 220).replace(/\s+/g, " ").trim();
     const retryable = response.status === 408 || response.status === 409 || response.status === 425 || response.status === 429 || response.status >= 500;
     const error = new Error(`${provider} failed (${response.status}${retryable ? ", retryable" : ", non-retryable"}): ${detail}`);
     (error as Error & { retryable?: boolean; provider?: string; status?: number }).retryable = retryable;
@@ -106,9 +109,13 @@ export async function callAiProvider(role: ChatRole, prompt: string, maxTokens: 
     catch (error) {
       const failure = error instanceof Error ? error : new Error(String(error));
       failures.push(failure.message);
-      // Fail over on every provider failure, not only HTTP statuses marked retryable.
-      // Authentication, quota, model availability, and network failures are provider-local;
-      // another configured provider may still complete the same bounded request.
+      // Only explicit request rejection permits another inference. A timeout,
+      // transport/body failure, 5xx, or unusable successful response may follow
+      // completed remote work. Never silently issue a second paid request.
+      const status = (failure as Error & { status?: number }).status;
+      if (status === undefined || ![400, 401, 403, 404, 405, 413, 415, 422, 429].includes(status)) {
+        throw new Error(`${provider} execution could not be confirmed. Automatic fallback stopped; review the invocation and usage before starting new work.`);
+      }
     }
   }
   throw new Error(`All configured AI providers failed: ${failures.join(" | ")}`);

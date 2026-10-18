@@ -1,3 +1,4 @@
+import {admitEvidence,boundEvidence} from './evidenceAdmission'
 import type { Doc, Id } from "./_generated/dataModel"
 import { v } from "convex/values"
 import { action, internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server"
@@ -23,6 +24,8 @@ export const revise = mutation({
     const content = args.content.trim()
     if (!content || content.length > 200000) throw new Error("Revision must contain 1–200000 characters")
     if (content === source.content.trim()) throw new Error("Change the content before saving a revision")
+    boundEvidence(content,'Artifact revision',512*1024)
+    await admitEvidence(ctx.db.query("artifacts").withIndex("by_mission",q=>q.eq("missionId",source.missionId)),'Artifact revision')
     const id = await ctx.db.insert("artifacts", { missionId: source.missionId, type: source.type, name: source.name + " · revision", content, requiresApproval: true, status: "awaiting_approval" })
     await ctx.runMutation(internal.audit.record, { missionId: source.missionId, type: "artifact", action: "artifact_revision_created", status: "draft", detail: "New artifact " + id + " revises " + source._id + "; original content and approvals preserved." })
     return id
@@ -74,6 +77,8 @@ async function verifyArtifactInternal(ctx: any, id: any) {
   if (artifact.status === "rejected") throw new Error("Rejected artifacts must be regenerated before verification")
   const mission = await ctx.db.get("missions", artifact.missionId)
   const result = verifyChecks(artifact.content, mission?.mission ?? "")
+  const nextStatus=result.passed?(artifact.status==="ready"&&!artifact.requiresApproval?"ready":"verified"):"verification_failed"
+  if(artifact.status===nextStatus)return result
   await ctx.db.patch(id, { status: result.passed ? (artifact.status === "ready" && !artifact.requiresApproval ? "ready" : "verified") : "verification_failed" })
   await ctx.runMutation(internal.audit.record, { missionId: artifact.missionId, type: "artifact", action: result.passed ? "artifact_verified" : "artifact_verification_failed", status: result.passed ? "verified" : "failed", detail: `Artifact verification ${result.passed ? "passed" : "failed"} at ${Math.round(result.score * 100)}%. ${result.checks.join(" | ")}` })
   return result
@@ -136,15 +141,20 @@ export const generateInternal = internalAction({
     let content = await requestArtifact(args.missionId, missionContract, args.artifactType, args.artifactName, missionRecord.ownerKey, ctx, undefined, researchContext, args.missionRunId)
     if (!content) throw new Error("Builder returned no artifact content")
 
+    // Preserve the paid first response before correction can fail or be interrupted.
+    let artifactId = await ctx.runMutation(internal.artifacts.save, { missionId: args.missionId, type: args.artifactType, name: args.artifactName, content, requiresApproval: true })
     let quality = verifyChecks(content, missionContract)
     if (!quality.passed) {
+      await ctx.runMutation(internal.audit.record, { missionId: args.missionId, type: "artifact", action: "artifact_first_draft_retained", status: "failed", detail: `First draft ${artifactId} retained before one bounded correction. ${quality.checks.join(" | ")}` })
       const failures = quality.checks.filter(c => /missing|Unsupported claims detected|too short|truncated|blueprint returned|placeholder detected|Secret-like value|not implemented|prohibits external writes/i.test(c)).join("; ")
       content = await requestArtifact(args.missionId, missionContract, args.artifactType, args.artifactName, missionRecord.ownerKey, ctx, `A previous response failed validation. Do not repeat it. Correct these failures exactly: ${failures}. The output MUST be executable HTML, not a Mission Blueprint.`, researchContext, args.missionRunId)
       if (!content) throw new Error("Builder returned no artifact content after regeneration")
+      const originalId = artifactId
+      artifactId = await ctx.runMutation(internal.artifacts.save, { missionId: args.missionId, type: args.artifactType, name: args.artifactName + " · correction", content, requiresApproval: true })
+      await ctx.runMutation(internal.audit.record, { missionId: args.missionId, type: "artifact", action: "artifact_correction_retained", status: "draft", detail: `Correction ${artifactId} follows retained first draft ${originalId}; neither response replaces the other or grants approval.` })
       quality = verifyChecks(content, missionContract)
     }
 
-    const artifactId = await ctx.runMutation(internal.artifacts.save, { missionId: args.missionId, type: args.artifactType, name: args.artifactName, content, requiresApproval: true })
     if (!quality.passed) {
       await ctx.runMutation(internal.audit.record, { missionId: args.missionId, type: "artifact", action: "artifact_generation_quality_failed", status: "failed", detail: `Builder produced an artifact that failed structural verification after regeneration: ${quality.checks.join(" | ")}` })
     }

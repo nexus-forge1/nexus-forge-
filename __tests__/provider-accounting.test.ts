@@ -62,6 +62,16 @@ describe('durable provider invocation accounting', () => {
     await expect(callManagedAi(ctx, { ...args, stage: 'failed-provider' })).rejects.toThrow()
     expect((await owner.query(api.providerUsage.history, { paginationOpts: page })).page[0]).toMatchObject({ outcome: 'failed', usageStatus: 'missing' })
   })
+  it('retains an uncertain failure and blocks the same runner stage from replay', async () => {
+    const { owner, ctx, args, fetchMock } = await fixture()
+    vi.stubEnv('CEREBRAS_API_KEY', 'configured-fallback')
+    fetchMock.mockRejectedValueOnce(new Error('connection lost after dispatch'))
+    await expect(callManagedAi(ctx, args)).rejects.toThrow(/Automatic fallback stopped/)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect((await owner.query(api.providerUsage.history, { paginationOpts: page })).page[0]).toMatchObject({ outcome: 'failed', usageStatus: 'missing', reports: [] })
+    await expect(callManagedAi(ctx, args)).rejects.toThrow(/No inference request was started/)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
   it('rejects foreign history, mismatched runs and ledger start failure before network access', async () => {
     const { t, owner, ctx, args, missionId, fetchMock } = await fixture()
     await expect(t.query(api.providerUsage.history, { paginationOpts: page })).rejects.toThrow()

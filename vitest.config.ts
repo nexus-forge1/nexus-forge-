@@ -9,7 +9,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.{ts,tsx}"],
-    exclude: ["node_modules", ".tanstack"],
+    // Ignore generated Macaly/preflight snapshots so copied tests are not counted as project tests.
+    exclude: ["node_modules", ".tanstack", "**/.sandbox/**", "**/.macaly/**"],
   },
   resolve: {
     alias: {

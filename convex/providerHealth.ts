@@ -1,6 +1,7 @@
 import { action, internalMutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import {boundedText} from "./boundedResponse";
 import { requireOperator } from "./permissions";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
@@ -95,6 +96,7 @@ export const check: any = (action as any)({
           : `${provider.url}/chat/completions`;
         const response = await fetch(endpoint, {
           method: "POST",
+          redirect: "error",
           signal: AbortSignal.timeout(25000),
           headers: {
             "Content-Type": "application/json",
@@ -112,7 +114,7 @@ export const check: any = (action as any)({
           }),
         });
         const latencyMs = Date.now() - started;
-        const body = await response.text();
+        const body = await boundedText(response, 256 * 1024);
 
         if (response.ok) {
           let usable = false;
@@ -141,7 +143,7 @@ export const check: any = (action as any)({
           });
         } else {
           const retryable = response.status === 408 || response.status === 409 || response.status === 425 || response.status === 429 || response.status >= 500;
-          const detail = body.slice(0, 180).replace(/\s+/g, " ").trim();
+          const detail = body.replaceAll(key, "[redacted]").slice(0, 180).replace(/\s+/g, " ").trim();
           results.push({
             name: provider.name,
             label: provider.label,
@@ -158,7 +160,7 @@ export const check: any = (action as any)({
           configured: true,
           status: "offline",
           latencyMs: Date.now() - started,
-          detail: error instanceof Error ? error.message.slice(0, 180) : String(error).slice(0, 180),
+          detail: "Provider request or response could not be confirmed. Review connection health before another check.",
         });
       }
     }
