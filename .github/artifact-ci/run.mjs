@@ -32,6 +32,7 @@ try {
         if (step.action === 'fill') { if (await element.evaluate(element => element.tagName) === 'SELECT') await element.selectOption(step.value); else await element.fill(step.value); detail = 'Filled ' + step.selector }
         else if (step.action === 'click') { await element.click(); detail = 'Clicked ' + step.selector }
         else if (step.action === 'assertText') { const actual = await element.textContent(); if (!step.value.trim() || !String(actual).includes(step.value)) throw new Error('Expected ' + step.value + '; observed ' + actual); detail = 'Observed text: ' + actual }
+        else if (step.action === 'assertTextEquals') { const actual = await element.textContent(); if (String(actual ?? '') !== step.value) throw new Error('Expected ' + step.value + '; observed ' + actual); detail = 'Observed exact text: ' + actual }
         else if (step.action === 'assertValue') { const actual = await element.inputValue(); if (actual !== step.value) throw new Error('Expected value ' + step.value + '; observed ' + actual); detail = 'Observed value: ' + actual }
         else if (step.action === 'assertVisible') { if (!await element.isVisible()) throw new Error('Element not visible'); detail = 'Element visibly rendered' }
         else if (step.action === 'assertInvalid') { if (!await element.evaluate(element => typeof element.checkValidity === 'function' && !element.checkValidity())) throw new Error('Input was not invalid'); detail = 'Browser validity rejected input' }
