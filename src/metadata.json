@@ -105,5 +105,41 @@
   "/pricing": {
     "title": "Plans and Usage Pricing — NEXUS FORGE",
     "description": "Compare NEXUS FORGE paid subscriptions and pay-per-use credits, with published allowances and token-based usage rates."
+  },
+  "/templates": {
+    "title": "Mission Templates | NEXUS FORGE",
+    "description": "Private NEXUS FORGE mission templates tools with scoped controls and recorded evidence."
+  },
+  "/knowledge": {
+    "title": "Document Knowledge Hub | NEXUS FORGE",
+    "description": "Private NEXUS FORGE document knowledge hub tools with scoped controls and recorded evidence."
+  },
+  "/notifications": {
+    "title": "Notification Center | NEXUS FORGE",
+    "description": "Private NEXUS FORGE notification center tools with scoped controls and recorded evidence."
+  },
+  "/connections": {
+    "title": "Integration Center | NEXUS FORGE",
+    "description": "Private NEXUS FORGE integration center tools with scoped controls and recorded evidence."
+  },
+  "/client-delivery": {
+    "title": "Client Delivery Portal | NEXUS FORGE",
+    "description": "Private NEXUS FORGE client delivery portal tools with scoped controls and recorded evidence."
+  },
+  "/changes": {
+    "title": "Change Review | NEXUS FORGE",
+    "description": "Private NEXUS FORGE change review tools with scoped controls and recorded evidence."
+  },
+  "/specifications": {
+    "title": "Product Specifications | NEXUS FORGE",
+    "description": "Private NEXUS FORGE product specifications tools with scoped controls and recorded evidence."
+  },
+  "/economics": {
+    "title": "Unit Economics | NEXUS FORGE",
+    "description": "Private NEXUS FORGE unit economics tools with scoped controls and recorded evidence."
+  },
+  "/expansion": {
+    "title": "Expansion Checklist | NEXUS FORGE",
+    "description": "Private NEXUS FORGE expansion checklist tools with scoped controls and recorded evidence."
   }
 }

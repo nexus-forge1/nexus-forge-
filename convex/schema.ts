@@ -1,3 +1,4 @@
+import {studioTables} from './studioModel'
 import { learningReviewFields } from './learningReviewModel'
 import { sourceCaptureFields } from './researchSourceModel'
 import { observationFields } from './opportunityObservationModel'
@@ -17,6 +18,7 @@ import { v } from "convex/values"
 import { authTables } from "@convex-dev/auth/server"
 
 export default defineSchema({
+  ...studioTables,
   ...authTables,
   resourceReleaseJobs:defineTable({missionId:v.id('missions'),ownerKey:v.string(),generation:v.number(),status:v.union(v.literal('pending'),v.literal('complete'),v.literal('review')),released:v.number(),startedAt:v.number(),updatedAt:v.number(),finishedAt:v.optional(v.number()),error:v.optional(v.string())}).index('by_mission',['missionId']),
   manualMemoryAdmissions: defineTable({ownerKey:v.string(),memoryId:v.id('memories'),createdAt:v.number()}).index('by_owner',['ownerKey']),

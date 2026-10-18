@@ -95,6 +95,84 @@ export const workspaceGroups = [
     }
   ]
 },
+{
+  "title": "07 · PRODUCT STUDIO",
+  "intro": "Use dedicated project tools to define, review and deliver products.",
+  "pages": [
+    {
+      "path": "/templates",
+      "title": "Mission Templates",
+      "icon": "◈",
+      "purpose": "Reusable briefs, acceptance criteria, budgets and draft-only mission handoff.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/specifications",
+      "title": "Product Specifications",
+      "icon": "◈",
+      "purpose": "Versioned roles, requirements, routes, entities, integrations and acceptance trace.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/knowledge",
+      "title": "Document Knowledge Hub",
+      "icon": "◈",
+      "purpose": "Private document ingestion, exact passages, provenance and Council context attachment.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/economics",
+      "title": "Unit Economics",
+      "icon": "◈",
+      "purpose": "Measured-or-assumed cost scenarios, break-even and per-success margins.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/connections",
+      "title": "Integration Center",
+      "icon": "◈",
+      "purpose": "Connection inventory, scoped permissions, real health receipts and revocation.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/changes",
+      "title": "Change Review",
+      "icon": "◈",
+      "purpose": "Compare immutable versions, inspect impacts and request targeted revisions.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/client-delivery",
+      "title": "Client Delivery Portal",
+      "icon": "◈",
+      "purpose": "Expiring authenticated deliverable access, feedback, acceptance and revocation.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/notifications",
+      "title": "Notification Center",
+      "icon": "◈",
+      "purpose": "Owner-scoped event inbox, read state and links to affected work.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    },
+    {
+      "path": "/expansion",
+      "title": "Expansion Checklist",
+      "icon": "☷",
+      "purpose": "Track all 36 requested additions and exact implementation boundaries.",
+      "use": "Select a project and use this feature's controls.",
+      "output": "Private saved records and explicit next-step guidance."
+    }
+  ]
+},
   {
     title: 'SUPPORT TOOLS',
     intro: 'Specialist diagnostics and recovery pages remain available when needed, without crowding the main navigation.',
@@ -109,7 +187,7 @@ export const workspaceGroups = [
 
 // One source of truth: main navigation contains core user-facing pages; specialist tools stay reachable from the guide and relevant feature pages.
 export const allWorkspaces = workspaceGroups.reduce<(typeof workspaceGroups)[number]['pages'][number][]>((items, group) => [...items, ...group.pages], [])
-export const primaryWorkspaces = allWorkspaces.filter(workspace => !['/capabilities', '/readiness', '/incidents', '/providers'].includes(workspace.path))
+export const primaryWorkspaces = allWorkspaces.filter(workspace => !['/capabilities', '/readiness', '/incidents', '/providers', '/templates', '/knowledge', '/notifications', '/connections', '/client-delivery', '/changes', '/specifications', '/economics', '/expansion'].includes(workspace.path))
 
 // Full product guide includes every dedicated page, including on-demand diagnostics.
 const guidePaths = ['/', '/workflow', '/roadmap', '/manifest', '/orchestrator', '/mission', '/providers', '/council', '/evidence', '/artifacts', '/delivery', '/readiness', '/portfolio', '/learning', '/capabilities', '/incidents']

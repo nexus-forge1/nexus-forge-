@@ -1,5 +1,9 @@
 # NEXUS FORGE current status — October 18, 2026 UTC
 
+## Product Studio expansion — first bounded batch
+
+All 36 requested additions are tracked in EXPANSION_36_IMPLEMENTATION.md and the dedicated /expansion checklist. Eight starter tools now have their own pages: templates, specifications, text knowledge, economics, connections, changes, client delivery and notifications. They share private project identity, exact-version records and draft mission handoff. The original 16-page guide is unchanged. These are bounded starters, not completion of all proposed functions. See PRODUCT_STUDIO_BATCH_1.md for working behavior, test scope and remaining functions. Next: Evaluation Lab/competency baseline, Evidence Graph, then experiment contracts. Operational Steps 13–16 stay separate; payments remain Step 17 LAST.
+
 ## Step13 — recovery verifier and task integration verified
 
 The bounded offline verifier now checks separate export/retrieved hashes, every ZIP entry CRC, Convex table registry, document identities, mission/parent links, original-file presence and declared capture freshness. The actual retained Live point passed with no relationship issues. Correct data counts are75 tables/2,011 documents; earlier76/2,086 totals included one export-registry metadata table and75 metadata entries. Bytes and SHA-256 did not change. Both existing tasks now reference the checker and corrected counts; their schedules remain unchanged and enabled. Nine new verifier tests and all16 affected verifier/release/roadmap tests passed; strict checks passed. This reuses the accepted918-test application baseline instead of repeating paid work or restore drills. Evidence: docs/evidence/step13-recovery-verifier-20261018.json and STEP_13_RECOVERY_VERIFICATION.md.
