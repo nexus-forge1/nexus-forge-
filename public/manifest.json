@@ -1,25 +1,19 @@
 {
-  "short_name": "Generated App",
-  "name": "Generated App",
+  "short_name": "NEXUS FORGE",
+  "name": "NEXUS FORGE",
   "icons": [
     {
-      "src": "favicon.svg",
+      "src": "/favicon.svg",
       "type": "image/svg+xml",
-      "sizes": "any"
-    },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "any",
+      "purpose": "any"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#000000",
+  "description": "Research, build and verify outcomes in NEXUS FORGE.",
+  "id": "/",
+  "scope": "/"
 }
