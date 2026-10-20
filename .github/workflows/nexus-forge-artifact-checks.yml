@@ -10,6 +10,22 @@ on:
         description: SHA-256 of the exact saved bundle
         required: true
         type: string
+      draft_key:
+        description: Exact saved draft key
+        required: true
+        type: string
+      draft_revision:
+        description: Exact saved draft revision number
+        required: true
+        type: string
+      draft_digest:
+        description: SHA-256 content digest of that saved draft revision
+        required: true
+        type: string
+      draft_kind:
+        description: Exact draft type (browser-qa-plan for App Factory)
+        required: true
+        type: string
   pull_request:
     branches: [main]
     paths:
@@ -39,21 +55,36 @@ jobs:
           INPUT_PATH: ${{ inputs.snapshot_path }}
           INPUT_SHA: ${{ inputs.snapshot_sha }}
           EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRAFT_KEY: ${{ inputs.draft_key }}
+          INPUT_DRAFT_REVISION: ${{ inputs.draft_revision }}
+          INPUT_DRAFT_DIGEST: ${{ inputs.draft_digest }}
+          INPUT_DRAFT_KIND: ${{ inputs.draft_kind }}
         run: |
-          mkdir -p ci-input ci-output
+          mkdir -p ci-input ci-output/negative
           chmod 777 ci-output
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import { createHash } from 'node:crypto';
           let path = process.env.INPUT_PATH, expected = process.env.INPUT_SHA;
-          if (process.env.EVENT_NAME !== 'workflow_dispatch') { path = '.github/artifact-ci/fixture.json'; expected = createHash('sha256').update(fs.readFileSync(path)).digest('hex'); }
+          if (process.env.EVENT_NAME !== 'workflow_dispatch') {
+            path = '.github/artifact-ci/fixture.json';
+            expected = createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+          }
           if (process.env.EVENT_NAME === 'workflow_dispatch' && !/^nexus-forge-checks\/[a-zA-Z0-9]+\/bundle\.json$/.test(path || '')) throw new Error('Invalid snapshot path');
           const stat = fs.lstatSync(path);
           if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 200000 || !/^[0-9a-f]{64}$/.test(expected || '')) throw new Error('Invalid snapshot file or digest');
           const bytes = fs.readFileSync(path);
           if (createHash('sha256').update(bytes).digest('hex') !== expected) throw new Error('Snapshot digest mismatch');
+          const bundle = JSON.parse(bytes.toString('utf8'));
+          const binding = bundle.draftBinding;
+          const key = process.env.EVENT_NAME === 'workflow_dispatch' ? process.env.INPUT_DRAFT_KEY : binding?.draftKey;
+          const revision = process.env.EVENT_NAME === 'workflow_dispatch' ? process.env.INPUT_DRAFT_REVISION : String(binding?.revision ?? '');
+          const digest = process.env.EVENT_NAME === 'workflow_dispatch' ? process.env.INPUT_DRAFT_DIGEST : binding?.contentDigest;
+          const kind = process.env.EVENT_NAME === 'workflow_dispatch' ? process.env.INPUT_DRAFT_KIND : binding?.kind;
+          if (!/^[a-z][a-z0-9-]{2,63}$/.test(key || '') || !/^[1-9][0-9]{0,5}$/.test(revision || '') || !/^[a-f0-9]{64}$/.test(digest || '') || !['browser-qa-plan', 'artifact-ci-snapshot'].includes(kind || '')) throw new Error('Invalid exact draft binding inputs');
+          if (!binding || binding.kind !== kind || binding.draftKey !== key || String(binding.revision) !== revision || binding.contentDigest !== digest) throw new Error('Bundle does not match the exact draft kind, key, revision and digest');
           fs.writeFileSync('ci-input/bundle.json', bytes);
-          fs.appendFileSync(process.env.GITHUB_ENV, 'SNAPSHOT_SHA=' + expected + '\n');
+          fs.appendFileSync(process.env.GITHUB_ENV, 'SNAPSHOT_SHA=' + expected + '\nDRAFT_KEY=' + key + '\nDRAFT_REVISION=' + revision + '\nDRAFT_DIGEST=' + digest + '\nDRAFT_KIND=' + kind + '\n');
           NODE
       - name: Build pinned Chromium runner
         run: docker build -t nexus-exact-artifact-ci .github/artifact-ci
@@ -65,7 +96,7 @@ jobs:
             --pids-limit 256 --memory 1g --cpus 2 --shm-size 256m \
             --tmpfs /tmp:rw,nosuid,nodev,size=512m,mode=1777 -e HOME=/tmp \
             -v "$PWD/ci-input:/input:ro" -v "$PWD/ci-output:/output:rw" \
-            nexus-exact-artifact-ci /input/bundle.json /output/report.json "$SNAPSHOT_SHA"
+            nexus-exact-artifact-ci /input/bundle.json /output/report.json "$SNAPSHOT_SHA" "$GITHUB_SHA" "$DRAFT_KEY" "$DRAFT_REVISION" "$DRAFT_DIGEST" "$DRAFT_KIND"
       - name: Verify exact-text negative control
         if: github.event_name != 'workflow_dispatch'
         run: |
@@ -91,10 +122,10 @@ jobs:
             --pids-limit 256 --memory 1g --cpus 2 --shm-size 256m \
             --tmpfs /tmp:rw,nosuid,nodev,size=512m,mode=1777 -e HOME=/tmp \
             -v "$PWD/ci-input:/input:ro" -v "$PWD/ci-output:/output:rw" \
-            nexus-exact-artifact-ci /input/negative.json /output/negative-report.json "$NEGATIVE_SHA"
+            nexus-exact-artifact-ci /input/negative.json /output/negative/report.json "$NEGATIVE_SHA" "$GITHUB_SHA" "$DRAFT_KEY" "$DRAFT_REVISION" "$DRAFT_DIGEST" "$DRAFT_KIND"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const report = JSON.parse(fs.readFileSync('ci-output/negative-report.json', 'utf8'));
+          const report = JSON.parse(fs.readFileSync('ci-output/negative/report.json', 'utf8'));
           const steps = report.results?.[0];
           if (report.snapshotSha !== process.env.NEGATIVE_SHA || report.allPassed !== false || report.results.length !== 1 || steps?.length !== 2 || steps[0].status !== 'fail' || !steps[0].detail.includes('Expected 14; observed 140') || steps[1].status !== 'not_run') throw new Error('Exact-text negative control was not detected correctly');
           console.log('Exact text rejected 140 for expected 14 and skipped the dependent step.');
@@ -106,23 +137,21 @@ jobs:
             const fs = require('fs');
             const report = JSON.parse(fs.readFileSync('ci-output/report.json', 'utf8'));
             const text = JSON.stringify(report);
-            if (text.length > 60000 || report.snapshotSha !== process.env.SNAPSHOT_SHA || report.version !== 'artifact-ci-v1') throw new Error('Invalid runner report');
+            if (text.length > 60000 || report.snapshotSha !== process.env.SNAPSHOT_SHA || report.sourceCommit !== context.sha || report.version !== 'artifact-ci-v1' || report.draftBinding?.draftKey !== process.env.DRAFT_KEY || String(report.draftBinding?.revision) !== process.env.DRAFT_REVISION || report.draftBinding?.contentDigest !== process.env.DRAFT_DIGEST || report.draftBinding?.kind !== process.env.DRAFT_KIND || !Array.isArray(report.screenshots) || !Array.isArray(report.pageErrors)) throw new Error('Invalid runner report or draft binding');
             await github.rest.checks.create({
               owner: context.repo.owner, repo: context.repo.repo,
               name: 'NEXUS artifact snapshot v1', head_sha: context.sha,
               external_id: report.snapshotSha, status: 'completed',
               conclusion: report.allPassed ? 'success' : 'failure',
               details_url: process.env.GITHUB_SERVER_URL + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '/attempts/' + process.env.GITHUB_RUN_ATTEMPT,
-              output: { title: 'Exact artifact Chromium result', summary: 'Snapshot ' + report.snapshotSha + '; browser ' + report.browserVersion + '. Approval and delivery unchanged.', text }
+              output: { title: 'Exact artifact Chromium result', summary: 'Snapshot ' + report.snapshotSha + '; browser ' + report.browserVersion + '. Draft ' + report.draftBinding.draftKey + ' v' + report.draftBinding.revision + '. Approval and delivery unchanged.', text }
             });
       - name: Retain CI report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: exact-artifact-ci-report
-          path: |
-            ci-output/report.json
-            ci-output/negative-report.json
+          path: ci-output/*
           if-no-files-found: warn
       - name: Enforce criterion outcome
         run: node -e "const r=require('./ci-output/report.json'); if(!r.allPassed) process.exit(1)"
