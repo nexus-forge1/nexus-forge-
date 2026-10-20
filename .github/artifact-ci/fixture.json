@@ -1,37 +1,24 @@
 {
   "version": "artifact-ci-v1",
   "testRunId": "ci-self-test",
+  "draftBinding": {
+    "kind": "artifact-ci-snapshot",
+    "draftKey": "ci-self-test",
+    "revision": 1,
+    "contentDigest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "draftContent": "{}",
   "artifactId": "controlled-fixture",
   "missionSnapshot": "ACCEPTANCE CRITERIA:\\n- Double the input",
   "artifactSnapshot": "<!doctype html><html><head><title>Controlled exact CI fixture</title></head><body><input id=\"amount\"><button id=\"go\">Double</button><output id=\"result\"></output><script>document.querySelector(\"#go\").onclick=()=>document.querySelector(\"#result\").textContent=String(Number(document.querySelector(\"#amount\").value)*2)</script></body></html>",
-  "criteria": [
-    "Double the input"
-  ],
-  "plan": [
-    {
-      "criterionIndex": 0,
-      "steps": [
-        {
-          "action": "fill",
-          "selector": "#amount",
-          "value": "7"
-        },
-        {
-          "action": "click",
-          "selector": "#go",
-          "value": ""
-        },
-        {
-          "action": "assertTextEquals",
-          "selector": "#result",
-          "value": "14"
-        },
-        {
-          "action": "assertVisible",
-          "selector": "#result",
-          "value": ""
-        }
-      ]
-    }
-  ]
+  "criteria": ["Double the input"],
+  "plan": [{
+    "criterionIndex": 0,
+    "steps": [
+      {"action":"fill","selector":"#amount","value":"7"},
+      {"action":"click","selector":"#go","value":""},
+      {"action":"assertTextEquals","selector":"#result","value":"14"},
+      {"action":"assertVisible","selector":"#result","value":""}
+    ]
+  }]
 }
