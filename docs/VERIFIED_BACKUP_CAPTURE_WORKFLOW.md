@@ -18,15 +18,17 @@ Prefer a dedicated Supabase project and private bucket for backups. Supabase S3 
 
 ## Workflow behavior
 
-1. Requires explicit confirmation before running a Live export.
-2. Exports Convex data including Convex file storage.
-3. Uploads the archive to the configured S3-compatible bucket.
-4. Downloads the saved object independently and compares byte count and SHA-256.
-5. Runs `scripts/check-recovery-point.py` against the source and independently retrieved archive.
-6. Uploads a verification report, including a failure report when available.
-7. Writes and uploads a receipt only after all prior steps succeed.
+1. Requires explicit confirmation before running a Live export. A dispatch without `confirm_live_export=true` runs only the `confirmation-required` job, which fails on purpose with "No backup was taken" so it can never be mistaken for a backup.
+2. Fails before exporting if any required secret or variable is missing (names are reported, values never are).
+3. Exports Convex data including Convex file storage.
+4. Records the archive's SHA-256 and byte count **before** upload, refuses to overwrite an existing object key, and requires the upload to return an ETag.
+5. In a separate step, fetches the object metadata and bytes fresh from storage into a new directory, recomputes SHA-256 and byte count from the retrieved bytes, and compares them exactly with the pre-upload values and the stored object size (`scripts/backup-receipt.py compare`).
+6. Runs `scripts/check-recovery-point.py` against the source and independently retrieved archive.
+7. Uploads a verification report, including a failure report when available.
+8. Writes a receipt only when the report passed and its digest, byte count and capture time match the archive (`scripts/backup-receipt.py build`), then uploads it.
+9. Retrieves the stored receipt and report back from storage and validates that both refer to the same capture, archive key, digest, byte count, commit and run (`scripts/backup-receipt.py validate`).
 
-The receipt records the capture key, Live source, manual trigger, capture time, object keys, SHA-256, bytes, independent retrieval and equality checks, verification outcome, and GitHub Actions run URL and ID. It does not contain credentials or raw exported records.
+The receipt (`verified-backup-receipt-v2`) records the capture key, Live source, manual trigger, capture time, bucket, object keys, ETag/version ID when provided, SHA-256 and bytes as reported before upload, SHA-256 and bytes recomputed from the retrieved copy, verification outcome, commit SHA, and GitHub Actions run URL and ID. It does not contain credentials or raw exported records.
 
 ## Important scope limits
 

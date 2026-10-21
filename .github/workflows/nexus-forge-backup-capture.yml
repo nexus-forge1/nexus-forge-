@@ -17,6 +17,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Runs only when confirmation is absent/false. It fails on purpose so an unconfirmed
+  # dispatch can never be mistaken for a successful (green) backup run.
+  confirmation-required:
+    name: Live export not confirmed - no backup taken
+    if: ${{ inputs.confirm_live_export != true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse unconfirmed Live export
+        shell: bash
+        run: |
+          echo "::error::No backup was taken. Live export requires confirm_live_export=true in the dispatch form."
+          {
+            echo "## No backup taken"
+            echo "confirm_live_export was not true, so the Live Convex export did not run."
+            echo "Nothing was exported, uploaded or verified. This run is not a backup."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
   capture:
     name: Export, independently retrieve, and verify backup
     if: ${{ inputs.confirm_live_export == true }}
@@ -36,23 +55,34 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Validate explicit authorization and configuration
         shell: bash
+        env:
+          CONFIRM_LIVE_EXPORT: ${{ inputs.confirm_live_export }}
         run: |
           set -euo pipefail
-          if [[ "${{ inputs.confirm_live_export }}" != "true" ]]; then
+          if [[ "$CONFIRM_LIVE_EXPORT" != "true" ]]; then
             echo "::error::Live export requires confirm_live_export=true."
             exit 1
           fi
+          missing=0
           for name in CONVEX_DEPLOY_KEY BACKUP_S3_ACCESS_KEY_ID BACKUP_S3_SECRET_ACCESS_KEY BACKUP_S3_BUCKET BACKUP_S3_REGION; do
-            if [[ -z "\${!name:-}" ]]; then
+            # Indirect expansion reads the value of the variable named by $name. Values are never printed.
+            if [[ -z "${!name:-}" ]]; then
               echo "::error::Required GitHub secret/variable is missing: $name"
-              exit 1
+              missing=1
             fi
           done
-          if [[ "$BACKUP_S3_BUCKET" == *"/"* || "$BACKUP_S3_BUCKET" == *".."* ]]; then
-            echo "::error::BACKUP_S3_BUCKET must be a bucket name, not a path."
+          [[ "$missing" == "0" ]] || exit 1
+          if [[ "$BACKUP_S3_BUCKET" == *"/"* || "$BACKUP_S3_BUCKET" == *".."* || "$BACKUP_S3_BUCKET" == *":"* ]]; then
+            echo "::error::BACKUP_S3_BUCKET must be a plain bucket name, not a path or URL."
+            exit 1
+          fi
+          if [[ -n "${BACKUP_S3_ENDPOINT:-}" && ! "$BACKUP_S3_ENDPOINT" =~ ^https:// ]]; then
+            echo "::error::BACKUP_S3_ENDPOINT must be an https:// URL when set."
             exit 1
           fi
 
@@ -75,118 +105,163 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          s3() { if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then aws "$@" --endpoint-url "$BACKUP_S3_ENDPOINT"; else aws "$@"; fi; }
+          SOURCE="$RUNNER_TEMP/nexus-backup/source.zip"
+          # Values reported for the archive are fixed BEFORE upload; retrieval is checked against them.
+          SOURCE_SHA="$(sha256sum "$SOURCE" | cut -d' ' -f1)"
+          SOURCE_BYTES="$(stat -c '%s' "$SOURCE")"
           CAPTURED_AT="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          CAPTURE_KEY="$(date -u +'%Y%m%dT%H%M%SZ')-run-${{ github.run_id }}"
+          CAPTURE_KEY="$(date -u +'%Y%m%dT%H%M%SZ')-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
           ARCHIVE_KEY="nexus-forge/live/$CAPTURE_KEY/source.zip"
-          echo "captured_at=$CAPTURED_AT" >> "$GITHUB_OUTPUT"
-          echo "capture_key=$CAPTURE_KEY" >> "$GITHUB_OUTPUT"
-          echo "archive_key=$ARCHIVE_KEY" >> "$GITHUB_OUTPUT"
-          if [[ -n "$BACKUP_S3_ENDPOINT" ]]; then
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/source.zip" "s3://$BACKUP_S3_BUCKET/$ARCHIVE_KEY" --endpoint-url "$BACKUP_S3_ENDPOINT" --only-show-errors
-          else
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/source.zip" "s3://$BACKUP_S3_BUCKET/$ARCHIVE_KEY" --only-show-errors
-          fi
-
-      - name: Independently retrieve saved archive
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/nexus-backup/retrieved"
-          if [[ -n "$BACKUP_S3_ENDPOINT" ]]; then
-            aws s3 cp "s3://$BACKUP_S3_BUCKET/${{ steps.upload.outputs.archive_key }}" "$RUNNER_TEMP/nexus-backup/retrieved/source.zip" --endpoint-url "$BACKUP_S3_ENDPOINT" --only-show-errors
-          else
-            aws s3 cp "s3://$BACKUP_S3_BUCKET/${{ steps.upload.outputs.archive_key }}" "$RUNNER_TEMP/nexus-backup/retrieved/source.zip" --only-show-errors
-          fi
-          SOURCE_SHA="$(sha256sum "$RUNNER_TEMP/nexus-backup/source.zip" | cut -d' ' -f1)"
-          RETRIEVED_SHA="$(sha256sum "$RUNNER_TEMP/nexus-backup/retrieved/source.zip" | cut -d' ' -f1)"
-          SOURCE_BYTES="$(stat -c '%s' "$RUNNER_TEMP/nexus-backup/source.zip")"
-          RETRIEVED_BYTES="$(stat -c '%s' "$RUNNER_TEMP/nexus-backup/retrieved/source.zip")"
-          if [[ "$SOURCE_SHA" != "$RETRIEVED_SHA" || "$SOURCE_BYTES" != "$RETRIEVED_BYTES" ]]; then
-            echo "::error::Independently retrieved backup differs from source archive."
+          # Refuse to overwrite: an existing object at this key would make retrieval ambiguous.
+          if s3 s3api head-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" >/dev/null 2>&1; then
+            echo "::error::Destination key already exists; refusing to overwrite or verify a stale object."
             exit 1
           fi
-          echo "$SOURCE_SHA" > "$RUNNER_TEMP/nexus-backup/source.sha256"
-          echo "$SOURCE_BYTES" > "$RUNNER_TEMP/nexus-backup/source.bytes"
-          echo "Independent retrieval matches source: bytes=$SOURCE_BYTES sha256=$SOURCE_SHA"
+          s3 s3api put-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" \
+            --body "$SOURCE" --output json > "$RUNNER_TEMP/nexus-backup/put-object.json"
+          ETAG="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("ETag","").strip(chr(34)))' "$RUNNER_TEMP/nexus-backup/put-object.json")"
+          VERSION_ID="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("VersionId",""))' "$RUNNER_TEMP/nexus-backup/put-object.json")"
+          [[ -n "$ETAG" ]] || { echo "::error::Upload did not return an object ETag; upload completion is unconfirmed."; exit 1; }
+          {
+            echo "captured_at=$CAPTURED_AT"
+            echo "capture_key=$CAPTURE_KEY"
+            echo "archive_key=$ARCHIVE_KEY"
+            echo "source_sha256=$SOURCE_SHA"
+            echo "source_bytes=$SOURCE_BYTES"
+            echo "etag=$ETAG"
+            echo "version_id=$VERSION_ID"
+          } >> "$GITHUB_OUTPUT"
+          echo "Uploaded archive: key=$ARCHIVE_KEY bytes=$SOURCE_BYTES sha256=$SOURCE_SHA"
+
+      - name: Independently retrieve saved archive
+        id: retrieve
+        shell: bash
+        env:
+          ARCHIVE_KEY: ${{ steps.upload.outputs.archive_key }}
+          REPORTED_SHA: ${{ steps.upload.outputs.source_sha256 }}
+          REPORTED_BYTES: ${{ steps.upload.outputs.source_bytes }}
+          VERSION_ID: ${{ steps.upload.outputs.version_id }}
+        run: |
+          set -euo pipefail
+          s3() { if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then aws "$@" --endpoint-url "$BACKUP_S3_ENDPOINT"; else aws "$@"; fi; }
+          RETRIEVED_DIR="$(mktemp -d "$RUNNER_TEMP/nexus-retrieved-XXXXXX")"
+          VERSION_ARGS=()
+          [[ -n "$VERSION_ID" ]] && VERSION_ARGS=(--version-id "$VERSION_ID")
+          # Fresh request to storage for the exact key (and version when available); nothing reused from upload.
+          s3 s3api head-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" "${VERSION_ARGS[@]}" --output json > "$RETRIEVED_DIR/head.json"
+          REMOTE_BYTES="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["ContentLength"])' "$RETRIEVED_DIR/head.json")"
+          s3 s3api get-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" "${VERSION_ARGS[@]}" "$RETRIEVED_DIR/source.zip" > /dev/null
+          python3 scripts/backup-receipt.py compare \
+            --source "$RUNNER_TEMP/nexus-backup/source.zip" \
+            --retrieved "$RETRIEVED_DIR/source.zip" \
+            --reported-sha256 "$REPORTED_SHA" \
+            --reported-bytes "$REPORTED_BYTES" \
+            --remote-bytes "$REMOTE_BYTES" | tee "$RETRIEVED_DIR/comparison.json"
+          echo "retrieved_path=$RETRIEVED_DIR/source.zip" >> "$GITHUB_OUTPUT"
 
       - name: Verify archive structure and recovery-point relationships
         id: verify
         shell: bash
+        env:
+          RETRIEVED_PATH: ${{ steps.retrieve.outputs.retrieved_path }}
+          REPORTED_SHA: ${{ steps.upload.outputs.source_sha256 }}
+          CAPTURED_AT: ${{ steps.upload.outputs.captured_at }}
         run: |
           set -euo pipefail
           python3 scripts/check-recovery-point.py \
-            --archive "$RUNNER_TEMP/nexus-backup/retrieved/source.zip" \
+            --archive "$RETRIEVED_PATH" \
             --source "$RUNNER_TEMP/nexus-backup/source.zip" \
-            --expected-sha256 "$(cat "$RUNNER_TEMP/nexus-backup/source.sha256")" \
-            --captured-at "${{ steps.upload.outputs.captured_at }}" \
+            --expected-sha256 "$REPORTED_SHA" \
+            --captured-at "$CAPTURED_AT" \
             --report "$RUNNER_TEMP/nexus-backup/verification-report.json"
 
       - name: Upload verification report
         if: always() && steps.upload.outputs.archive_key != ''
         shell: bash
+        env:
+          CAPTURE_KEY: ${{ steps.upload.outputs.capture_key }}
         run: |
           set -euo pipefail
+          s3() { if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then aws "$@" --endpoint-url "$BACKUP_S3_ENDPOINT"; else aws "$@"; fi; }
           if [[ ! -s "$RUNNER_TEMP/nexus-backup/verification-report.json" ]]; then
             printf '{"version":"recovery-point-verification-v1","passed":false,"failureCode":"VERIFICATION_REPORT_MISSING","restorePerformed":false}\n' > "$RUNNER_TEMP/nexus-backup/verification-report.json"
           fi
-          REPORT_KEY="nexus-forge/live/${{ steps.upload.outputs.capture_key }}/verification-report.json"
-          if [[ -n "$BACKUP_S3_ENDPOINT" ]]; then
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/verification-report.json" "s3://$BACKUP_S3_BUCKET/$REPORT_KEY" --endpoint-url "$BACKUP_S3_ENDPOINT" --only-show-errors
-          else
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/verification-report.json" "s3://$BACKUP_S3_BUCKET/$REPORT_KEY" --only-show-errors
-          fi
+          REPORT_KEY="nexus-forge/live/$CAPTURE_KEY/verification-report.json"
+          s3 s3 cp "$RUNNER_TEMP/nexus-backup/verification-report.json" "s3://$BACKUP_S3_BUCKET/$REPORT_KEY" --only-show-errors
 
-      - name: Write and upload success receipt
+      - name: Write success receipt
         if: success()
         shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import hashlib, json, os
-          from pathlib import Path
-          root = Path(os.environ["RUNNER_TEMP"]) / "nexus-backup"
-          archive = root / "source.zip"
-          retrieved = root / "retrieved" / "source.zip"
-          report = json.loads((root / "verification-report.json").read_text())
-          sha = hashlib.sha256(archive.read_bytes()).hexdigest()
-          size = archive.stat().st_size
-          if not report.get("passed") or hashlib.sha256(retrieved.read_bytes()).hexdigest() != sha:
-              raise SystemExit("Receipt refused: independent retrieval or verification did not pass.")
-          receipt = {
-              "version": "verified-backup-receipt-v1",
-              "captureKey": os.environ["CAPTURE_KEY"],
-              "sourceEnvironment": "live",
-              "triggerType": "manual",
-              "capturedAt": os.environ["CAPTURED_AT"],
-              "archiveKey": os.environ["ARCHIVE_KEY"],
-              "verificationReportKey": os.environ["REPORT_KEY"],
-              "sha256": sha,
-              "bytes": size,
-              "independentlyRetrieved": True,
-              "byteIdenticalAfterRetrieval": archive.read_bytes() == retrieved.read_bytes(),
-              "archiveVerificationPassed": True,
-              "githubActionsRunId": os.environ["GITHUB_RUN_ID"],
-              "githubActionsRunUrl": os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" + os.environ["GITHUB_RUN_ID"],
-              "scopeNote": "Convex export and included Convex file storage only; external Macaly assets and full-service recovery are not claimed."
-          }
-          (root / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
-          (root / "receipt.json").chmod(0o600)
-          print(json.dumps({k:v for k,v in receipt.items() if k not in ("sha256",)}))
-          PY
         env:
           CAPTURE_KEY: ${{ steps.upload.outputs.capture_key }}
           CAPTURED_AT: ${{ steps.upload.outputs.captured_at }}
           ARCHIVE_KEY: ${{ steps.upload.outputs.archive_key }}
-          REPORT_KEY: nexus-forge/live/${{ steps.upload.outputs.capture_key }}/verification-report.json
+          REPORTED_SHA: ${{ steps.upload.outputs.source_sha256 }}
+          REPORTED_BYTES: ${{ steps.upload.outputs.source_bytes }}
+          ETAG: ${{ steps.upload.outputs.etag }}
+          VERSION_ID: ${{ steps.upload.outputs.version_id }}
+          RETRIEVED_PATH: ${{ steps.retrieve.outputs.retrieved_path }}
+        run: |
+          set -euo pipefail
+          python3 scripts/backup-receipt.py build \
+            --archive "$RUNNER_TEMP/nexus-backup/source.zip" \
+            --retrieved "$RETRIEVED_PATH" \
+            --report "$RUNNER_TEMP/nexus-backup/verification-report.json" \
+            --reported-sha256 "$REPORTED_SHA" \
+            --reported-bytes "$REPORTED_BYTES" \
+            --capture-key "$CAPTURE_KEY" \
+            --captured-at "$CAPTURED_AT" \
+            --archive-key "$ARCHIVE_KEY" \
+            --report-key "nexus-forge/live/$CAPTURE_KEY/verification-report.json" \
+            --commit-sha "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --bucket "$BACKUP_S3_BUCKET" \
+            --etag "$ETAG" \
+            --version-id "$VERSION_ID" \
+            --out "$RUNNER_TEMP/nexus-backup/receipt.json"
 
       - name: Upload success receipt to private storage
         if: success()
         shell: bash
+        env:
+          CAPTURE_KEY: ${{ steps.upload.outputs.capture_key }}
         run: |
           set -euo pipefail
-          RECEIPT_KEY="nexus-forge/live/${{ steps.upload.outputs.capture_key }}/receipt.json"
-          if [[ -n "$BACKUP_S3_ENDPOINT" ]]; then
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/receipt.json" "s3://$BACKUP_S3_BUCKET/$RECEIPT_KEY" --endpoint-url "$BACKUP_S3_ENDPOINT" --only-show-errors
-          else
-            aws s3 cp "$RUNNER_TEMP/nexus-backup/receipt.json" "s3://$BACKUP_S3_BUCKET/$RECEIPT_KEY" --only-show-errors
-          fi
+          s3() { if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then aws "$@" --endpoint-url "$BACKUP_S3_ENDPOINT"; else aws "$@"; fi; }
+          s3 s3 cp "$RUNNER_TEMP/nexus-backup/receipt.json" "s3://$BACKUP_S3_BUCKET/nexus-forge/live/$CAPTURE_KEY/receipt.json" --only-show-errors
+
+      - name: Independently retrieve and validate stored receipt and report
+        if: success()
+        shell: bash
+        env:
+          CAPTURE_KEY: ${{ steps.upload.outputs.capture_key }}
+          ARCHIVE_KEY: ${{ steps.upload.outputs.archive_key }}
+          REPORTED_SHA: ${{ steps.upload.outputs.source_sha256 }}
+          REPORTED_BYTES: ${{ steps.upload.outputs.source_bytes }}
+        run: |
+          set -euo pipefail
+          s3() { if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then aws "$@" --endpoint-url "$BACKUP_S3_ENDPOINT"; else aws "$@"; fi; }
+          CHECK_DIR="$(mktemp -d "$RUNNER_TEMP/nexus-receipt-check-XXXXXX")"
+          PREFIX="nexus-forge/live/$CAPTURE_KEY"
+          s3 s3api get-object --bucket "$BACKUP_S3_BUCKET" --key "$PREFIX/receipt.json" "$CHECK_DIR/receipt.json" > /dev/null
+          s3 s3api get-object --bucket "$BACKUP_S3_BUCKET" --key "$PREFIX/verification-report.json" "$CHECK_DIR/verification-report.json" > /dev/null
+          python3 scripts/backup-receipt.py validate \
+            --receipt "$CHECK_DIR/receipt.json" \
+            --report "$CHECK_DIR/verification-report.json" \
+            --expected-sha256 "$REPORTED_SHA" \
+            --expected-bytes "$REPORTED_BYTES" \
+            --capture-key "$CAPTURE_KEY" \
+            --archive-key "$ARCHIVE_KEY" \
+            --report-key "$PREFIX/verification-report.json" \
+            --commit-sha "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID"
+          {
+            echo "## Verified backup captured"
+            echo "- Capture key: \`$CAPTURE_KEY\`"
+            echo "- Archive key: \`$ARCHIVE_KEY\`"
+            echo "- Bytes: $REPORTED_BYTES"
+            echo "- SHA-256: \`$REPORTED_SHA\`"
+            echo "- Independent retrieval, digest, byte count, recovery-point report and stored receipt all verified."
+          } >> "$GITHUB_STEP_SUMMARY"
