@@ -64,6 +64,7 @@ export function MissionControl({
   const recordMeasuredOutcome = useMutation(api.verification.recordMeasuredOutcome);
   const reviewEscalated = useMutation(api.incidents.reviewEscalated);
   const approveMission = useMutation(api.missions.approve);
+  const cancelMission = useMutation(api.missionRunner.cancel);
   const executeApprovedMission = useMutation(
     api.portfolio.executeApprovedMission,
   );
@@ -107,6 +108,25 @@ export function MissionControl({
     try { await approveMission({ id: mission._id, approved: true }); setReceipt("Mission approved. Review execution authorization before starting."); }
     catch (error) { setActionError(error instanceof Error ? error.message : "Mission approval failed. Review the selected mission and retry."); }
     finally { setBusy(null); }
+  }
+
+  async function cancelSelectedMission() {
+    if (!missionId || !workflowRun || !["running", "paused"].includes(workflowRun.status)) return;
+    const confirmed = window.confirm(
+      "Request cancellation of this mission? Later runner stages will be stopped and reserved resources released. Any provider work already in flight may finish; this is not a hard interrupt."
+    );
+    if (!confirmed) return;
+    setBusy("cancelMission");
+    setReceipt(null);
+    setActionError(null);
+    try {
+      await cancelMission({ missionId });
+      setReceipt("Cancellation recorded. The runner is blocked from starting later stages; already-issued provider work may finish.");
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Mission cancellation failed. Refresh the run status and review the mission.");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function verifyOutcome() {
@@ -470,6 +490,23 @@ export function MissionControl({
                   <strong>{workflowRun ? `${workflowRun.status.toUpperCase()} · ${workflowRun.currentStage.replaceAll("_", " ").toUpperCase()}` : missionId && workflowRun === undefined ? "Loading runner status…" : "NOT STARTED"}</strong>
                 </div>
                 {workflowRun?.lastError && <p className="receipt">{workflowRun.lastError}</p>}
+                {workflowRun && (workflowRun.status === "running" || workflowRun.status === "paused") && mission.status !== "cancelled" && (
+                  <div className="guard-item" data-testid="mission-cancellation-control">
+                    <span>!</span>
+                    <div>
+                      <strong>Stop this mission</strong>
+                      <small>Requests cooperative cancellation, blocks later runner stages, and releases reserved resources. Work already sent to an external provider may finish.</small>
+                    </div>
+                    <button
+                      className="secondary-button"
+                      data-testid="cancel-mission"
+                      onClick={() => void cancelSelectedMission()}
+                      disabled={busy !== null}
+                    >
+                      {busy === "cancelMission" ? "Requesting stop…" : "Request cancellation"}
+                    </button>
+                  </div>
+                )}
                 {escalatedIncident && <div className="glass-card research-card" data-testid="escalation-review-form"><div className="panel-title"><span>HUMAN REVIEW REQUIRED</span><span className="status-chip">ESCALATED</span></div><p>{escalatedIncident.stage.replaceAll("_", " ")}: {escalatedIncident.message}</p><p>{escalatedIncident.diagnosis || "Record the actual recovery after reviewing the run evidence. Do not guess or mark an unverified recovery as complete."}</p><label htmlFor="escalation-recovery">RECOVERY ACTION / INVESTIGATION</label><textarea id="escalation-recovery" rows={3} value={reviewRecovery} onChange={event => setReviewRecovery(event.target.value)} placeholder="Describe the recovery or investigation actually performed…" /><label htmlFor="escalation-lesson">REUSABLE LESSON</label><textarea id="escalation-lesson" rows={3} value={reviewLesson} onChange={event => setReviewLesson(event.target.value)} placeholder="Record what should change to prevent this failure…" /><button className="secondary-button" data-testid="resolve-escalation" onClick={() => void recordEscalationReview()} disabled={busy !== null || reviewRecovery.trim().length < 12 || reviewLesson.trim().length < 12}>{busy === "reviewEscalation" ? "Saving review…" : "Record human review (does not resume workflow)"}</button></div>}
                 <p>Runs Council orchestration, persists agent handoffs, generates and structurally verifies an artifact, then pauses for artifact and delivery approvals. External delivery and deployment are never automatic.</p>
                 {!mission.approved ? (
