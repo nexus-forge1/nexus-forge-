@@ -38,6 +38,39 @@ async function startApprovedInternal(c: any, missionId: any) {
   return id;
 }
 
+
+/**
+ * Owner-authorized cooperative cancellation. Already-issued external provider work
+ * cannot be forcibly interrupted, but the runner is prevented from starting later stages.
+ */
+export const cancel: any = (mutation as any)({
+  args: { missionId: v.id("missions") },
+  returns: v.null(),
+  handler: async (c: any, a: any) => {
+    const mission = await requireOwnedMission(c, a.missionId);
+    if (mission.status === "cancelled") return null;
+    if (mission.status === "complete") throw new Error("A completed mission cannot be cancelled");
+    const run = await c.db.query("missionRuns")
+      .withIndex("by_mission", (q: any) => q.eq("missionId", a.missionId))
+      .order("desc").first();
+    if (!run || (run.status !== "running" && run.status !== "paused")) {
+      throw new Error("No active or paused mission run is available to cancel");
+    }
+    const now = Date.now();
+    await c.db.patch(a.missionId, { status: "cancelled", approved: false });
+    await c.db.patch(run._id, {
+      status: "blocked",
+      currentStage: "cancelled",
+      nextActionAt: now,
+      lastError: "Cancellation requested by the mission owner. In-flight provider work may finish, but no later runner stages should start.",
+    });
+    await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: a.missionId });
+    await audit(c, a.missionId, "execution", "mission_cancelled", "cancelled",
+      "Owner requested cooperative cancellation. Resource reservations released; already-issued external work may finish.", run._id);
+    return null;
+  },
+} as any);
+
 export const startApproved: any = (internalMutation as any)({ args: { missionId: v.id("missions") }, returns: v.union(v.id("missionRuns"), v.null()), handler: async (c: any, a: any) => startApprovedInternal(c, a.missionId) } as any);
 // Legacy public entry point retained for API compatibility, but it must not bypass
 // portfolio decision, dependency/resource preflight, or escalation review.
@@ -78,6 +111,11 @@ export const tickInternal: any = (internalAction as any)({
     if (!r || r.status === "complete" || r.status === "blocked") return null;
     const m = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
     const now = Date.now();
+    if (m?.status === "cancelled") {
+      await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+      await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: now, lastError: "Mission was cancelled by its owner; no further runner stages will start." });
+      return null;
+    }
     // A separately verified mission outcome takes precedence over the runner deadline.
     // This prevents a late scheduled tick from creating a false timeout escalation.
     if (missionIsAlreadyComplete(m?.status)) {
