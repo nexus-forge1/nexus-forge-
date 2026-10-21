@@ -81,6 +81,7 @@ export const setState: any = (internalMutation as any)({
   returns: v.null(),
   handler: async (c: any, a: any): Promise<null> => {
     const r = (await c.db.get(a.runId)) as Doc<"missionRuns"> | null; if (!r) throw Error("Mission run not found");
+    if (r.currentStage === "cancelled") return null;
     const retries = a.retries ?? r.retries;
     await c.db.patch(a.runId, { status: a.status, currentStage: a.currentStage, nextActionAt: a.nextActionAt, lastError: a.lastError, retries });
     const retryNote = retries > r.retries ? ` Retry ${retries}/${r.maxRetries}.` : "";
@@ -160,6 +161,12 @@ export const tickInternal: any = (internalAction as any)({
         await c.scheduler.runAfter(0, (internal as any).missionRunner.tickInternal, { runId: a.runId }); return null;
       }
       if (r.currentStage === "orchestration" && !coordinationStarted) {
+        const currentMission = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
+        if (currentMission?.status === "cancelled") {
+          await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+          await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: Date.now(), lastError: "Mission cancellation observed before orchestration handoff." });
+          return null;
+        }
         await c.runMutation((internal as any).forge.createRuns, { missionId: r.missionId });
         await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "running", currentStage: "agent_coordination", nextActionAt: now + 1500, lastError: "Agent coordination scheduled; waiting for persisted wave results." });
         await c.scheduler.runAfter(0, (internal as any).forge.orchestrateInternal, { missionId: r.missionId, missionRunId: r._id, mission: m.mission });
@@ -207,6 +214,12 @@ export const tickInternal: any = (internalAction as any)({
         return null;
       }
       if (!ready && !waiting) {
+        const currentMission = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
+        if (currentMission?.status === "cancelled") {
+          await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+          await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: Date.now(), lastError: "Mission cancellation observed before artifact generation." });
+          return null;
+        }
         const generated = await c.runAction((internal as any).artifacts.generateInternal, { missionId: r.missionId, missionRunId: r._id, mission: m.mission, artifactType: "execution-artifact", artifactName: `${m.title} execution artifact` });
         const verification = await c.runMutation((internal as any).artifacts.verifyInternal, { id: generated.artifactId });
         if (!verification.passed) { await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "paused", currentStage: "artifact_verification_failed", nextActionAt: now + 60000, lastError: `Artifact verification failed at ${Math.round(verification.score * 100)}%; human revision or regeneration required.` }); return null; }
