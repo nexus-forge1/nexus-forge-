@@ -37,3 +37,24 @@ The receipt (`verified-backup-receipt-v2`) records the capture key, Live source,
 - It does not create a schedule or change any existing scheduled backup configuration.
 - A successful workflow receipt does not automatically populate the application's backup inventory; that inventory must be updated only from the verified receipt.
 - The recovery verifier intentionally applies archive size, entry, structure, and relationship checks. A failure is a failed verification, not a successful backup.
+
+## Supabase Storage destination
+
+The destination is Supabase Storage through its S3-compatible API.
+
+| Name | Kind (GitHub → Settings → Secrets and variables → Actions) | Source in Supabase dashboard |
+|---|---|---|
+| `BACKUP_S3_ACCESS_KEY_ID` | Secret | Project Settings → Storage → S3 Connection → S3 Access Keys → New access key |
+| `BACKUP_S3_SECRET_ACCESS_KEY` | Secret | Shown once when that access key is created |
+| `BACKUP_S3_ENDPOINT` | Variable | S3 Connection → Endpoint, exactly `https://<project-ref>.storage.supabase.co/storage/v1/s3` |
+| `BACKUP_S3_REGION` | Variable | S3 Connection → Region (the project's region, e.g. `us-east-1`) |
+| `BACKUP_S3_BUCKET` | Variable | Name of a **private** bucket under Storage → Buckets |
+| `CONVEX_DEPLOY_KEY` | Secret | Convex dashboard → production deployment → Settings → Deploy key |
+
+Compatibility notes (Supabase S3 compatibility table):
+- Path-style addressing is forced whenever an endpoint is set.
+- Flexible checksum headers are disabled (`AWS_REQUEST_CHECKSUM_CALCULATION=when_required`), because Supabase does not implement `x-amz-checksum-*`. Integrity comes from the independent SHA-256 retrieval comparison.
+- PutObject has no `If-None-Match`, so the workflow checks with HeadObject first and only proceeds on a 404. Keys are also unique per run and attempt.
+- Supabase does not return object version IDs, so the receipt records `archiveVersionId: null` and the ETag.
+- The Free plan caps any single object at 50 MB (global file size limit). A larger export fails at upload, and the run is red. Raise the limit (Pro plan) if the Live export exceeds it.
+- S3 access keys bypass Row Level Security, so keep them in GitHub Secrets only.

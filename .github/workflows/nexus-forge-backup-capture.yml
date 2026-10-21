@@ -52,6 +52,12 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ${{ vars.BACKUP_S3_REGION }}
+      # S3-compatible stores such as Supabase Storage do not accept the flexible
+      # checksum headers (x-amz-checksum-*, aws-chunked trailers) that newer AWS CLI v2
+      # releases send by default. Integrity is proven by the independent SHA-256 retrieval
+      # comparison below, not by provider checksums.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -85,6 +91,14 @@ jobs:
             echo "::error::BACKUP_S3_ENDPOINT must be an https:// URL when set."
             exit 1
           fi
+          if [[ "${BACKUP_S3_ENDPOINT:-}" == *"supabase"* && ! "$BACKUP_S3_ENDPOINT" =~ ^https://[a-z0-9]+\.(storage\.)?supabase\.co/storage/v1/s3$ ]]; then
+            echo "::error::Supabase BACKUP_S3_ENDPOINT must be exactly https://<project-ref>.storage.supabase.co/storage/v1/s3 (no trailing slash, no bucket name)."
+            exit 1
+          fi
+          # Custom endpoints with a path (Supabase: /storage/v1/s3) need path-style addressing.
+          if [[ -n "${BACKUP_S3_ENDPOINT:-}" ]]; then
+            aws configure set default.s3.addressing_style path
+          fi
 
       - name: Install pinned Convex CLI
         run: npm install --global convex@1.41.0
@@ -114,8 +128,14 @@ jobs:
           CAPTURE_KEY="$(date -u +'%Y%m%dT%H%M%SZ')-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
           ARCHIVE_KEY="nexus-forge/live/$CAPTURE_KEY/source.zip"
           # Refuse to overwrite: an existing object at this key would make retrieval ambiguous.
-          if s3 s3api head-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" >/dev/null 2>&1; then
+          # Supabase PutObject has no If-None-Match, so absence is checked explicitly. Only a
+          # 404/Not Found counts as absent; auth or endpoint errors stop the run.
+          if s3 s3api head-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" >/dev/null 2>"$RUNNER_TEMP/nexus-backup/head.err"; then
             echo "::error::Destination key already exists; refusing to overwrite or verify a stale object."
+            exit 1
+          elif ! grep -Eq '\(404\)|Not Found|NoSuchKey' "$RUNNER_TEMP/nexus-backup/head.err"; then
+            echo "::error::Could not confirm the destination key is free (storage returned an error other than Not Found):"
+            head -c 500 "$RUNNER_TEMP/nexus-backup/head.err"
             exit 1
           fi
           s3 s3api put-object --bucket "$BACKUP_S3_BUCKET" --key "$ARCHIVE_KEY" \

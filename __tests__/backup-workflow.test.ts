@@ -1,8 +1,9 @@
 // @vitest-environment node
 import {describe,it,expect} from 'vitest'
-import {readFileSync} from 'node:fs'
+import {readFileSync,writeFileSync,mkdtempSync,chmodSync,rmSync} from 'node:fs'
 import {spawnSync} from 'node:child_process'
-import {resolve} from 'node:path'
+import {resolve,join} from 'node:path'
+import {tmpdir} from 'node:os'
 
 const backup=readFileSync(resolve('.github/workflows/nexus-forge-backup-capture.yml'),'utf8')
 const artifact=readFileSync(resolve('.github/workflows/nexus-forge-artifact-checks.yml'),'utf8')
@@ -47,6 +48,34 @@ describe('verified backup workflow gating',()=>{
   expect(unconfirmed.status).toBe(1)
   const path=spawnSync('bash',['-c',body],{env:{...env,CONVEX_DEPLOY_KEY:'k',BACKUP_S3_BUCKET:'bucket/sub'},encoding:'utf8'})
   expect(path.status).toBe(1)
+ })
+ it('accepts only the exact Supabase S3 endpoint form and forces path-style addressing',()=>{
+  const check=section(backup,'- name: Validate explicit authorization and configuration','- name: Install pinned Convex CLI')
+  const body=check.split('run: |')[1].split('\n').map(l=>l.replace(/^ {10}/,'')).join('\n')
+  const bin=mkdtempSync(join(tmpdir(),'fake-aws-')),log=join(bin,'calls.log')
+  writeFileSync(join(bin,'aws'),`#!/bin/sh\necho "$@" >> "${log}"\n`);chmodSync(join(bin,'aws'),0o755)
+  const env={PATH:bin+':'+(process.env.PATH??''),CONFIRM_LIVE_EXPORT:'true',CONVEX_DEPLOY_KEY:'k',BACKUP_S3_ACCESS_KEY_ID:'x',BACKUP_S3_SECRET_ACCESS_KEY:'x',BACKUP_S3_BUCKET:'nexus-backups',BACKUP_S3_REGION:'us-east-1'}
+  const run=(endpoint:string)=>spawnSync('bash',['-c',body],{env:{...env,BACKUP_S3_ENDPOINT:endpoint},encoding:'utf8'})
+  expect(run('https://abcdefghijklmnop.storage.supabase.co/storage/v1/s3').status).toBe(0)
+  expect(readFileSync(log,'utf8')).toContain('configure set default.s3.addressing_style path')
+  expect(run('https://abcdefghijklmnop.supabase.co/storage/v1/s3').status).toBe(0)
+  for(const bad of ['https://abcdefghijklmnop.storage.supabase.co/storage/v1/s3/','https://abcdefghijklmnop.storage.supabase.co','https://abcdefghijklmnop.storage.supabase.co/storage/v1/s3/nexus-backups','http://abcdefghijklmnop.storage.supabase.co/storage/v1/s3'])
+   expect(run(bad).status).toBe(1)
+  rmSync(bin,{recursive:true,force:true})
+ })
+ it('disables flexible checksum headers that Supabase Storage rejects',()=>{
+  expect(backup).toContain('AWS_REQUEST_CHECKSUM_CALCULATION: when_required')
+  expect(backup).toContain('AWS_RESPONSE_CHECKSUM_VALIDATION: when_required')
+  expect(backup).not.toMatch(/--checksum-algorithm/)
+ })
+ it('treats only Not Found as a free destination key',()=>{
+  const upload=section(backup,'- name: Upload archive to private S3-compatible storage','- name: Independently retrieve saved archive')
+  expect(upload).toContain("elif ! grep -Eq '\\(404\\)|Not Found|NoSuchKey'")
+  const pattern="\\(404\\)|Not Found|NoSuchKey"
+  const grep=(msg:string)=>spawnSync('grep',['-Eq',pattern],{input:msg}).status
+  expect(grep('An error occurred (404) when calling the HeadObject operation: Not Found')).toBe(0)
+  expect(grep('An error occurred (403) when calling the HeadObject operation: Forbidden')).toBe(1)
+  expect(grep('Could not connect to the endpoint URL')).toBe(1)
  })
  it('retrieves independently and compares against values fixed before upload',()=>{
   const upload=section(backup,'- name: Upload archive to private S3-compatible storage','- name: Independently retrieve saved archive')
