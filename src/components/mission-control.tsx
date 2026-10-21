@@ -296,25 +296,25 @@ export function MissionControl({
             </div>
             <div className="stats-strip compact">
               <div>
-                <strong>{preflight.riskSignals.length}</strong>
+                <strong>{(preflight.riskSignals ?? []).length}</strong>
                 <span>Risk signals</span>
               </div>
               <div>
-                <strong>{preflight.reusePatterns.length}</strong>
+                <strong>{(preflight.reusePatterns ?? []).length}</strong>
                 <span>Reuse patterns</span>
               </div>
               <div>
-                <strong>{preflight.requiredEvidence.length}</strong>
+                <strong>{(preflight.requiredEvidence ?? []).length}</strong>
                 <span>Evidence requirements</span>
               </div>
               <div>
-                <strong>{preflight.recoveryGuidance.length}</strong>
+                <strong>{(preflight.recoveryGuidance ?? []).length}</strong>
                 <span>Recovery signals</span>
               </div>
             </div>
             <div className="console-grid">
               <div>
-                {preflight.riskSignals.slice(0, 3).map((s, i) => (
+                {(preflight.riskSignals ?? []).slice(0, 3).map((s, i) => (
                   <div className="guard-item" key={`risk-${i}`}>
                     <span>!</span>
                     <div>
@@ -323,7 +323,7 @@ export function MissionControl({
                     </div>
                   </div>
                 ))}
-                {preflight.reusePatterns.slice(0, 3).map((s, i) => (
+                {(preflight.reusePatterns ?? []).slice(0, 3).map((s, i) => (
                   <div className="guard-item" key={`reuse-${i}`}>
                     <span>↻</span>
                     <div>
@@ -334,7 +334,7 @@ export function MissionControl({
                 ))}
               </div>
               <div>
-                {preflight.requiredEvidence.map((x, i) => (
+                {(preflight.requiredEvidence ?? []).map((x, i) => (
                   <div className="guard-item" key={`evidence-${i}`}>
                     <span>✓</span>
                     <div>
