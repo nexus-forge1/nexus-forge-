@@ -437,6 +437,23 @@ export function MissionControl({
           <p>{missionId ? "Loading dependency and resource preflight…" : "Select a mission to inspect dependency and resource preflight."}</p>
         )}
       </div>
+      {missionId && mission && workflowRun && (workflowRun.status === "running" || workflowRun.status === "paused") && mission.status !== "cancelled" && (
+        <div className="glass-card research-card" data-testid="mission-cancellation-panel">
+          <div className="panel-title">
+            <span>MISSION CANCELLATION</span>
+            <span className="status-chip">OWNER ACTION</span>
+          </div>
+          <p><strong>{mission.title}</strong> is {workflowRun.status}. Cancellation stops later runner stages and releases reserved resources; provider work already in flight may finish.</p>
+          <button
+            className="secondary-button"
+            data-testid="cancel-mission"
+            onClick={() => void cancelSelectedMission()}
+            disabled={busy !== null}
+          >
+            {busy === "cancelMission" ? "Requesting stop…" : "Request cancellation"}
+          </button>
+        </div>
+      )}
       <div className="glass-card research-card">
         <div className="panel-title">
           <span>PORTFOLIO DECISION QUEUE</span>
@@ -490,23 +507,7 @@ export function MissionControl({
                   <strong>{workflowRun ? `${workflowRun.status.toUpperCase()} · ${workflowRun.currentStage.replaceAll("_", " ").toUpperCase()}` : missionId && workflowRun === undefined ? "Loading runner status…" : "NOT STARTED"}</strong>
                 </div>
                 {workflowRun?.lastError && <p className="receipt">{workflowRun.lastError}</p>}
-                {workflowRun && (workflowRun.status === "running" || workflowRun.status === "paused") && mission.status !== "cancelled" && (
-                  <div className="guard-item" data-testid="mission-cancellation-control">
-                    <span>!</span>
-                    <div>
-                      <strong>Stop this mission</strong>
-                      <small>Requests cooperative cancellation, blocks later runner stages, and releases reserved resources. Work already sent to an external provider may finish.</small>
-                    </div>
-                    <button
-                      className="secondary-button"
-                      data-testid="cancel-mission"
-                      onClick={() => void cancelSelectedMission()}
-                      disabled={busy !== null}
-                    >
-                      {busy === "cancelMission" ? "Requesting stop…" : "Request cancellation"}
-                    </button>
-                  </div>
-                )}
+
                 {escalatedIncident && <div className="glass-card research-card" data-testid="escalation-review-form"><div className="panel-title"><span>HUMAN REVIEW REQUIRED</span><span className="status-chip">ESCALATED</span></div><p>{escalatedIncident.stage.replaceAll("_", " ")}: {escalatedIncident.message}</p><p>{escalatedIncident.diagnosis || "Record the actual recovery after reviewing the run evidence. Do not guess or mark an unverified recovery as complete."}</p><label htmlFor="escalation-recovery">RECOVERY ACTION / INVESTIGATION</label><textarea id="escalation-recovery" rows={3} value={reviewRecovery} onChange={event => setReviewRecovery(event.target.value)} placeholder="Describe the recovery or investigation actually performed…" /><label htmlFor="escalation-lesson">REUSABLE LESSON</label><textarea id="escalation-lesson" rows={3} value={reviewLesson} onChange={event => setReviewLesson(event.target.value)} placeholder="Record what should change to prevent this failure…" /><button className="secondary-button" data-testid="resolve-escalation" onClick={() => void recordEscalationReview()} disabled={busy !== null || reviewRecovery.trim().length < 12 || reviewLesson.trim().length < 12}>{busy === "reviewEscalation" ? "Saving review…" : "Record human review (does not resume workflow)"}</button></div>}
                 <p>Runs Council orchestration, persists agent handoffs, generates and structurally verifies an artifact, then pauses for artifact and delivery approvals. External delivery and deployment are never automatic.</p>
                 {!mission.approved ? (
