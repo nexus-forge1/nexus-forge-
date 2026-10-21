@@ -43,10 +43,12 @@ export const recordAgentEvidence = internalMutation({
   args: { missionId: v.id("missions"), agent: v.string(), message: v.string(), score: v.number(), severity: v.string(), executionClaimId: v.optional(v.id("executionClaims")), effectKey: v.optional(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    const { executionClaimId, effectKey, ...fields } = args;
+    // Validate claim identity before honoring cancellation, so an invalid token
+    // can never be hidden by an early no-op.
+    if (!await claimEffect(ctx, executionClaimId, args.missionId, "evidence:" + args.agent + ":" + (effectKey ?? args.severity), fields)) return null;
     const mission = await ctx.db.get(args.missionId);
     if (!mission || mission.status === "cancelled" || !mission.approved) return null;
-    const { executionClaimId, effectKey, ...fields } = args;
-    if (!await claimEffect(ctx, executionClaimId, args.missionId, "evidence:" + args.agent + ":" + (effectKey ?? args.severity), fields)) return null;
     await ctx.db.insert("evidence", { ...fields, score: Math.max(0, Math.min(1, args.score)) });
     return null;
   }
@@ -55,11 +57,13 @@ export const recordCouncilResult = internalMutation({
   args: { missionId: v.id("missions"), summary: v.string(), executionClaimId: v.optional(v.id("executionClaims")) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    // Validate claim identity before honoring cancellation, so an invalid token
+    // can never be hidden by an early no-op.
+    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "council-result", { summary: args.summary })) return null;
     const mission = await ctx.db.get(args.missionId);
     // This transaction is the final fence against a cancellation racing the last
     // provider response: cancelled missions cannot be moved back into review.
     if (!mission || mission.status === "cancelled" || !mission.approved) return null;
-    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "council-result", { summary: args.summary })) return null;
     await ctx.db.insert("evidence", { missionId: args.missionId, agent: "Council Planner", message: args.summary, score: 0.9, severity: "verified" });
     await ctx.db.patch(args.missionId, { status: "review", completion: 40 });
     return null;
@@ -69,9 +73,9 @@ export const recordLearningLesson = internalMutation({
   args: { missionId: v.id("missions"), lesson: v.string(), confidence: v.number(), executionClaimId: v.optional(v.id("executionClaims")) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "learning-lesson", { lesson: args.lesson, confidence: args.confidence })) return null;
     const mission = await ctx.db.get(args.missionId);
     if (!mission || mission.status === "cancelled" || !mission.approved) return null;
-    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "learning-lesson", { lesson: args.lesson, confidence: args.confidence })) return null;
     await ctx.db.insert("memories", { ownerKey: mission.ownerKey, missionId: mission._id, category: "learning-lesson", key: `council:${Date.now()}`, value: args.lesson.trim(), confidence: Math.max(0, Math.min(1, args.confidence)), source: "council-learning" });
     return null;
   }
