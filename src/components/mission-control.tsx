@@ -79,7 +79,7 @@ export function MissionControl({
   const resolved =
     incidents?.filter((i) => i.status === "resolved").length ?? 0;
   const latest = verifications?.[0];
-  const preflightReason = preflight?.rationale[0] ?? "No prior learning rationale is available for this mission.";
+  const preflightReason = preflight?.rationale?.[0] ?? "No prior learning rationale is available for this mission.";
   const approved = decisions?.find(
     (d) => d.decision === "approve" && d.action === "Execute approved mission",
   );
