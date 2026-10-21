@@ -14,7 +14,9 @@ describe('Portfolio recovery feedback', () => {
     render(<PortfolioIntelligence onSelect={onSelect} />)
     const button = screen.getByRole('button', { name })
     fireEvent.click(button)
-    expect(await screen.findByRole('alert')).toHaveTextContent('Recommendation changed')
+    // Other child workspaces may independently render role="alert"; target this
+    // action's expected error text instead of assuming it is the first alert.
+    expect(await screen.findByText(/Recommendation changed/)).toBeInTheDocument()
     await waitFor(() => expect(button).toBeEnabled())
     expect(onSelect).not.toHaveBeenCalled()
   })
