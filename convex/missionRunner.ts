@@ -38,6 +38,39 @@ async function startApprovedInternal(c: any, missionId: any) {
   return id;
 }
 
+
+/**
+ * Owner-authorized cooperative cancellation. Already-issued external provider work
+ * cannot be forcibly interrupted, but the runner is prevented from starting later stages.
+ */
+export const cancel: any = (mutation as any)({
+  args: { missionId: v.id("missions") },
+  returns: v.null(),
+  handler: async (c: any, a: any) => {
+    const mission = await requireOwnedMission(c, a.missionId);
+    if (mission.status === "cancelled") return null;
+    if (mission.status === "complete") throw new Error("A completed mission cannot be cancelled");
+    const run = await c.db.query("missionRuns")
+      .withIndex("by_mission", (q: any) => q.eq("missionId", a.missionId))
+      .order("desc").first();
+    if (!run || (run.status !== "running" && run.status !== "paused")) {
+      throw new Error("No active or paused mission run is available to cancel");
+    }
+    const now = Date.now();
+    await c.db.patch(a.missionId, { status: "cancelled", approved: false });
+    await c.db.patch(run._id, {
+      status: "blocked",
+      currentStage: "cancelled",
+      nextActionAt: now,
+      lastError: "Cancellation requested by the mission owner. In-flight provider work may finish, but no later runner stages should start.",
+    });
+    await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: a.missionId });
+    await audit(c, a.missionId, "execution", "mission_cancelled", "cancelled",
+      "Owner requested cooperative cancellation. Resource reservations released; already-issued external work may finish.", run._id);
+    return null;
+  },
+} as any);
+
 export const startApproved: any = (internalMutation as any)({ args: { missionId: v.id("missions") }, returns: v.union(v.id("missionRuns"), v.null()), handler: async (c: any, a: any) => startApprovedInternal(c, a.missionId) } as any);
 // Legacy public entry point retained for API compatibility, but it must not bypass
 // portfolio decision, dependency/resource preflight, or escalation review.
@@ -48,6 +81,7 @@ export const setState: any = (internalMutation as any)({
   returns: v.null(),
   handler: async (c: any, a: any): Promise<null> => {
     const r = (await c.db.get(a.runId)) as Doc<"missionRuns"> | null; if (!r) throw Error("Mission run not found");
+    if (r.currentStage === "cancelled") return null;
     const retries = a.retries ?? r.retries;
     await c.db.patch(a.runId, { status: a.status, currentStage: a.currentStage, nextActionAt: a.nextActionAt, lastError: a.lastError, retries });
     const retryNote = retries > r.retries ? ` Retry ${retries}/${r.maxRetries}.` : "";
@@ -78,6 +112,11 @@ export const tickInternal: any = (internalAction as any)({
     if (!r || r.status === "complete" || r.status === "blocked") return null;
     const m = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
     const now = Date.now();
+    if (m?.status === "cancelled") {
+      await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+      await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: now, lastError: "Mission was cancelled by its owner; no further runner stages will start." });
+      return null;
+    }
     // A separately verified mission outcome takes precedence over the runner deadline.
     // This prevents a late scheduled tick from creating a false timeout escalation.
     if (missionIsAlreadyComplete(m?.status)) {
@@ -122,6 +161,12 @@ export const tickInternal: any = (internalAction as any)({
         await c.scheduler.runAfter(0, (internal as any).missionRunner.tickInternal, { runId: a.runId }); return null;
       }
       if (r.currentStage === "orchestration" && !coordinationStarted) {
+        const currentMission = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
+        if (currentMission?.status === "cancelled") {
+          await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+          await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: Date.now(), lastError: "Mission cancellation observed before orchestration handoff." });
+          return null;
+        }
         await c.runMutation((internal as any).forge.createRuns, { missionId: r.missionId });
         await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "running", currentStage: "agent_coordination", nextActionAt: now + 1500, lastError: "Agent coordination scheduled; waiting for persisted wave results." });
         await c.scheduler.runAfter(0, (internal as any).forge.orchestrateInternal, { missionId: r.missionId, missionRunId: r._id, mission: m.mission });
@@ -169,6 +214,12 @@ export const tickInternal: any = (internalAction as any)({
         return null;
       }
       if (!ready && !waiting) {
+        const currentMission = await c.runQuery((internal as any).missions.getByIdInternal, { id: r.missionId });
+        if (currentMission?.status === "cancelled") {
+          await c.runMutation((internal as any).orchestration.releaseForMissionInternal, { missionId: r.missionId });
+          await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "blocked", currentStage: "cancelled", nextActionAt: Date.now(), lastError: "Mission cancellation observed before artifact generation." });
+          return null;
+        }
         const generated = await c.runAction((internal as any).artifacts.generateInternal, { missionId: r.missionId, missionRunId: r._id, mission: m.mission, artifactType: "execution-artifact", artifactName: `${m.title} execution artifact` });
         const verification = await c.runMutation((internal as any).artifacts.verifyInternal, { id: generated.artifactId });
         if (!verification.passed) { await c.runMutation((internal as any).missionRunner.setState, { runId: a.runId, status: "paused", currentStage: "artifact_verification_failed", nextActionAt: now + 60000, lastError: `Artifact verification failed at ${Math.round(verification.score * 100)}%; human revision or regeneration required.` }); return null; }

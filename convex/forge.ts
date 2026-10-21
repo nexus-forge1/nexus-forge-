@@ -21,28 +21,84 @@ const agentShape = v.object({ _id: v.id("agentRuns"), _creationTime: v.number(),
 
 async function askCouncil(prompt: string, maxTokens = 700, model: keyof typeof COUNCIL_MODELS = "planner", ctx?: any, ownerKey?: string, missionId?: Id<"missions">, stage = "council-" + model, missionRunId?: Id<"missionRuns">): Promise<string> {
   if (!ctx || !ownerKey || !missionId) throw new Error("Council accounting context required")
-  return callManagedAi(ctx, { ownerKey, missionId, ...(missionRunId ? { missionRunId } : {}), stage, role: COUNCIL_MODELS[model], prompt, maxTokens })
+  // Re-check immediately before each provider request so cooperative cancellation
+  // prevents later council waves from starting after the mission is stopped.
+  const mission = await ctx.runQuery(internal.missions.getByIdInternal, { id: missionId })
+  if (!mission || mission.status === "cancelled" || mission.status === "complete" || !mission.approved) {
+    throw new Error("Mission cancelled, completed, or approval revoked; no new provider request will start.")
+  }
+  const answer = await callManagedAi(ctx, { ownerKey, missionId, ...(missionRunId ? { missionRunId } : {}), stage, role: COUNCIL_MODELS[model], prompt, maxTokens })
+  const afterCall = await ctx.runQuery(internal.missions.getByIdInternal, { id: missionId })
+  if (!afterCall || afterCall.status === "cancelled" || afterCall.status === "complete" || !afterCall.approved) {
+    throw new Error("Mission stopped while the provider request was in flight; its answer will not advance later Council stages.")
+  }
+  return answer
 }
 
 export const listRuns = query({ args: { missionId: v.id("missions") }, returns: v.array(agentShape), handler: async (ctx, args) => { await requireOwnedMission(ctx, args.missionId); return await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect() } })
 export const getRuns = internalQuery({ args: { missionId: v.id("missions") }, returns: v.array(agentShape), handler: async (ctx, args) => ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect() })
 export const createRuns = internalMutation({ args: { missionId: v.id("missions") }, returns: v.null(), handler: async (ctx, args) => { const existing = await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect(); const existingAgents = new Set(existing.map(run => run.agent)); for (const [agent, role] of agents) if (!existingAgents.has(agent)) await ctx.db.insert("agentRuns", { missionId: args.missionId, agent, role, status: "queued", progress: 0, note: "Queued for orchestration." }); return null } })
 export const updateRun = internalMutation({ args: { missionId: v.id("missions"), agent: v.string(), status: v.string(), progress: v.number(), note: v.string(), executionClaimId: v.optional(v.id("executionClaims")) }, returns: v.null(), handler: async (ctx, args) => { await assertClaim(ctx, args.executionClaimId, args.missionId); const run = await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).filter(q => q.eq(q.field("agent"), args.agent)).first(); if (!run) throw new Error(`Agent run not found: ${args.agent}`); await ctx.db.patch(run._id, { status: args.status, progress: Math.max(0, Math.min(100, args.progress)), note: args.note }); return null } })
-export const recordAgentEvidence = internalMutation({ args: { missionId: v.id("missions"), agent: v.string(), message: v.string(), score: v.number(), severity: v.string(), executionClaimId: v.optional(v.id("executionClaims")), effectKey: v.optional(v.string()) }, returns: v.null(), handler: async (ctx, args) => { const { executionClaimId, effectKey, ...fields } = args; if (!await claimEffect(ctx, executionClaimId, args.missionId, "evidence:" + args.agent + ":" + (effectKey ?? args.severity), fields)) return null; await ctx.db.insert("evidence", { ...fields, score: Math.max(0, Math.min(1, args.score)) }); return null } })
-export const recordCouncilResult = internalMutation({ args: { missionId: v.id("missions"), summary: v.string(), executionClaimId: v.optional(v.id("executionClaims")) }, returns: v.null(), handler: async (ctx, args) => { if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "council-result", { summary: args.summary })) return null; await ctx.db.insert("evidence", { missionId: args.missionId, agent: "Council Planner", message: args.summary, score: 0.9, severity: "verified" }); await ctx.db.patch(args.missionId, { status: "review", completion: 40 }); return null } })
-export const recordLearningLesson = internalMutation({ args: { missionId: v.id("missions"), lesson: v.string(), confidence: v.number(), executionClaimId: v.optional(v.id("executionClaims")) }, returns: v.null(), handler: async (ctx, args) => { if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "learning-lesson", { lesson: args.lesson, confidence: args.confidence })) return null; const mission = await ctx.db.get(args.missionId); if (!mission) throw new Error("Mission not found"); await ctx.db.insert("memories", { ownerKey: mission.ownerKey, missionId: mission._id, category: "learning-lesson", key: `council:${Date.now()}`, value: args.lesson.trim(), confidence: Math.max(0, Math.min(1, args.confidence)), source: "council-learning" }); return null } })
+export const recordAgentEvidence = internalMutation({
+  args: { missionId: v.id("missions"), agent: v.string(), message: v.string(), score: v.number(), severity: v.string(), executionClaimId: v.optional(v.id("executionClaims")), effectKey: v.optional(v.string()) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const { executionClaimId, effectKey, ...fields } = args;
+    // Validate claim identity before honoring cancellation, so an invalid token
+    // can never be hidden by an early no-op.
+    if (!await claimEffect(ctx, executionClaimId, args.missionId, "evidence:" + args.agent + ":" + (effectKey ?? args.severity), fields)) return null;
+    const mission = await ctx.db.get(args.missionId);
+    if (!mission || mission.status === "cancelled" || !mission.approved) return null;
+    await ctx.db.insert("evidence", { ...fields, score: Math.max(0, Math.min(1, args.score)) });
+    return null;
+  }
+})
+export const recordCouncilResult = internalMutation({
+  args: { missionId: v.id("missions"), summary: v.string(), executionClaimId: v.optional(v.id("executionClaims")) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // Validate claim identity before honoring cancellation, so an invalid token
+    // can never be hidden by an early no-op.
+    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "council-result", { summary: args.summary })) return null;
+    const mission = await ctx.db.get(args.missionId);
+    // This transaction is the final fence against a cancellation racing the last
+    // provider response: cancelled missions cannot be moved back into review.
+    if (!mission || mission.status === "cancelled" || !mission.approved) return null;
+    await ctx.db.insert("evidence", { missionId: args.missionId, agent: "Council Planner", message: args.summary, score: 0.9, severity: "verified" });
+    await ctx.db.patch(args.missionId, { status: "review", completion: 40 });
+    return null;
+  }
+})
+export const recordLearningLesson = internalMutation({
+  args: { missionId: v.id("missions"), lesson: v.string(), confidence: v.number(), executionClaimId: v.optional(v.id("executionClaims")) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    if (!await claimEffect(ctx, args.executionClaimId, args.missionId, "learning-lesson", { lesson: args.lesson, confidence: args.confidence })) return null;
+    const mission = await ctx.db.get(args.missionId);
+    if (!mission || mission.status === "cancelled" || !mission.approved) return null;
+    await ctx.db.insert("memories", { ownerKey: mission.ownerKey, missionId: mission._id, category: "learning-lesson", key: `council:${Date.now()}`, value: args.lesson.trim(), confidence: Math.max(0, Math.min(1, args.confidence)), source: "council-learning" });
+    return null;
+  }
+})
 
 export const orchestrate = action({ args: { missionId: v.id("missions"), mission: v.string() }, returns: v.object({ ok: v.boolean(), summary: v.string() }), handler: async (ctx, args) => { const operator = await ctx.runQuery(internal.permissions.currentOperator, {}); if (!operator) throw new Error("Authenticated operator session required"); const missionRecord = await ctx.runQuery(internal.missions.getByIdInternal, { id: args.missionId }); if (!missionRecord || missionRecord.ownerKey !== operator) throw new Error("Mission not found or access denied"); return await ctx.runAction(internal.forge.orchestrateInternal, { missionId: args.missionId, mission: missionRecord.mission }) } })
 
 const runAgent = async (ctx: any, missionId: any, ownerKey: string, agent: string, role: string, prompt: string, model: keyof typeof COUNCIL_MODELS, missionRunId?: Id<"missionRuns">) => {
-  await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "running", progress: 20, note: `Running ${role} in coordinated wave using ${COUNCIL_MODELS[model]}.` })
   try {
+    // Include the state transition inside the guarded block: cancellation can win
+    // between a scheduled wave and this agent's first write.
+    await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "running", progress: 20, note: `Running ${role} in coordinated wave using ${COUNCIL_MODELS[model]}.` })
     const finding = await askCouncil(prompt, 650, model, ctx, ownerKey, missionId, "council-" + agent, missionRunId)
     await ctx.runMutation(internal.forge.recordAgentEvidence, { missionId, agent, message: finding, score: 0.8, severity: "verified" })
     await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "complete", progress: 100, note: finding.slice(0, 220) })
     return { agent, finding, ok: true }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
+    const mission = await ctx.runQuery(internal.missions.getByIdInternal, { id: missionId })
+    if (!mission || mission.status === "cancelled" || !mission.approved) {
+      // Do not let a late worker write evidence or status over cancellation.
+      return { agent, finding: `CANCELLED — ${message}`, ok: false }
+    }
     await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "blocked", progress: 100, note: `Blocked: ${message}` })
     await ctx.runMutation(internal.forge.recordAgentEvidence, { missionId, agent, message: `Agent blocked: ${message}`, score: 0.2, severity: "error" })
     return { agent, finding: `BLOCKED — ${message}`, ok: false }
@@ -168,9 +224,17 @@ ${critic}
 FINAL COUNCIL DECISION
 ${decision}`
       await ctx.runMutation(internal.forge.recordCouncilResult, { missionId: args.missionId, summary })
+      const finalMission = await ctx.runQuery(internal.missions.getByIdInternal, { id: args.missionId })
+      if (!finalMission || finalMission.status === "cancelled" || !finalMission.approved) {
+        return { ok: false, summary: "Mission was stopped before the final Council result could be committed." }
+      }
       return { ok: specialistWavesSucceeded, summary }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
+      const currentMission = await ctx.runQuery(internal.missions.getByIdInternal, { id: args.missionId })
+      if (!currentMission || currentMission.status === "cancelled" || !currentMission.approved) {
+        return { ok: false, summary: "Mission cancelled or approval revoked; later Council stages and writes were stopped." }
+      }
       const runs = await ctx.runQuery(internal.forge.getRuns, { missionId: args.missionId })
       for (const run of runs.filter(x => x.status === "queued" || x.status === "running")) await ctx.runMutation(internal.forge.updateRun, { missionId: args.missionId, agent: run.agent, status: "blocked", progress: 100, note: `Blocked by orchestration failure: ${message}` })
       throw error
