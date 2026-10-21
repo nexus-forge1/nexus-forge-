@@ -21,6 +21,12 @@ const agentShape = v.object({ _id: v.id("agentRuns"), _creationTime: v.number(),
 
 async function askCouncil(prompt: string, maxTokens = 700, model: keyof typeof COUNCIL_MODELS = "planner", ctx?: any, ownerKey?: string, missionId?: Id<"missions">, stage = "council-" + model, missionRunId?: Id<"missionRuns">): Promise<string> {
   if (!ctx || !ownerKey || !missionId) throw new Error("Council accounting context required")
+  // Re-check immediately before each provider request so cooperative cancellation
+  // prevents later council waves from starting after the mission is stopped.
+  const mission = await ctx.runQuery(internal.missions.getByIdInternal, { id: missionId })
+  if (!mission || mission.status === "cancelled" || mission.status === "complete" || !mission.approved) {
+    throw new Error("Mission cancelled, completed, or approval revoked; no new provider request will start.")
+  }
   return callManagedAi(ctx, { ownerKey, missionId, ...(missionRunId ? { missionRunId } : {}), stage, role: COUNCIL_MODELS[model], prompt, maxTokens })
 }
 
