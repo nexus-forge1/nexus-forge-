@@ -10,7 +10,7 @@ vi.mock('convex/react', async () => ({
   ...await vi.importActual<typeof import('convex/react')>('convex/react'),
   useQuery: (ref: any, args?: any) => {
     const name = getFunctionName(ref)
-    if (args?.id === 'mission-test') return { _id: 'mission-test', title: 'Recovery mission', approved: true, status: 'running', mission: 'Recovery mission' }
+    if (args?.id === 'mission-test' || (name.toLowerCase().includes('missions') && name.toLowerCase().includes('getbyid'))) return { _id: 'mission-test', title: 'Recovery mission', approved: true, status: 'running', mission: 'Recovery mission' }
     if (name === 'executionClaims:unresolved') return claimState.rows
     if (name.toLowerCase().includes('missionrunner') && name.toLowerCase().includes('get')) return { _id: 'run-test', status: 'running', currentStage: 'agent_coordination', lastError: undefined }
     if (name === 'delivery:list') return [{ _id: 'delivery-test', stage: 'verified' }]
