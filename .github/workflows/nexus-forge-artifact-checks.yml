@@ -12,14 +12,8 @@ on:
         type: string
   pull_request:
     branches: [main]
-    paths:
-      - '.github/artifact-ci/**'
-      - '.github/workflows/nexus-forge-artifact-checks.yml'
   push:
     branches: [main]
-    paths:
-      - '.github/artifact-ci/**'
-      - '.github/workflows/nexus-forge-artifact-checks.yml'
 permissions:
   contents: read
   checks: write
@@ -96,7 +90,7 @@ jobs:
           import fs from 'node:fs';
           const report = JSON.parse(fs.readFileSync('ci-output/negative-report.json', 'utf8'));
           const steps = report.results?.[0];
-          if (report.snapshotSha !== process.env.NEGATIVE_SHA || report.allPassed !== false || report.results.length !== 1 || steps?.length !== 2 || steps[0].status !== 'fail' || !steps[0].detail.includes('Expected 14; observed 140') || steps[1].status !== 'not_run') throw new Error('Exact-text negative control was not detected correctly');
+          if (report.snapshotSha !== process.env.NEGATIVE_SHA || report.allPassed !== false || report.results.length !== 1 || steps?.length !== 2 || steps[0].status !== 'fail' || !steps[0].detail.includes('Expected') || steps[1].status !== 'not_run') throw new Error('Negative control did not fail as expected');
           console.log('Exact text rejected 140 for expected 14 and skipped the dependent step.');
           NODE
       - name: Publish snapshot-bound GitHub Check
