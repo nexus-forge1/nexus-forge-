@@ -11,9 +11,9 @@ vi.mock('convex/react', async () => ({
   useQuery: (ref: any) => {
     const name = getFunctionName(ref)
     if (name === 'executionClaims:unresolved') return claimState.rows
-    if (name === 'missionRunner:get') return { _id: 'run-test', status: 'running', currentStage: 'agent_coordination', lastError: undefined }
+    if (name.toLowerCase().includes('missionrunner') && name.toLowerCase().includes('get')) return { _id: 'run-test', status: 'running', currentStage: 'agent_coordination', lastError: undefined }
     if (name === 'delivery:list') return [{ _id: 'delivery-test', stage: 'verified' }]
-    if (name === 'missions:getById') return { title: 'Recovery mission', approved: true, status: 'running' }
+    if (name.toLowerCase().includes('mission') && name.toLowerCase().includes('getbyid')) return { _id: 'mission-test', title: 'Recovery mission', approved: true, status: 'running', mission: 'Recovery mission' }
     if (['artifacts:list', 'incidents:list', 'verification:list', 'verification:measurements', 'portfolio:listDecisions'].includes(name)) return []
     return undefined
   },
