@@ -38,21 +38,7 @@ async function askCouncil(prompt: string, maxTokens = 700, model: keyof typeof C
 export const listRuns = query({ args: { missionId: v.id("missions") }, returns: v.array(agentShape), handler: async (ctx, args) => { await requireOwnedMission(ctx, args.missionId); return await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect() } })
 export const getRuns = internalQuery({ args: { missionId: v.id("missions") }, returns: v.array(agentShape), handler: async (ctx, args) => ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect() })
 export const createRuns = internalMutation({ args: { missionId: v.id("missions") }, returns: v.null(), handler: async (ctx, args) => { const existing = await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).collect(); const existingAgents = new Set(existing.map(run => run.agent)); for (const [agent, role] of agents) if (!existingAgents.has(agent)) await ctx.db.insert("agentRuns", { missionId: args.missionId, agent, role, status: "queued", progress: 0, note: "Queued for orchestration." }); return null } })
-export const updateRun = internalMutation({
-  args: { missionId: v.id("missions"), agent: v.string(), status: v.string(), progress: v.number(), note: v.string(), executionClaimId: v.optional(v.id("executionClaims")) },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    await assertClaim(ctx, args.executionClaimId, args.missionId);
-    const mission = await ctx.db.get(args.missionId);
-    // A late worker may mark its own run blocked after cancellation, but must not
-    // restore running/complete state or overwrite the cancellation outcome.
-    if (!mission || ((mission.status === "cancelled" || !mission.approved) && args.status !== "blocked")) return null;
-    const run = await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).filter(q => q.eq(q.field("agent"), args.agent)).first();
-    if (!run) throw new Error(`Agent run not found: ${args.agent}`);
-    await ctx.db.patch(run._id, { status: args.status, progress: Math.max(0, Math.min(100, args.progress)), note: args.note });
-    return null;
-  }
-})
+export const updateRun = internalMutation({ args: { missionId: v.id("missions"), agent: v.string(), status: v.string(), progress: v.number(), note: v.string(), executionClaimId: v.optional(v.id("executionClaims")) }, returns: v.null(), handler: async (ctx, args) => { await assertClaim(ctx, args.executionClaimId, args.missionId); const run = await ctx.db.query("agentRuns").withIndex("by_mission", q => q.eq("missionId", args.missionId)).filter(q => q.eq(q.field("agent"), args.agent)).first(); if (!run) throw new Error(`Agent run not found: ${args.agent}`); await ctx.db.patch(run._id, { status: args.status, progress: Math.max(0, Math.min(100, args.progress)), note: args.note }); return null } })
 export const recordAgentEvidence = internalMutation({
   args: { missionId: v.id("missions"), agent: v.string(), message: v.string(), score: v.number(), severity: v.string(), executionClaimId: v.optional(v.id("executionClaims")), effectKey: v.optional(v.string()) },
   returns: v.null(),
@@ -94,14 +80,21 @@ export const recordLearningLesson = internalMutation({
 export const orchestrate = action({ args: { missionId: v.id("missions"), mission: v.string() }, returns: v.object({ ok: v.boolean(), summary: v.string() }), handler: async (ctx, args) => { const operator = await ctx.runQuery(internal.permissions.currentOperator, {}); if (!operator) throw new Error("Authenticated operator session required"); const missionRecord = await ctx.runQuery(internal.missions.getByIdInternal, { id: args.missionId }); if (!missionRecord || missionRecord.ownerKey !== operator) throw new Error("Mission not found or access denied"); return await ctx.runAction(internal.forge.orchestrateInternal, { missionId: args.missionId, mission: missionRecord.mission }) } })
 
 const runAgent = async (ctx: any, missionId: any, ownerKey: string, agent: string, role: string, prompt: string, model: keyof typeof COUNCIL_MODELS, missionRunId?: Id<"missionRuns">) => {
-  await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "running", progress: 20, note: `Running ${role} in coordinated wave using ${COUNCIL_MODELS[model]}.` })
   try {
+    // Include the state transition inside the guarded block: cancellation can win
+    // between a scheduled wave and this agent's first write.
+    await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "running", progress: 20, note: `Running ${role} in coordinated wave using ${COUNCIL_MODELS[model]}.` })
     const finding = await askCouncil(prompt, 650, model, ctx, ownerKey, missionId, "council-" + agent, missionRunId)
     await ctx.runMutation(internal.forge.recordAgentEvidence, { missionId, agent, message: finding, score: 0.8, severity: "verified" })
     await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "complete", progress: 100, note: finding.slice(0, 220) })
     return { agent, finding, ok: true }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
+    const mission = await ctx.runQuery(internal.missions.getByIdInternal, { id: missionId })
+    if (!mission || mission.status === "cancelled" || !mission.approved) {
+      // Do not let a late worker write evidence or status over cancellation.
+      return { agent, finding: `CANCELLED — ${message}`, ok: false }
+    }
     await ctx.runMutation(internal.forge.updateRun, { missionId, agent, status: "blocked", progress: 100, note: `Blocked: ${message}` })
     await ctx.runMutation(internal.forge.recordAgentEvidence, { missionId, agent, message: `Agent blocked: ${message}`, score: 0.2, severity: "error" })
     return { agent, finding: `BLOCKED — ${message}`, ok: false }
@@ -234,6 +227,10 @@ ${decision}`
       return { ok: specialistWavesSucceeded, summary }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
+      const currentMission = await ctx.runQuery(internal.missions.getByIdInternal, { id: args.missionId })
+      if (!currentMission || currentMission.status === "cancelled" || !currentMission.approved) {
+        return { ok: false, summary: "Mission cancelled or approval revoked; later Council stages and writes were stopped." }
+      }
       const runs = await ctx.runQuery(internal.forge.getRuns, { missionId: args.missionId })
       for (const run of runs.filter(x => x.status === "queued" || x.status === "running")) await ctx.runMutation(internal.forge.updateRun, { missionId: args.missionId, agent: run.agent, status: "blocked", progress: 100, note: `Blocked by orchestration failure: ${message}` })
       throw error
