@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { getFunctionName } from 'convex/server'
+import { api } from '../convex/_generated/api'
 import { MissionControl } from '../src/components/mission-control'
 import type { Id } from '../convex/_generated/dataModel'
 
@@ -13,7 +14,7 @@ vi.mock('convex/react', async () => ({
     if (name === 'executionClaims:unresolved') return claimState.rows
     if (name.toLowerCase().includes('missionrunner') && name.toLowerCase().includes('get')) return { _id: 'run-test', status: 'running', currentStage: 'agent_coordination', lastError: undefined }
     if (name === 'delivery:list') return [{ _id: 'delivery-test', stage: 'verified' }]
-    if (name.toLowerCase().includes('mission') && !name.toLowerCase().includes('runner') && name.toLowerCase().includes('get')) return { _id: 'mission-test', title: 'Recovery mission', approved: true, status: 'running', mission: 'Recovery mission' }
+    if (ref === api.missions.getById) return { _id: 'mission-test', title: 'Recovery mission', approved: true, status: 'running', mission: 'Recovery mission' }
     if (['artifacts:list', 'incidents:list', 'verification:list', 'verification:measurements', 'portfolio:listDecisions'].includes(name)) return []
     return undefined
   },
