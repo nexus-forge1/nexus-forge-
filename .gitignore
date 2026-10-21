@@ -56,3 +56,15 @@ next-env.d.ts
 .tanstack
 .gitconfig
 .macaly-git-wrapper.sh
+
+# Local secrets and environment configuration must never be committed.
+.env
+.env.local
+.env.*
+!.env.example
+
+# Local credential stores, browser PKI, MCP settings, and private working files.
+/.aws/
+/.pki/
+/.mcp.json
+/Downloads/Northstar_Plumbing_copy.json
