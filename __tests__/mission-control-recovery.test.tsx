@@ -15,6 +15,8 @@ vi.mock('convex/react', async () => ({
     if (name === 'executionClaims:unresolved') return claimState.rows
     if (name === 'delivery:list') return [{ _id: 'delivery-test', stage: 'verified' }]
     if (['artifacts:list', 'incidents:list', 'verification:list', 'verification:measurements', 'portfolio:listDecisions'].includes(name)) return []
+    if (name === 'memory:getAdaptivePreflightForOperator') return null
+    if (name === 'orchestration:preflight') return { ready: true, blockers: [], advisories: [], resources: [] }
     if (args?.missionId === 'mission-test') return []
     return undefined
   },
