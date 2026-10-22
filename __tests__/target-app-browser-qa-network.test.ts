@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isPublicAddress } from '../scripts/public-https-target.mjs';
+import { isPublicAddress, resolvePublicHttps } from '../scripts/public-https-target.mjs';
 import { createPinnedHostResolverRule, isAllowedTargetOrigin } from '../scripts/target-browser-network-policy.mjs';
 
 describe('target browser QA public-address validation', () => {
@@ -54,6 +54,13 @@ describe('target browser QA public-address validation', () => {
 
   it('does not add a DNS mapping for an IP-literal target', () => {
     expect(createPinnedHostResolverRule('8.8.8.8', '8.8.8.8')).toBeNull();
+    expect(createPinnedHostResolverRule('[2606:4700:4700::1111]', '2606:4700:4700::1111')).toBeNull();
+  });
+
+  it('parses public IPv6 HTTPS literals without a DNS lookup', async () => {
+    const result = await resolvePublicHttps('https://[2606:4700:4700::1111]/');
+    expect(result.url.hostname).toBe('[2606:4700:4700::1111]');
+    expect(result.addresses).toEqual([{ address: '2606:4700:4700::1111' }]);
   });
 
   it('refuses to pin a hostname to a private or reserved address', () => {
