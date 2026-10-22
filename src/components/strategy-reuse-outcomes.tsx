@@ -4,6 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
 import { useActiveMission } from '../hooks/use-active-mission'
+import { useOwnedMissions } from '../hooks/use-owned-missions'
 
 type Measurement = { id: string; missionId: string; missionTitle: string; metric: string; actual: number; target: number; unit: string; status?: string; evidence: string[]; observedAt: number; periodStart?: number; periodEnd?: number; sampleSize?: number; method?: string; notes?: string; importReceipt?: { repository: string; commitSha: string; path: string; reportSha256: string } | null }
 type Comparison = { version: string; strategyKey: string; strategyId: string; lessonId: string; lesson: string; sourceReceiptId: string; baseline: Measurement; candidate: Measurement; direction: string; delta: number; outcome: string; notes: string; evidenceStatus: string; limitation: string }
@@ -13,7 +14,7 @@ export function StrategyReuseOutcomes() {
   const [mode, setMode] = useState<'measurement' | 'product'>('measurement')
   const sources = useQuery(api.missionSources.list, missionId ? { missionId } : 'skip')
   const candidates = useQuery(api.verification.measurements, missionId ? { missionId } : 'skip')
-  const missions = useQuery(api.missions.list, { ownerKey: 'local-workspace', paginationOpts: { numItems: 50, cursor: null } })
+  const missions = useOwnedMissions('local-workspace', 50)
   const history = useQuery(api.learningEngine.listReuseComparisons, {})
   const record = useMutation(api.learningEngine.recordReuseComparison)
   const recordProduct = useMutation(api.learningEngine.recordProductReuseComparison)
