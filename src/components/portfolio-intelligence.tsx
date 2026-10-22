@@ -6,6 +6,7 @@ import { useAction, useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useOwnedMissions } from '../hooks/use-owned-missions'
 
 export function PortfolioIntelligence({ ownerKey = 'local-workspace', onSelect, selectedMissionId = null, selectedMissionTitle }: { ownerKey?: string; onSelect: (id: string) => void; selectedMissionId?: Id<'missions'> | null; selectedMissionTitle?: string }) {
   const portfolio = useQuery(api.portfolio.decisionSnapshot)
@@ -24,7 +25,7 @@ export function PortfolioIntelligence({ ownerKey = 'local-workspace', onSelect, 
   const [selectedDraft, setSelectedDraft] = useState<string | null>(null)
   const [discoveryTheme, setDiscoveryTheme] = useState('emerging opportunities for small AI-enabled digital products')
   const [discoveryBusy, setDiscoveryBusy] = useState(false)
-  const missions = useQuery(api.missions.list, { ownerKey, paginationOpts: { numItems: 20, cursor: null } })
+  const missions = useOwnedMissions(ownerKey, 20)
   const rows = missions?.page ?? []
   const topSignal = learning?.prioritySignals[0]
   return <section id="portfolio" className="workspace portfolio-section">

@@ -3,7 +3,7 @@ import {cleanup,render,screen,within} from '@testing-library/react'
 import {MissionPage} from '../src/routes/mission'
 const state=vi.hoisted(()=>({guide:{} as any}))
 vi.mock('../src/lib/use-mission-guide',()=>({useMissionGuide:()=>state.guide}))
-vi.mock('convex/react',()=>({useQuery:()=>({page:[]}),useMutation:()=>vi.fn()}))
+vi.mock('convex/react',()=>({useConvexAuth:()=>({isAuthenticated:true}),useQuery:()=>({page:[]}),useMutation:()=>vi.fn()}))
 vi.mock('@tanstack/react-router',()=>({
  createFileRoute:()=> (options:unknown)=>options,
  useRouterState:()=>'/mission',

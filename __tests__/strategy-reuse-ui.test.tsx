@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({ record: vi.fn(), recordProduct: vi.fn(), linke
 vi.mock('../src/hooks/use-active-mission', () => ({ useActiveMission: () => ({ missionId: 'reuse-mission', mission: { title: 'Reuse mission' } }) }))
 vi.mock('@tanstack/react-router', () => ({ Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a> }))
 vi.mock('convex/react', () => ({
+  useConvexAuth: () => ({ isAuthenticated: true }),
   useMutation: (ref: Parameters<typeof getFunctionName>[0]) => getFunctionName(ref) === 'learningEngine:recordProductReuseComparison' ? mocks.recordProduct : mocks.record,
   useQuery: (ref: Parameters<typeof getFunctionName>[0], args: { missionId?: string } | string) => {
     switch (getFunctionName(ref)) {

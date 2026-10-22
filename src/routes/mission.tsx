@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useRouterState } from '@tanstack/react-router'
-import { useMutation, useQuery } from 'convex/react'
+import { useMutation } from 'convex/react'
 import { useEffect, useState } from 'react'
 import { api } from '../../convex/_generated/api'
 import { WorkspaceLoading } from '../components/workspace-loading'
 import { WorkspaceLayout } from '../components/workspace-layout'
+import { useOwnedMissions } from '../hooks/use-owned-missions'
 import { useMissionGuide } from '../lib/use-mission-guide'
 
 export const Route = createFileRoute('/mission')({ component: MissionPage })
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/mission')({ component: MissionPage })
 export function MissionPage() {
   const pathname = useRouterState({ select: state => state.location.pathname })
   const { evidenceLoading, missionId, setMissionId, mission: activeMission, sourceLinks, nextStage } = useMissionGuide()
-  const missions = useQuery(api.missions.list, { ownerKey: 'local-workspace', paginationOpts: { numItems: 30, cursor: null } })
+  const missions = useOwnedMissions('local-workspace', 30)
   const createMission = useMutation(api.missions.create)
   const approveMission = useMutation(api.missions.approve)
   const [sourceMemoryId, setSourceMemoryId] = useState<string | undefined>()

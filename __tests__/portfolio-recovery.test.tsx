@@ -4,6 +4,7 @@ import { getFunctionName } from 'convex/server'
 import { PortfolioIntelligence } from '../src/components/portfolio-intelligence'
 vi.mock('@tanstack/react-router', () => ({ Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a> }))
 vi.mock('convex/react', () => ({
+  useConvexAuth: () => ({ isAuthenticated: true }),
   useQuery: (ref: any) => getFunctionName(ref) === 'portfolio:listRecommendations' ? [{ _id: 'recommendation-test', status: 'recommended', title: 'Test opportunity', mission: 'Test mission', evidence: [] }] : undefined,
   useMutation: () => vi.fn().mockRejectedValue(new Error('Recommendation changed. Refresh before retrying.')),
   useAction: () => vi.fn(),
