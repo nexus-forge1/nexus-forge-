@@ -8,6 +8,7 @@ import { ProductionReleaseReadiness } from '../components/production-release-rea
 import { ArtifactBenchmarkEvidence } from '../components/artifact-benchmark-evidence'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
+import { useOwnedMissions } from '../hooks/use-owned-missions'
 
 export const Route = createFileRoute('/capabilities')({ component: CapabilityDashboard })
 
@@ -22,7 +23,7 @@ type ProviderResult = {
 
 function CapabilityDashboard() {
   const { missionId, mission } = useActiveMission()
-  const missions = useQuery(api.missions.list, { ownerKey: 'local-workspace', paginationOpts: { numItems: 50, cursor: null } })
+  const missions = useOwnedMissions('local-workspace', 50)
   const experiments = useQuery(api.learningEngine.listExperiments, {})
   const incidents = useQuery(api.incidents.list, missionId ? { missionId } : 'skip')
   const verifications = useQuery(api.verification.list, missionId ? { missionId } : 'skip') as Array<{ _id: string; passed: boolean; score: number; summary: string }> | undefined
