@@ -64,7 +64,8 @@ export async function resolvePublicHttps(raw) {
   if (url.hostname === 'localhost' || url.hostname.endsWith('.localhost') || url.hostname.endsWith('.local') || url.hostname.endsWith('.internal')) {
     throw new Error('Private and local targets are not allowed.');
   }
-  const addresses = net.isIP(url.hostname) ? [{ address: url.hostname }] : await dns.lookup(url.hostname, { all: true, verbatim: true });
+  const hostname = url.hostname.startsWith('[') && url.hostname.endsWith(']') ? url.hostname.slice(1, -1) : url.hostname;
+  const addresses = net.isIP(hostname) ? [{ address: hostname }] : await dns.lookup(hostname, { all: true, verbatim: true });
   if (!addresses.length || addresses.some(item => !isPublicAddress(item.address))) {
     throw new Error('Target resolves to a private or reserved network address.');
   }
