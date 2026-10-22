@@ -1,3 +1,6 @@
+import {operatorError} from '../lib/operator-error'
+import {LearningEffectivenessReview} from '../components/learning-effectiveness-review'
+import { routeHead } from '../lib/route-metadata'
 import {RuntimeWorkbench} from '../components/runtime-workbench'
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -8,7 +11,7 @@ import { WorkspaceLayout } from "../components/workspace-layout";
 import { deriveManifestOutcomeSignals } from "../lib/manifest-outcome-signals";
 import { deriveStrategyComparisonSignals } from "../lib/strategy-comparison-signals";
 
-export const Route = createFileRoute("/learning")({ component: LearningEnginePage });
+export const Route = createFileRoute("/learning")({ head: () => routeHead("/learning"), component: LearningEnginePage });
 
 type MetricDraft = {
   key: string;
@@ -89,7 +92,7 @@ function LearningEnginePage() {
       setLessonApplicability("");
       setLessonEvidence("");
     } catch (e) {
-      setLessonMessage(e instanceof Error ? e.message : "Could not save the reviewed lesson.");
+      setLessonMessage(operatorError(e,"Lesson save did not confirm. Review saved lessons before trying again."));
     } finally {
       setLessonBusy(false);
     }
@@ -217,6 +220,7 @@ function LearningEnginePage() {
         <p className="muted-copy">These are deterministic summaries of operator-entered observations, not independent verification, statistical significance, or causal proof. Human review remains required before reuse.</p>
       </div>
 
+      <LearningEffectivenessReview/>
       <RuntimeWorkbench area="learning"/><StrategyReuseOutcomes />
       <div className="glass-card research-card" id="reviewed-learning-memory">
         <div className="panel-title"><span>REUSABLE LEARNING MEMORY</span><span className="live-pill">OPERATOR REVIEW REQUIRED</span></div>

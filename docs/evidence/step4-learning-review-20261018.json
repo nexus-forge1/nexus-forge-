@@ -1,0 +1,64 @@
+{
+  "version": "step4-learning-review-v1",
+  "observedAt": "2026-10-18T01:27:26.445Z",
+  "environment": "Testing",
+  "scope": "Controlled QA corpus and operator labels; not customer or causal effectiveness evidence",
+  "passed": true,
+  "missionId": "k971q6rq1tgzknd7dm3kb4zc6h8gh3pv",
+  "reviewId": "v170zrss3k2vy1g2w30kpgzgah8ghda2",
+  "sourceIds": [
+    "kh7288zarp9rm6z79qk0j9tnns8ghfqj",
+    "kh73g6by3tyzsgr6951f7c51j98gg4s7",
+    "kh75ksz0shr7baj2bh6kfsnj9n8ghh9m"
+  ],
+  "summary": {
+    "version": "learning-evidence-review-v1",
+    "kind": "retrieval",
+    "units": 3,
+    "metrics": [
+      {
+        "metric": "Precision@5",
+        "unit": "ratio",
+        "baselineMean": 0.06666666666666667,
+        "candidateMean": 0.13333333333333333,
+        "benefitMean": 0.06666666666666667,
+        "improved": 2,
+        "regressed": 1,
+        "unchanged": 0
+      },
+      {
+        "metric": "Recall@5",
+        "unit": "ratio",
+        "baselineMean": 0.3333333333333333,
+        "candidateMean": 0.6666666666666666,
+        "benefitMean": 0.3333333333333333,
+        "improved": 2,
+        "regressed": 1,
+        "unchanged": 0
+      },
+      {
+        "metric": "Reciprocal rank",
+        "unit": "ratio",
+        "baselineMean": 0.3333333333333333,
+        "candidateMean": 0.6666666666666666,
+        "benefitMean": 0.3333333333333333,
+        "improved": 2,
+        "regressed": 1,
+        "unchanged": 0
+      }
+    ],
+    "status": "regression-observed",
+    "recommendation": "Review the retained regressions before considering reuse. A positive mean does not erase a failed comparison.",
+    "limitation": "Selected historical evidence with operator relevance/application labels. Corpus, cohort and task equivalence are not independently verified. No causal proof, statistical certification, policy promotion or full-history coverage."
+  },
+  "idempotentReceipt": true,
+  "sourceSnapshots": 3,
+  "billingUnchanged": true,
+  "browser": {
+    "regressionVisibleWithPositiveMean": true,
+    "frozenSnapshotsInspectable": true,
+    "persistedAfterReload": true,
+    "signedOut": true,
+    "closed": true
+  }
+}

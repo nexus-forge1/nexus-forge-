@@ -1,0 +1,2215 @@
+{
+  "version": "step12-function-inventory-v1",
+  "observedAt": "2026-10-18T18:43:45.389Z",
+  "sourceRevision": "83b6332b5f5a2649365c0f3690781591fa68c6de",
+  "method": "Syntactic inventory of explicitly exported public/internal builders, including existing any casts. This is a navigation aid, not a proof of exhaustive coverage or a security clearance. Managed auth/http routes, unconventional exports, helper modules and frontend consumers require separate review.",
+  "entries": [
+    {
+      "file": "convex/adaptiveRuntime.ts",
+      "sha256": "d91025d42a14d2dbf13da49c3355f4ace77934a7358577c30bf2ab67aff9ac6d",
+      "functions": [
+        {
+          "name": "refresh",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "history",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "selectInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/artifactCi.ts",
+      "sha256": "3dc39cb3d586e2c804a02c2007d030dc1139e26ef76fa7c4cf5078e52e5e6111",
+      "functions": [
+        {
+          "name": "context",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "published",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "verified",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/artifactCiActions.ts",
+      "sha256": "7aad57d4811532544856640a30c86dac7a34cd45d811a7fe47cd2fb767bc7f34",
+      "functions": [
+        {
+          "name": "publish",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "importRun",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/artifacts.ts",
+      "sha256": "fb5de309434c3d692cf48dbd732478d543293d716173329a71af5c7fa7eb78b9",
+      "functions": [
+        {
+          "name": "getInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "listInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "save",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "revise",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "approve",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "verify",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "verifyInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "generate",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "generateInternal",
+          "builder": "internalAction",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/artifactTests.ts",
+      "sha256": "687e4b334be02437b8de27c08914cfd32bc006411affb9b6507622cd687e2352",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listWithExactText",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/audit.ts",
+      "sha256": "0f49a87bd32a12a542614dd390fde9eb240c1e193372fe279814b6b8c4935914",
+      "functions": [
+        {
+          "name": "record",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/benchmarks.ts",
+      "sha256": "82f0a0a82b1132a2d1cf4a6898782632bfe34d32fc5b946dadad6b8c92a2d799",
+      "functions": [
+        {
+          "name": "history",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "verifyRun",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/billing.ts",
+      "sha256": "af7ed5d0bc2995bb658f3f313c6ff60af55780dfc1e0f5f9e741c10c94ac7154",
+      "functions": [
+        {
+          "name": "seed",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "catalog",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "mine",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "context",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "intent",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "bindSession",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "customerCanPay",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getIntent",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "grant",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "subscriptionState",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "freeze",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/billingDiagnostics.ts",
+      "sha256": "947c68e1f6bfae74dc06ccdfd7dfa5fe7735d963293722763836000f9f5ec43a",
+      "functions": [
+        {
+          "name": "authorize",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/billingReview.ts",
+      "sha256": "db31b52d9e1f5e90aad7f60c1128d366999de7817e609bccba6e333c9944f6d5",
+      "functions": [
+        {
+          "name": "resolveHold",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "reversePlatformError",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/continuation.ts",
+      "sha256": "f5ed8102f295b363e530fb580d2dae7148eeaf887335c6828398cb387aca475c",
+      "functions": [
+        {
+          "name": "take",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "inputs",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "replayLookup",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/delivery.ts",
+      "sha256": "2c34bb29910465200bf4bdce92817f5c470ea3500485aa807e77dafcbb5973e3",
+      "functions": [
+        {
+          "name": "listInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "prepareInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "prepare",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "approve",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "correctTarget",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "markDispatched",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordExecutionFailure",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "executeApproved",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "recordWorkflowResult",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordDeploymentResult",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "reviewFailedQaRun",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "allowVerifiedQaRetry",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/executionClaims.ts",
+      "sha256": "8876747b4228a6aee8e16ba512bb0046f16bc23c470559a3454c814ec7c0b938",
+      "functions": [
+        {
+          "name": "councilState",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "unresolved",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "acquire",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "finish",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "uncertain",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/executionReview.ts",
+      "sha256": "793caace2069d3eab134587f154918470eab4cf02618a2cc0deedcb6970ab995",
+      "functions": [
+        {
+          "name": "evidence",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/externalRuntime.ts",
+      "sha256": "7bfdf41f380ec09008e0e4d15c8cd579a8ff7f69e82a7e23efa97e6f5608f1a7",
+      "functions": [
+        {
+          "name": "register",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "setEnabled",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "authorized",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "admit",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "complete",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/forge.ts",
+      "sha256": "e9cafc90086df54ccf716fb2c3d5db910f0797cdecd657c1057022d1c3a99003",
+      "functions": [
+        {
+          "name": "listRuns",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getRuns",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "createRuns",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "updateRun",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordAgentEvidence",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordCouncilResult",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordLearningLesson",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "orchestrate",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "orchestrateInternal",
+          "builder": "internalAction",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/forgeTeams.ts",
+      "sha256": "7d73a2042dd2be965254255bac7e85b215b3fb65342b1e17504144ee14bf7984",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "requestJoin",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "detail",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "setMember",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "addNote",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "shareMission",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "unshareMission",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "sharedMissions",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "executeShared",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/frontierControls.ts",
+      "sha256": "981e1f343e55a6584b8faac5a48b764f0593d448287e466f3d8688c4991ae865",
+      "functions": [
+        {
+          "name": "overview",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "setPolicy",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "registerPackage",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "validatePackage",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "retirePackage",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/frontierLab.ts",
+      "sha256": "1cc189d0d0cc6981932c5a6659753793de253640eef811de50bf1de68b0d0e2b",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "detail",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "addTrial",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "close",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/geminiMedia.ts",
+      "sha256": "ebf9c1e53d42f166fed90a01c8b85dc797cefb76d1fb8ec106160854a9a7dfdc",
+      "functions": [
+        {
+          "name": "readiness",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/githubWriteTools.ts",
+      "sha256": "fac7a9c60f31ca22a95d73d605065661d7ad9ff2f6e4b147e9d74e0179f5db26",
+      "functions": [
+        {
+          "name": "prepare",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "save",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "owned",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "currentAuthorization",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "reserve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "settle",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "revoke",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "execute",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/incidents.ts",
+      "sha256": "fcf0ba8434f35e6f38b40791b1d06cdf647eca3efcd9085ce2188b2423be589e",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordFailure",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "markDiagnosis",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "resolve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "reviewEscalated",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "getOperationalLearning",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getById",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getOpenForRun",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "diagnose",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "diagnoseInternal",
+          "builder": "internalAction",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/intelligenceOrchestrator.ts",
+      "sha256": "ed5ad14913c161448b4ad62f66eb5912ddbbb3fe7cfa99a09eb7b9520f7e43e3",
+      "functions": [
+        {
+          "name": "listRecent",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "saveSpec",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "compileIntent",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/learningEngine.ts",
+      "sha256": "96e28bf7de2f7013b847a27d29cfc747c25b81939f8f937a0462138dde23f0d3",
+      "functions": [
+        {
+          "name": "listExperiments",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordExperiment",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "listReuseComparisons",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordReuseComparison",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "recordProductReuseComparison",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/learningReviews.ts",
+      "sha256": "e18126951c7ef8c600c2b9562ac7cc784b34dcb8a4802b2f32d0192788e162ba",
+      "functions": [
+        {
+          "name": "sources",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "get",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/liveComparisons.ts",
+      "sha256": "501329531b0c4dd7ba46695e2eb3d5ab6aa9ac6955ad20b31eb40e9050ce4d46",
+      "functions": [
+        {
+          "name": "checkpoint",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/manifestIntelligence.ts",
+      "sha256": "9ce955c124a188b1298ec124fe98077a59974f5511d980eb2f1a1491742f1d9e",
+      "functions": [
+        {
+          "name": "listBlueprints",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listStrategies",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listResearchEvidence",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "saveStrategies",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "attachAssumptionEvidence",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "recordStrategyOutcome",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "listProviderUsage",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordProviderUsageInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "saveBlueprint",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "synthesize",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/mediaChain.ts",
+      "sha256": "35242a0887ac179d3106a1b086d841bf6c7bc493930239b8ce0d4806b96b56d3",
+      "functions": [
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/mediaChainState.ts",
+      "sha256": "f39ed0e4d02564c3c664fb7e1e65ac10056f9718627c0d389a02d4b2e77c14ec",
+      "functions": [
+        {
+          "name": "readiness",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "begin",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "cooldown",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "cool",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "settle",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/memory.ts",
+      "sha256": "8aadd0f58aed88565a0ef4dc9541a6738caeb86c8713dc25a44aae5d7d158901",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "browse",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getMissionSynthesis",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getLearningContext",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getAdaptivePreflight",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "getAdaptivePreflightForOperator",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "adaptivePreflightStatus",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "remember",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "rememberInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "captureVerificationLesson",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "evaluateRetrievalInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "saveRetrievalInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "evaluateRetrieval",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "retrievalEvaluations",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getCouncilMemorySelection",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordCouncilMemorySelection",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "markCouncilPlannerResponded",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "councilMemoryHistory",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "evaluateCouncilMemory",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "councilMemoryEvaluations",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "compareCouncilMemoryPolicy",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "councilPolicyComparisons",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/missionRunner.ts",
+      "sha256": "b8931d994d8fe64de73d8539ed2f3c4c2c28898a0c8725b840796ae1f0c79294",
+      "functions": [
+        {
+          "name": "get",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "startApproved",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "start",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "getInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "setState",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "tick",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "tickInternal",
+          "builder": "internalAction",
+          "visibility": "internal"
+        },
+        {
+          "name": "tickNow",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/missions.ts",
+      "sha256": "e9393c090107a5a7cd9c5f479592063b38140ade0877e7e62d50c72490efc7bf",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getById",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "selection",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getByIdInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "approve",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/missionSources.ts",
+      "sha256": "9be8d5fa79ddd427a0969a47edc87168e79142cbceb70d7ba8598158831c14f9",
+      "functions": [
+        {
+          "name": "attach",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/multimodalRuntime.ts",
+      "sha256": "6ec87c4519abc4d4fbf76838bb6e5aae13f8e304e5217ddf4a9b1d5d3327267c",
+      "functions": [
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/opportunityObservations.ts",
+      "sha256": "e021e1877a675baa1cda063703a240a197ea8162aba6a331f3c0cc2cd61fdfac",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/opportunityPlans.ts",
+      "sha256": "73ab0782a1622c67de8eda3a177164ae4b440763c4f4f2aedbb9201547f35825",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/orchestration.ts",
+      "sha256": "309db02f7e1a92c88b0cecbd2ab6a9e6dcfe462d0cc67228317fd161efe32f26",
+      "functions": [
+        {
+          "name": "listDependencies",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listResources",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "addDependency",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "setResource",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "preflight",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "acquireForExecution",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "releaseForMission",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "releaseForMissionInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "requestRelease",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "releaseStatus",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listDependenciesPage",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listResourcesPage",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/outcomeFeeds.ts",
+      "sha256": "e09c1ecc156c843509ff20cacf6974749beec0f00459137325b6e100aa6e0db6",
+      "functions": [
+        {
+          "name": "authorized",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "claimPoll",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "create",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "setEnabled",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "ingest",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "reschedule",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/payments.ts",
+      "sha256": "955359241ecdb8efb8dbe3f824f6a508d0553883a7a2d7fa85f6374175b9e8d2",
+      "functions": [
+        {
+          "name": "checkout",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "portal",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "webhook",
+          "builder": "internalAction",
+          "visibility": "internal"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/permissions.ts",
+      "sha256": "bec88d2c1f1f759b2b38d3976220edee31a13cda06d7e94324750ced187dbc65",
+      "functions": [
+        {
+          "name": "currentOperator",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/platformTasks.ts",
+      "sha256": "d69b7d2c989c9af031f0a531f46ba77fb00c0f06b132083641b8e81b2127b3b6",
+      "functions": [
+        {
+          "name": "begin",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "finish",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "summary",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/portfolio.ts",
+      "sha256": "f77eed25cf61f16bf33dc7d1d01c4a698cfc8d22e818afb463e9f2521e4ba063",
+      "functions": [
+        {
+          "name": "decisionSnapshot",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "learningSnapshot",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordDecision",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "nextOpportunity",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listReviewQueue",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "resolveReview",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "discoverOpportunities",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "persistRecommendation",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "listRecommendations",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "dismissRecommendation",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "acceptRecommendation",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "createRecommendedMission",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "executeApprovedMission",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "listDecisions",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/privateMedia.ts",
+      "sha256": "7414d8823a8cc525266344d9e6eeabc4f6d126cc468b30ccef0010b121ef4076",
+      "functions": [
+        {
+          "name": "register",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "owned",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "download",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "upload",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/productEvidenceImport.ts",
+      "sha256": "b938727a3483185cbcda8b55d5f81b9d61cded1f1ff92f2760150071553e7d7d",
+      "functions": [
+        {
+          "name": "importReport",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "pollFeed",
+          "builder": "internalAction",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/productTelemetry.ts",
+      "sha256": "3034c38e785a681b5e26d211317945f04b61829deebe9a85c7434a882c56882c",
+      "functions": [
+        {
+          "name": "create",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "register",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "rotate",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "changeToken",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "setEnabled",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "ingest",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/providerHealth.ts",
+      "sha256": "713280eb2105806560d89652b9cff58e421e85446650d133939e7fa5df5534a8",
+      "functions": [
+        {
+          "name": "recordBatch",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "history",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "check",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/providerReconciliation.ts",
+      "sha256": "3e077cdaa1bb2da6bc9f84e89d7e5c10920e08bfacbc1a0f539b0e7e6f357e54",
+      "functions": [
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "history",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/providerRecovery.ts",
+      "sha256": "accab22c3e1863e9825f281e5efa600ed0778d379e1ca0a9ffbb29777a99c3ff",
+      "functions": [
+        {
+          "name": "reserve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "complete",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/providerUsage.ts",
+      "sha256": "047d1359a896caa7298e39137194a06b8a1232bdcfd077254bc34cbc48fa1626",
+      "functions": [
+        {
+          "name": "begin",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "finish",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "history",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/readiness.ts",
+      "sha256": "872678a1d74f195a0786dd1271efabdfe6580143584c953399aca9c13b600e5f",
+      "functions": [
+        {
+          "name": "run",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "runForDelivery",
+          "builder": "internalAction",
+          "visibility": "internal"
+        },
+        {
+          "name": "saveRun",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "listRuns",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getRun",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/reproducibleBenchmarks.ts",
+      "sha256": "813060f5c65a6fc2b1f3382c80819fe2f0c4bae18563d22fcf5b7cc68097ae2a",
+      "functions": [
+        {
+          "name": "run",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/research.ts",
+      "sha256": "190ab89ab331bb68e9f9cc968864c13dce05d0598957817eed1b07bd754f0dd2",
+      "functions": [
+        {
+          "name": "egressHealth",
+          "builder": "internalAction",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "save",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "saveSynthesisMemory",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "listForSynthesis",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getForSynthesis",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "search",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "synthesize",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/researchClaims.ts",
+      "sha256": "1f4dedb1622cc200913cb42bd1506a00e4fa51aece1075d1dd86d042e390239d",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/researchData.ts",
+      "sha256": "23f21a19b9c370c09184ca5ea0ec3380324468559749107accfbaa04492c4584",
+      "functions": [
+        {
+          "name": "save",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "listForSynthesis",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "listForSynthesisInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/researchSources.ts",
+      "sha256": "5293bdfcc2951363c1bb626696a67515c61c54b03ca5d66b7d62f5aaf4a6d34c",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "reserve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "finish",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "capture",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/resourceCapacity.ts",
+      "sha256": "f3d6ab4d8738d195b0cb545200f71a39d2a80ccd069a733f3d06ed53bf8ab45b",
+      "functions": [
+        {
+          "name": "catalog",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "collection",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "overview",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/resourceCleanup.ts",
+      "sha256": "94fc8c3b88411596faf8b50b6248db41fa40c272e5b1e8ada354e8876482622d",
+      "functions": [
+        {
+          "name": "continueRelease",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/runtimeReceipts.ts",
+      "sha256": "f6174fa0532a869c48faac48bee87c569813172418e19d6398d93608158ed660",
+      "functions": [
+        {
+          "name": "admit",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "finish",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "activeList",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "activeSummary",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "historyPage",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/signInOptions.ts",
+      "sha256": "8f98e2c3012af2358d5b088c644533595b27ad3c10050cb80c5c46d8f2dfde6f",
+      "functions": [
+        {
+          "name": "available",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/siteTraffic.ts",
+      "sha256": "0424fe2713ea0b1ac79a3afe31bf4270ed9629790687ff709cca947b0405c1e6",
+      "functions": [
+        {
+          "name": "readDashboard",
+          "builder": "internalAction",
+          "visibility": "internal"
+        },
+        {
+          "name": "retrieveAndSave",
+          "builder": "action",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/teamDirectorySync.ts",
+      "sha256": "95447a7ba0195d5a3e99adf0f116ed95fdc4fdfa3765b781364995328072c042",
+      "functions": [
+        {
+          "name": "preview",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "apply",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/teamProvisioning.ts",
+      "sha256": "fb1d27341366993e4136817a92f43cb5d7685086e4b4aa5d215315798a377c31",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "provision",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "revoke",
+          "builder": "mutation",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-final-batch",
+      "scope": "Full exported function bodies reconciled for owner/parent binding, privileged boundaries, input/response bounds, effect admission, replay and retained history; findings fixed or linked to accepted prior checks. Operational dependencies are carried separately in Steps 13–16."
+    },
+    {
+      "file": "convex/users.ts",
+      "sha256": "efd4e2e6e82348e8fcd36c12008c2d3f796f9da573c1f895a9eb3cf2ff71aabd",
+      "functions": [
+        {
+          "name": "currentLoggedInUser",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "earlier-session-body-review-scoped",
+      "scope": "Retain earlier recorded ownership/entry-point review and accepted feature evidence; reconcile final source and helper scope. Do not repeat accepted tests absent changes or an unresolved failure. Not whole-application security certification."
+    },
+    {
+      "file": "convex/verification.ts",
+      "sha256": "42a52a96e7286cbbf936917167ef6c3142610deafb6599419e27e3c21b48039d",
+      "functions": [
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "record",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "measurements",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "recordRuntimeCost",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "recordMeasuredOutcome",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "recordProductOutcome",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "productOutcomes",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "productOutcomesV2",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "importProductOutcomeInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "saveTrafficInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "siteTrafficHistory",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Ownership and effect routing read in full; resource/replay findings recorded separately. Not blanket security certification."
+    },
+    {
+      "file": "convex/deliveryDispatch.ts",
+      "sha256": "a3a226da30fdf4c65ff2e8eae40f09d859dea05134ea8401f251e3d3536c10d7",
+      "functions": [
+        {
+          "name": "reserve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordCommit",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "advance",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "failed",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "complete",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "status",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ],
+      "review": "body-reviewed-this-pass-scoped",
+      "scope": "Durable attempt ownership, atomic admission, retained commit identity, uncertain-write fencing and authoritative settlement. No blanket clearance."
+    }
+  ],
+  "wholeApplicationSecurityReviewComplete": false,
+  "knownOpen": [],
+  "summary": {
+    "functionModules": 65,
+    "exportedFunctions": 318,
+    "bodyReviewedThisPass": 11,
+    "earlierScopedBodyReviews": 19,
+    "remainingFinalInventoryModules": 0,
+    "finalBatchReviewedModules": 35
+  },
+  "helperReview": {
+    "receipt": "docs/evidence/step12-delivery-auth-20261018.json",
+    "files": [
+      {
+        "file": "convex/deliveryDispatchAction.ts",
+        "sha256": "dd8b634b8fd0930b0f9ee3b2054ef835eb0c74f9ab920d6cc1e7f761790a6dfa",
+        "functions": []
+      },
+      {
+        "file": "convex/otpDelivery.ts",
+        "sha256": "6f2caccbfba4b25c14ab3c12ca0bf12997788ecdc390062ffccdf459acbf0400",
+        "functions": []
+      },
+      {
+        "file": "convex/ResendOTP.ts",
+        "sha256": "bd1d99d84c243675bb82701d7fb9fbb5dd471c731a27b2ffc5d3f4585f3761d7",
+        "functions": []
+      }
+    ],
+    "scope": "Bounded GitHub transport and managed OTP sender contract; genuine Testing OTP sign-in and reload passed."
+  },
+  "step12AcceptanceComplete": true,
+  "scope": "Supported operator release security/resource review completed; not independent penetration testing, unlimited-scale certification, or full production operational readiness.",
+  "sensitiveBoundaryReview": {
+    "files": [
+      {
+        "file": "convex/evidenceAdmission.ts",
+        "sha256": "7b2815ef27d04a483f5b43a4211e5e38eccf31f94f6e03dfa464ae7a991aa75e"
+      },
+      {
+        "file": "convex/http.ts",
+        "sha256": "724d900af6e98f84ae70514a139da3e75a8232d1e9cb8c2e08bdf36c1597db10"
+      },
+      {
+        "file": "convex/auth.ts",
+        "sha256": "251b797e6a1a0406d0ee4a23d2cf25aa020483c951db6d2005e1c1ac5b94efa6"
+      },
+      {
+        "file": "convex/schema.ts",
+        "sha256": "e16a5f9119fd4d5d50f4d2dc1be71dddafa8bc88c3758f1ff50fd8ac1cbc5422"
+      },
+      {
+        "file": "convex/billingUsage.ts",
+        "sha256": "b876eb6f71c11c1dc84950ab982513480c2941d412c6a888f5a1a08c32e8c0c1"
+      },
+      {
+        "file": "convex/enterpriseIdentity.ts",
+        "sha256": "69974c2b4be562b13bd82c9c91dfc4b023f0d19650fb3f336ffa24783f223d29"
+      },
+      {
+        "file": "convex/providerClaimFence.ts",
+        "sha256": "35255e9c5f782031f23fc8f0f295f89d3330e0b50c0d7c421ef3432474e5e9a5"
+      },
+      {
+        "file": "src/components/artifact-browser-checks.tsx",
+        "sha256": "d20b8858890ab8472a0a53241c802913d712c60c5e1730d30a08bc2a5935d0d3"
+      },
+      {
+        "file": "src/lib/artifact-test-runner.ts",
+        "sha256": "f8293da64394cb5b3c9e85e7dcb864edaab52d5303c80a6333bb7156d29631c8"
+      },
+      {
+        "file": "src/components/ui/chart.tsx",
+        "sha256": "3938fce52bf69c34b662d23d590bc50a8502585607aabbd8d208aaed3b7ca365"
+      },
+      {
+        "file": "__tests__/convex/evidence-admission-batch.test.ts",
+        "sha256": "f18582aa0ed216e78aaaec2049480c3d46d9ed337ce3c41d61cabcda2eb48c9c"
+      },
+      {
+        "file": "scripts/check-evidence-admission.mjs",
+        "sha256": "e6b6d01038d9e146b56397e017c8c13a1c8e0e4de3c278b9c0cbe3b2918cdf1d"
+      }
+    ],
+    "credentialScreen": {
+      "filesScreened": 285,
+      "credentialLiteralHitFiles": [],
+      "unsafePublicVariableNames": [],
+      "lockfile": "pnpm-lock.yaml",
+      "lockSha256": "86135a3ef1145628811b2342314f039f6f318f4d550c25c67a66fed262f2a098",
+      "revision": "8df12780f404dd90aba226f67988dcd39c513cd9"
+    },
+    "managedRoutes": "Existing Convex Auth routes retained; OTP contract verified. Google Workspace tenant acceptance remains Step 7 dependency.",
+    "http": "Authenticated bounded delivery callbacks, exact commit/run provenance, hashed product-event tokens and verified Stripe signatures; no auth tables or private keys returned publicly.",
+    "rendering": "Artifact execution stays in scripts-only opaque-origin sandbox with restrictive CSP; browser reports remain labeled client-reported. Chart styles use application configuration; no untrusted HTML rendering path found.",
+    "compatibility": "Existing public contracts preserved; Testing deploy reports backward-compatible."
+  }
+}

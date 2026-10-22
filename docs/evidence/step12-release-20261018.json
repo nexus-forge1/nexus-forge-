@@ -1,0 +1,52 @@
+{
+  "version": "step12-release-v1",
+  "observedAt": "2026-10-18T18:48:44.386Z",
+  "deployment": {
+    "id": "bcifzxkdso78a8btnwx17leg",
+    "providerDeploymentId": "dpl_HuUaHmk5tPwYVy8dVSYYdry4SsHk",
+    "status": "READY",
+    "liveUrl": "https://www.network-x-ai.com"
+  },
+  "validation": {
+    "fullSuiteTests": 918,
+    "fullSuiteFiles": 161,
+    "finalTargetedTests": 20,
+    "finalTargetedFiles": 3,
+    "strict": "passed",
+    "testingContract": "backward-compatible",
+    "liveProbe": {
+      "total": 44,
+      "passed": 44,
+      "p95Ms": 210,
+      "anonymousPrivateAccessDenied": true
+    },
+    "genuineMobileAcceptance": "docs/evidence/step12-complete-20261018.json"
+  },
+  "buildPosition": {
+    "step12": "DONE — supported release review",
+    "step13": "NEXT — fresh capture verified; recurring and recovery targets pending",
+    "step14": "ACCESS DEPENDENCY — full managed application interruption",
+    "step15": "INVOICE DEPENDENCY",
+    "step16": "HOLD pending13–15 and genuine tenant SSO",
+    "step17": "LAST — payments unchanged"
+  },
+  "backup": {
+    "bytes": 1554319,
+    "tables": 75,
+    "documents": 2011,
+    "sha256": "82b4d514a008cdfdb21a7429b181154d301e278ea59b2f7c3fa9749498b23892",
+    "privateRetention": true,
+    "independentRetrievalMatched": true,
+    "zipCrc": true,
+    "manualCapture": true
+  },
+  "productionReady": false,
+  "backupCountCorrection": {
+    "reason": "Previous counts included Convex _tables export registry metadata. Archive bytes and SHA-256 are unchanged.",
+    "dataTables": 75,
+    "dataDocuments": 2011,
+    "metadataTables": 1,
+    "metadataEntries": 75,
+    "verifiedBy": "scripts/check-recovery-point.py"
+  }
+}

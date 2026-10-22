@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { getFunctionName } from 'convex/server'
 import { PortfolioIntelligence } from '../src/components/portfolio-intelligence'
@@ -8,15 +8,16 @@ vi.mock('convex/react', () => ({
   useMutation: () => vi.fn().mockRejectedValue(new Error('Recommendation changed. Refresh before retrying.')),
   useAction: () => vi.fn(),
 }))
+afterEach(() => vi.unstubAllEnvs())
 describe('Portfolio recovery feedback', () => {
   it.each(['Accept → Draft', 'Dismiss'])('handles a rejected %s without selecting a mission', async name => {
+    vi.stubEnv('VITE_CONVEX_URL', '')
     const onSelect = vi.fn()
     render(<PortfolioIntelligence onSelect={onSelect} />)
     const button = screen.getByRole('button', { name })
     fireEvent.click(button)
-    // Other child workspaces may independently render role="alert"; target this
-    // action's expected error text instead of assuming it is the first alert.
-    expect(await screen.findByText(/Recommendation changed/)).toBeInTheDocument()
+    const error = await screen.findByText(/Recommendation changed/)
+    expect(error).toHaveAttribute('role', 'alert')
     await waitFor(() => expect(button).toBeEnabled())
     expect(onSelect).not.toHaveBeenCalled()
   })

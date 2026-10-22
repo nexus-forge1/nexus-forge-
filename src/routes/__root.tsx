@@ -15,7 +15,7 @@ export const Route = createRootRoute({
       { title: rootMeta.title },
       { name: 'description', content: rootMeta.description },
       { property: 'og:title', content: rootMeta.title },
-      { name: 'og:description', content: rootMeta.description },
+      { property: 'og:description', content: rootMeta.description },
       {
         property: 'og:image',
         content: siteMetadata.default?.openGraph?.images ?? '',

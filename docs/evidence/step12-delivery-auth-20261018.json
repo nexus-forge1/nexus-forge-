@@ -1,0 +1,214 @@
+{
+  "version": "step12-delivery-auth-v1",
+  "observedAt": "2026-10-18T18:16:38.276Z",
+  "sourceRevision": "dca4b8508f9206634fd5fdfccd14f251ab4f9675",
+  "sourceHashes": [
+    {
+      "file": "convex/delivery.ts",
+      "sha256": "ea7022c2c623d8acf66f43113a7c0f9c7f5890b61baa7769db1e420ec3a630ff",
+      "functions": [
+        {
+          "name": "listInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "list",
+          "builder": "query",
+          "visibility": "public"
+        },
+        {
+          "name": "getInternal",
+          "builder": "internalQuery",
+          "visibility": "internal"
+        },
+        {
+          "name": "prepareInternal",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "prepare",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "approve",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "correctTarget",
+          "builder": "mutation",
+          "visibility": "public"
+        },
+        {
+          "name": "markDispatched",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordExecutionFailure",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "executeApproved",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "recordWorkflowResult",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordDeploymentResult",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "reviewFailedQaRun",
+          "builder": "action",
+          "visibility": "public"
+        },
+        {
+          "name": "allowVerifiedQaRetry",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        }
+      ]
+    },
+    {
+      "file": "convex/deliveryDispatch.ts",
+      "sha256": "a3a226da30fdf4c65ff2e8eae40f09d859dea05134ea8401f251e3d3536c10d7",
+      "functions": [
+        {
+          "name": "reserve",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "recordCommit",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "advance",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "failed",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "complete",
+          "builder": "internalMutation",
+          "visibility": "internal"
+        },
+        {
+          "name": "status",
+          "builder": "query",
+          "visibility": "public"
+        }
+      ]
+    },
+    {
+      "file": "convex/deliveryDispatchAction.ts",
+      "sha256": "dd8b634b8fd0930b0f9ee3b2054ef835eb0c74f9ab920d6cc1e7f761790a6dfa",
+      "functions": []
+    },
+    {
+      "file": "convex/otpDelivery.ts",
+      "sha256": "6f2caccbfba4b25c14ab3c12ca0bf12997788ecdc390062ffccdf459acbf0400",
+      "functions": []
+    },
+    {
+      "file": "convex/ResendOTP.ts",
+      "sha256": "bd1d99d84c243675bb82701d7fb9fbb5dd471c731a27b2ffc5d3f4585f3761d7",
+      "functions": []
+    },
+    {
+      "file": "convex/schema.ts",
+      "sha256": "276772f80c7943edb2b94bd0ba5165d77cb25f3778b961d8caa770d183c75f60",
+      "functions": []
+    },
+    {
+      "file": "src/components/delivery-attempt-status.tsx",
+      "sha256": "a5dcf89e2e0dd0f93006b40a9e2b7e017342c66decf9b35d7b3976f24172fe3c",
+      "functions": []
+    },
+    {
+      "file": "src/routes/delivery.tsx",
+      "sha256": "559c0d2346a2ef0d2b5a76b4769068dc7b31e254500d1e0bca9da49cf3ef4287",
+      "functions": []
+    },
+    {
+      "file": "__tests__/convex/delivery-dispatch-safety.test.ts",
+      "sha256": "949142a036c9763734bac928cc316387fbb6d7ca7b3f2c434093c1818c9d80b0",
+      "functions": []
+    },
+    {
+      "file": "__tests__/otp-delivery-safety.test.ts",
+      "sha256": "bef94d370eb4e9190f1fd8a58ae8f75de7267d1fdc7cf61b1c8302fd669ba669",
+      "functions": []
+    },
+    {
+      "file": "__tests__/delivery-attempt-status.test.tsx",
+      "sha256": "0534d6d3895221bc55f7398750152b1d898d82ac891bc52d2bf3d88ab3802ec3",
+      "functions": []
+    }
+  ],
+  "checks": {
+    "strict": "passed",
+    "testingDeploy": "backward-compatible",
+    "fullSuite": {
+      "tests": 905,
+      "files": 160,
+      "exitCode": 0,
+      "durationSeconds": 152.28,
+      "log": "/tmp/step12-dispatch-auth-full.log"
+    },
+    "genuineOtp": {
+      "environment": "Testing",
+      "session": "nf-step12-dispatch-auth",
+      "reservedIdentity": true,
+      "codeDisclosed": false,
+      "signInPassed": true,
+      "reloadPersisted": true,
+      "viewport": 375,
+      "documentWidth": 375,
+      "browserErrors": [],
+      "signOutClickSucceeded": true,
+      "postSignOutSelectorCheck": "not established: CLI wait selector was unquoted; browser then closed",
+      "sessionClosed": true
+    }
+  },
+  "verifiedScope": [
+    "Durable per-generation dispatch claim and exact cached result; concurrent action cannot duplicate GitHub writes.",
+    "Current ownership/approval/artifact digest checked before each external write; commit SHA retained before dispatch.",
+    "Ambiguous commit/dispatch outcomes fence automatic replay and cannot be reset by approval/target edits.",
+    "Exact protected callback can settle uncertainty; fast callback evidence survives action settlement.",
+    "QA retry requires exact verified failed run/commit; historical callback cannot corrupt new attempt.",
+    "Bounded GitHub responses, timeouts, redirect rejection and sanitized transport errors.",
+    "OTP preserves existing payload/provider/generator; HTTPS endpoint, timeout, redirect rejection, response cancellation and no automatic retry.",
+    "Owned attempt status UI with explicit uncertainty guidance."
+  ],
+  "limitations": {
+    "realGithubDispatchThisIncrement": false,
+    "newInference": false,
+    "checkout": false,
+    "managedHostInterruption": false,
+    "wholeApplicationSecurityReviewComplete": false,
+    "historyDeleted": false
+  },
+  "remaining": [
+    "Final source/helper/frontend inventory reconciliation",
+    "Delivery prepare/correctTarget and remaining assertion/product/traffic evidence admission and pagination",
+    "Recurring backup/restore (13), managed-host recovery dependency (14), actual invoice dependency (15), release acceptance (16)"
+  ],
+  "step12": "OPEN",
+  "payments": "Step 17 LAST"
+}

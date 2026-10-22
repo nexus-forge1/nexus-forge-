@@ -1,3 +1,6 @@
+import {evidencePage} from './evidenceAdmission'
+import {validateManualMemory,checkManualMemoryAdmission} from './recordAdmission'
+import {readMemoryContext,MEMORY_CONTEXT_LIMIT_MESSAGE} from './memoryContext'
 import { rankCouncilCandidate } from "./councilMemoryCandidate"
 import { councilMemoryItem, councilSelectionFields, councilEvaluationFields, councilCandidate, councilPolicyFields } from "./councilMemoryModel"
 import { internal } from "./_generated/api"
@@ -34,7 +37,7 @@ export const list = query({
   handler: async (ctx, args): Promise<PaginationResult<Doc<"memories">>> => {
     const userId = await getAuthUserId(ctx)
     if (!userId) throw new ConvexError("Authenticated operator session required")
-    return ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", userId)).order("desc").paginate(args.paginationOpts)
+    return ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", userId)).order("desc").paginate(evidencePage(args.paginationOpts))
   },
 })
 
@@ -61,12 +64,16 @@ export const browse = query({
         if (args.missionId) matches = matches.eq("missionId", args.missionId)
         if (category) matches = matches.eq("category", category)
         return matches
-      }).paginate(args.paginationOpts)
+      }).paginate(evidencePage(args.paginationOpts))
     }
-    let rows = ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", ownerKey)).order("desc")
-    if (args.missionId) rows = rows.filter(q => q.eq(q.field("missionId"), args.missionId))
-    if (category) rows = rows.filter(q => q.eq(q.field("category"), category))
-    return rows.paginate(args.paginationOpts)
+    const rows = args.missionId
+      ? category
+        ? ctx.db.query("memories").withIndex("by_owner_mission_category", q => q.eq("ownerKey", ownerKey).eq("missionId", args.missionId).eq("category", category))
+        : ctx.db.query("memories").withIndex("by_owner_mission", q => q.eq("ownerKey", ownerKey).eq("missionId", args.missionId))
+      : category
+        ? ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", category))
+        : ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", ownerKey))
+    return rows.order("desc").paginate(evidencePage(args.paginationOpts))
   },
 })
 
@@ -76,7 +83,7 @@ export const getMissionSynthesis = internalQuery({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get("missions", args.missionId)
     if (!mission) return null
-    const row = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", mission.ownerKey)).filter(q => q.and(q.eq(q.field("missionId"), args.missionId), q.eq(q.field("category"), "research-synthesis"))).order("desc").first()
+    const row = await ctx.db.query("memories").withIndex("by_owner_mission_category", q => q.eq("ownerKey", mission.ownerKey).eq("missionId", args.missionId).eq("category", "research-synthesis")).order("desc").first()
     return row ? { value: row.value, confidence: row.confidence, source: row.source } : null
   },
 })
@@ -87,7 +94,7 @@ export const getLearningContext = internalQuery({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get("missions", args.missionId)
     if (!mission) throw new Error("Mission not found")
-    const rows = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", mission.ownerKey)).filter(q => q.and(q.neq(q.field("category"), "retrieval-evaluation"), q.neq(q.field("category"), "strategy-reuse-comparison"))).order("desc").take(60)
+    const rows = await readMemoryContext(ctx,mission.ownerKey,60)
     const outcomes = rows.filter(row => row.category === "verification-outcome").slice(0, 10).map(row => ({ value: row.value, confidence: row.confidence, source: row.source }))
     const lessons = rows.filter(row => row.category === "learning-lesson" || row.category === "operational-recovery").slice(0, 10).map(formatLearningRow)
 
@@ -100,7 +107,7 @@ export const getAdaptivePreflight = internalQuery({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get("missions", args.missionId)
     if (!mission) throw new Error("Mission not found")
-    const rows = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", mission.ownerKey)).filter(q => q.and(q.neq(q.field("category"), "retrieval-evaluation"), q.neq(q.field("category"), "strategy-reuse-comparison"))).order("desc").take(80)
+    const rows = await readMemoryContext(ctx,mission.ownerKey,80)
     return buildPreflight(args.missionId, rows)
   },
 })
@@ -109,16 +116,30 @@ export const getAdaptivePreflightForOperator = query({
   args: { missionId: v.id("missions") }, returns: preflight,
   handler: async (ctx, args) => {
     const mission = await requireOwnedMission(ctx, args.missionId)
-    const rows = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", mission.ownerKey)).filter(q => q.and(q.neq(q.field("category"), "retrieval-evaluation"), q.neq(q.field("category"), "strategy-reuse-comparison"))).order("desc").take(80)
+    const rows = await readMemoryContext(ctx,mission.ownerKey,80)
     return buildPreflight(args.missionId, rows)
   },
 })
 
+// Operator display stays available when planning correctly fails closed.
+export const adaptivePreflightStatus = query({
+ args:{missionId:v.id("missions")},
+ returns:v.union(v.object({ok:v.literal(true),value:preflight}),v.object({ok:v.literal(false),message:v.string()})),
+ handler:async(ctx,args)=>{
+  const mission=await requireOwnedMission(ctx,args.missionId)
+  try{return{ok:true as const,value:buildPreflight(args.missionId,await readMemoryContext(ctx,mission.ownerKey,80))}}
+  catch(error){
+   if(error instanceof ConvexError&&error.data===MEMORY_CONTEXT_LIMIT_MESSAGE)return{ok:false as const,message:MEMORY_CONTEXT_LIMIT_MESSAGE}
+   throw error
+  }
+ }
+})
 export const remember = mutation({
   args: { ownerKey: v.optional(v.string()), missionId: v.optional(v.id("missions")), category: v.string(), key: v.string(), value: v.string(), confidence: v.number(), source: v.string(), manifestStrategyId: v.optional(v.id("memories")), applicability: v.optional(v.string()), evidenceReferences: v.optional(v.array(v.string())) },
   returns: v.id("memories"),
   handler: async (ctx, args) => {
     const userId = await requireOperator(ctx)
+    validateManualMemory(args)
     if (["retrieval-evaluation", "strategy-reuse-comparison", "mission-source"].includes(args.category)) throw new Error("Evaluation and mission-source receipts must be computed by the server.")
     const mission = args.missionId ? await requireOwnedMission(ctx, args.missionId) : null
     const ownerKey = mission?.ownerKey ?? userId
@@ -153,7 +174,8 @@ export const remember = mutation({
       })
       key = `reviewed-lesson:${strategy._id}:${Date.now()}`
     }
-    return ctx.db.insert("memories", {
+    await checkManualMemoryAdmission(ctx,ownerKey)
+    const id = await ctx.db.insert("memories", {
       ownerKey,
       missionId: mission?._id,
       category: args.category,
@@ -162,6 +184,8 @@ export const remember = mutation({
       confidence: Math.max(0, Math.min(1, args.confidence)),
       source: args.source,
     })
+    await ctx.db.insert('manualMemoryAdmissions',{ownerKey,memoryId:id,createdAt:Date.now()})
+    return id
   },
 })
 
@@ -228,9 +252,10 @@ export const evaluateRetrievalInternal = internalQuery({
       if (args.missionId) match = match.eq("missionId", args.missionId)
       return match
     }).take(5)
-    let recentQuery = ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "learning-lesson")).order("desc")
-    if (args.missionId) recentQuery = recentQuery.filter(q => q.eq(q.field("missionId"), args.missionId))
-    const recent = await recentQuery.take(5)
+    const recentQuery = args.missionId
+      ? ctx.db.query("memories").withIndex("by_owner_mission_category", q => q.eq("ownerKey", ownerKey).eq("missionId", args.missionId).eq("category", "learning-lesson"))
+      : ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "learning-lesson"))
+    const recent = await recentQuery.order("desc").take(5)
     const snapshot = (row: Doc<"memories">) => {
       let strategyId: string | null = null
       try {
@@ -305,7 +330,7 @@ export const getCouncilMemorySelection = internalQuery({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get(args.missionId)
     if (!mission) throw new Error("Mission not found")
-    const rows = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", mission.ownerKey)).filter(q => q.and(q.neq(q.field("category"), "retrieval-evaluation"), q.neq(q.field("category"), "strategy-reuse-comparison"))).order("desc").take(80)
+    const rows = await readMemoryContext(ctx,mission.ownerKey,80)
     const learningRows = rows.slice(0, 60)
     const outcomes = learningRows.filter(row => row.category === "verification-outcome").slice(0, 10)
     const lessons = learningRows.filter(row => row.category === "learning-lesson" || row.category === "operational-recovery").slice(0, 10)

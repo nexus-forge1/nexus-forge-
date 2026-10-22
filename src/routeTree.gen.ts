@@ -13,17 +13,24 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtifactsRouteImport } from './routes/artifacts'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as CapabilitiesRouteImport } from './routes/capabilities'
+import { Route as ChangesRouteImport } from './routes/changes'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ClientDeliveryRouteImport } from './routes/client-delivery'
 import { Route as ComparisonsRouteImport } from './routes/comparisons'
+import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as CouncilRouteImport } from './routes/council'
 import { Route as DeliveryRouteImport } from './routes/delivery'
 import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as EconomicsRouteImport } from './routes/economics'
 import { Route as EvidenceRouteImport } from './routes/evidence'
+import { Route as ExpansionRouteImport } from './routes/expansion'
 import { Route as GeneralityRouteImport } from './routes/generality'
 import { Route as IncidentsRouteImport } from './routes/incidents'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as LearningRouteImport } from './routes/learning'
 import { Route as ManifestRouteImport } from './routes/manifest'
 import { Route as MissionRouteImport } from './routes/mission'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OrchestratorRouteImport } from './routes/orchestrator'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -32,7 +39,9 @@ import { Route as ReadinessRouteImport } from './routes/readiness'
 import { Route as ResilienceRouteImport } from './routes/resilience'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ScienceRouteImport } from './routes/science'
+import { Route as SpecificationsRouteImport } from './routes/specifications'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WorkflowRouteImport } from './routes/workflow'
 
 const IndexRoute = IndexRouteImport.update({
@@ -55,14 +64,29 @@ const CapabilitiesRoute = CapabilitiesRouteImport.update({
   path: '/capabilities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChangesRoute = ChangesRouteImport.update({
+  id: '/changes',
+  path: '/changes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientDeliveryRoute = ClientDeliveryRouteImport.update({
+  id: '/client-delivery',
+  path: '/client-delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComparisonsRoute = ComparisonsRouteImport.update({
   id: '/comparisons',
   path: '/comparisons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectionsRoute = ConnectionsRouteImport.update({
+  id: '/connections',
+  path: '/connections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CouncilRoute = CouncilRouteImport.update({
@@ -80,9 +104,19 @@ const DevelopersRoute = DevelopersRouteImport.update({
   path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EconomicsRoute = EconomicsRouteImport.update({
+  id: '/economics',
+  path: '/economics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EvidenceRoute = EvidenceRouteImport.update({
   id: '/evidence',
   path: '/evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpansionRoute = ExpansionRouteImport.update({
+  id: '/expansion',
+  path: '/expansion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GeneralityRoute = GeneralityRouteImport.update({
@@ -93,6 +127,11 @@ const GeneralityRoute = GeneralityRouteImport.update({
 const IncidentsRoute = IncidentsRouteImport.update({
   id: '/incidents',
   path: '/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearningRoute = LearningRouteImport.update({
@@ -108,6 +147,11 @@ const ManifestRoute = ManifestRouteImport.update({
 const MissionRoute = MissionRouteImport.update({
   id: '/mission',
   path: '/mission',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrchestratorRoute = OrchestratorRouteImport.update({
@@ -150,9 +194,19 @@ const ScienceRoute = ScienceRouteImport.update({
   path: '/science',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpecificationsRoute = SpecificationsRouteImport.update({
+  id: '/specifications',
+  path: '/specifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkflowRoute = WorkflowRouteImport.update({
@@ -166,17 +220,24 @@ export interface FileRoutesByFullPath {
   '/artifacts': typeof ArtifactsRoute
   '/billing': typeof BillingRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
   '/delivery': typeof DeliveryRoute
   '/developers': typeof DevelopersRoute
+  '/economics': typeof EconomicsRoute
   '/evidence': typeof EvidenceRoute
+  '/expansion': typeof ExpansionRoute
   '/generality': typeof GeneralityRoute
   '/incidents': typeof IncidentsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
   '/mission': typeof MissionRoute
+  '/notifications': typeof NotificationsRoute
   '/orchestrator': typeof OrchestratorRoute
   '/portfolio': typeof PortfolioRoute
   '/pricing': typeof PricingRoute
@@ -185,7 +246,9 @@ export interface FileRoutesByFullPath {
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
   '/science': typeof ScienceRoute
+  '/specifications': typeof SpecificationsRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRoutesByTo {
@@ -193,17 +256,24 @@ export interface FileRoutesByTo {
   '/artifacts': typeof ArtifactsRoute
   '/billing': typeof BillingRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
   '/delivery': typeof DeliveryRoute
   '/developers': typeof DevelopersRoute
+  '/economics': typeof EconomicsRoute
   '/evidence': typeof EvidenceRoute
+  '/expansion': typeof ExpansionRoute
   '/generality': typeof GeneralityRoute
   '/incidents': typeof IncidentsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
   '/mission': typeof MissionRoute
+  '/notifications': typeof NotificationsRoute
   '/orchestrator': typeof OrchestratorRoute
   '/portfolio': typeof PortfolioRoute
   '/pricing': typeof PricingRoute
@@ -212,7 +282,9 @@ export interface FileRoutesByTo {
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
   '/science': typeof ScienceRoute
+  '/specifications': typeof SpecificationsRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRoutesById {
@@ -221,17 +293,24 @@ export interface FileRoutesById {
   '/artifacts': typeof ArtifactsRoute
   '/billing': typeof BillingRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
   '/delivery': typeof DeliveryRoute
   '/developers': typeof DevelopersRoute
+  '/economics': typeof EconomicsRoute
   '/evidence': typeof EvidenceRoute
+  '/expansion': typeof ExpansionRoute
   '/generality': typeof GeneralityRoute
   '/incidents': typeof IncidentsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
   '/mission': typeof MissionRoute
+  '/notifications': typeof NotificationsRoute
   '/orchestrator': typeof OrchestratorRoute
   '/portfolio': typeof PortfolioRoute
   '/pricing': typeof PricingRoute
@@ -240,7 +319,9 @@ export interface FileRoutesById {
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
   '/science': typeof ScienceRoute
+  '/specifications': typeof SpecificationsRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRouteTypes {
@@ -250,17 +331,24 @@ export interface FileRouteTypes {
     | '/artifacts'
     | '/billing'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
     | '/comparisons'
+    | '/connections'
     | '/council'
     | '/delivery'
     | '/developers'
+    | '/economics'
     | '/evidence'
+    | '/expansion'
     | '/generality'
     | '/incidents'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
     | '/mission'
+    | '/notifications'
     | '/orchestrator'
     | '/portfolio'
     | '/pricing'
@@ -269,7 +357,9 @@ export interface FileRouteTypes {
     | '/resilience'
     | '/roadmap'
     | '/science'
+    | '/specifications'
     | '/teams'
+    | '/templates'
     | '/workflow'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -277,17 +367,24 @@ export interface FileRouteTypes {
     | '/artifacts'
     | '/billing'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
     | '/comparisons'
+    | '/connections'
     | '/council'
     | '/delivery'
     | '/developers'
+    | '/economics'
     | '/evidence'
+    | '/expansion'
     | '/generality'
     | '/incidents'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
     | '/mission'
+    | '/notifications'
     | '/orchestrator'
     | '/portfolio'
     | '/pricing'
@@ -296,7 +393,9 @@ export interface FileRouteTypes {
     | '/resilience'
     | '/roadmap'
     | '/science'
+    | '/specifications'
     | '/teams'
+    | '/templates'
     | '/workflow'
   id:
     | '__root__'
@@ -304,17 +403,24 @@ export interface FileRouteTypes {
     | '/artifacts'
     | '/billing'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
     | '/comparisons'
+    | '/connections'
     | '/council'
     | '/delivery'
     | '/developers'
+    | '/economics'
     | '/evidence'
+    | '/expansion'
     | '/generality'
     | '/incidents'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
     | '/mission'
+    | '/notifications'
     | '/orchestrator'
     | '/portfolio'
     | '/pricing'
@@ -323,7 +429,9 @@ export interface FileRouteTypes {
     | '/resilience'
     | '/roadmap'
     | '/science'
+    | '/specifications'
     | '/teams'
+    | '/templates'
     | '/workflow'
   fileRoutesById: FileRoutesById
 }
@@ -332,17 +440,24 @@ export interface RootRouteChildren {
   ArtifactsRoute: typeof ArtifactsRoute
   BillingRoute: typeof BillingRoute
   CapabilitiesRoute: typeof CapabilitiesRoute
+  ChangesRoute: typeof ChangesRoute
   CheckoutRoute: typeof CheckoutRoute
+  ClientDeliveryRoute: typeof ClientDeliveryRoute
   ComparisonsRoute: typeof ComparisonsRoute
+  ConnectionsRoute: typeof ConnectionsRoute
   CouncilRoute: typeof CouncilRoute
   DeliveryRoute: typeof DeliveryRoute
   DevelopersRoute: typeof DevelopersRoute
+  EconomicsRoute: typeof EconomicsRoute
   EvidenceRoute: typeof EvidenceRoute
+  ExpansionRoute: typeof ExpansionRoute
   GeneralityRoute: typeof GeneralityRoute
   IncidentsRoute: typeof IncidentsRoute
+  KnowledgeRoute: typeof KnowledgeRoute
   LearningRoute: typeof LearningRoute
   ManifestRoute: typeof ManifestRoute
   MissionRoute: typeof MissionRoute
+  NotificationsRoute: typeof NotificationsRoute
   OrchestratorRoute: typeof OrchestratorRoute
   PortfolioRoute: typeof PortfolioRoute
   PricingRoute: typeof PricingRoute
@@ -351,7 +466,9 @@ export interface RootRouteChildren {
   ResilienceRoute: typeof ResilienceRoute
   RoadmapRoute: typeof RoadmapRoute
   ScienceRoute: typeof ScienceRoute
+  SpecificationsRoute: typeof SpecificationsRoute
   TeamsRoute: typeof TeamsRoute
+  TemplatesRoute: typeof TemplatesRoute
   WorkflowRoute: typeof WorkflowRoute
 }
 
@@ -385,6 +502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CapabilitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/changes': {
+      id: '/changes'
+      path: '/changes'
+      fullPath: '/changes'
+      preLoaderRoute: typeof ChangesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -392,11 +516,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/client-delivery': {
+      id: '/client-delivery'
+      path: '/client-delivery'
+      fullPath: '/client-delivery'
+      preLoaderRoute: typeof ClientDeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comparisons': {
       id: '/comparisons'
       path: '/comparisons'
       fullPath: '/comparisons'
       preLoaderRoute: typeof ComparisonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connections': {
+      id: '/connections'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof ConnectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/council': {
@@ -420,11 +558,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/economics': {
+      id: '/economics'
+      path: '/economics'
+      fullPath: '/economics'
+      preLoaderRoute: typeof EconomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/evidence': {
       id: '/evidence'
       path: '/evidence'
       fullPath: '/evidence'
       preLoaderRoute: typeof EvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expansion': {
+      id: '/expansion'
+      path: '/expansion'
+      fullPath: '/expansion'
+      preLoaderRoute: typeof ExpansionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generality': {
@@ -439,6 +591,13 @@ declare module '@tanstack/react-router' {
       path: '/incidents'
       fullPath: '/incidents'
       preLoaderRoute: typeof IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learning': {
@@ -460,6 +619,13 @@ declare module '@tanstack/react-router' {
       path: '/mission'
       fullPath: '/mission'
       preLoaderRoute: typeof MissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orchestrator': {
@@ -518,11 +684,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScienceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/specifications': {
+      id: '/specifications'
+      path: '/specifications'
+      fullPath: '/specifications'
+      preLoaderRoute: typeof SpecificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams': {
       id: '/teams'
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workflow': {
@@ -540,17 +720,24 @@ const rootRouteChildren: RootRouteChildren = {
   ArtifactsRoute: ArtifactsRoute,
   BillingRoute: BillingRoute,
   CapabilitiesRoute: CapabilitiesRoute,
+  ChangesRoute: ChangesRoute,
   CheckoutRoute: CheckoutRoute,
+  ClientDeliveryRoute: ClientDeliveryRoute,
   ComparisonsRoute: ComparisonsRoute,
+  ConnectionsRoute: ConnectionsRoute,
   CouncilRoute: CouncilRoute,
   DeliveryRoute: DeliveryRoute,
   DevelopersRoute: DevelopersRoute,
+  EconomicsRoute: EconomicsRoute,
   EvidenceRoute: EvidenceRoute,
+  ExpansionRoute: ExpansionRoute,
   GeneralityRoute: GeneralityRoute,
   IncidentsRoute: IncidentsRoute,
+  KnowledgeRoute: KnowledgeRoute,
   LearningRoute: LearningRoute,
   ManifestRoute: ManifestRoute,
   MissionRoute: MissionRoute,
+  NotificationsRoute: NotificationsRoute,
   OrchestratorRoute: OrchestratorRoute,
   PortfolioRoute: PortfolioRoute,
   PricingRoute: PricingRoute,
@@ -559,7 +746,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResilienceRoute: ResilienceRoute,
   RoadmapRoute: RoadmapRoute,
   ScienceRoute: ScienceRoute,
+  SpecificationsRoute: SpecificationsRoute,
   TeamsRoute: TeamsRoute,
+  TemplatesRoute: TemplatesRoute,
   WorkflowRoute: WorkflowRoute,
 }
 export const routeTree = rootRouteImport

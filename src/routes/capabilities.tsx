@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { missionProgressPercent } from '../lib/mission-progress'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useQuery } from 'convex/react'
@@ -9,7 +10,7 @@ import { ArtifactBenchmarkEvidence } from '../components/artifact-benchmark-evid
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
 
-export const Route = createFileRoute('/capabilities')({ component: CapabilityDashboard })
+export const Route = createFileRoute('/capabilities')({ head: () => routeHead("/capabilities"), component: CapabilityDashboard })
 
 type ProviderResult = {
   name: string

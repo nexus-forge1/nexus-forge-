@@ -2,7 +2,7 @@ import {v,ConvexError} from 'convex/values'
 import {mutation,query} from './_generated/server'
 import type {MutationCtx,QueryCtx} from './_generated/server'
 import type {Id} from './_generated/dataModel'
-import {admin,email,provisionDirectory,revokeDirectoryGrant} from './teamProvisioning'
+import {admin,email,directoryIdentity,provisionDirectory,revokeDirectoryGrant} from './teamProvisioning'
 import {audit} from './frontierSupport'
 
 const entry=v.object({email:v.string(),role:v.union(v.literal('viewer'),v.literal('contributor'))})
@@ -17,10 +17,7 @@ async function review(ctx:QueryCtx|MutationCtx,a:Input){
  const memberships=await ctx.db.query('forgeMemberships').withIndex('by_team',q=>q.eq('teamId',a.teamId)).take(20)
  if(grants.length+entries.filter(e=>!grants.some(g=>g.email===e.email)).length>20)throw new ConvexError('Directory quota reached; historical grants are retained')
  const users=await Promise.all(entries.map(async e=>{
-  const candidates=await ctx.db.query('users').withIndex('email',q=>q.eq('email',e.email)).take(3)
-  const verified=candidates.filter(u=>u.emailVerificationTime)
-  if(verified.length>1)throw new ConvexError('Ambiguous verified user; review account records')
-  const u=verified[0]
+  const u=await directoryIdentity(ctx,e.email)
   // Membership quotas may change outside this team; bind those states to the review too.
   const memberships=u?await ctx.db.query('forgeMemberships').withIndex('by_operator',q=>q.eq('operatorId',u._id)).take(20):[]
   return{email:e.email,userId:u?._id??null,verifiedAt:u?.emailVerificationTime??null,memberships}

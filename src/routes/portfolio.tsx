@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { PlatformTaskPerformance } from '../components/platform-task-performance'
 import { SiteTrafficEvidence } from "../components/site-traffic-evidence"
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -6,7 +7,7 @@ import { PortfolioIntelligence } from '../components/portfolio-intelligence'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
 
-export const Route = createFileRoute('/portfolio')({ component: PortfolioPage })
+export const Route = createFileRoute('/portfolio')({ head: () => routeHead("/portfolio"), component: PortfolioPage })
 
 function PortfolioPage() {
   const { setMissionId, missionId, mission } = useActiveMission()

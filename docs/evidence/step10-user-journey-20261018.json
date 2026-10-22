@@ -1,0 +1,313 @@
+{
+  "version": "step10-user-journey-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T05:47:15.273Z",
+  "billingBefore": "55b8b7e52fa501115baf760a373ce29b7554ad12d96bae45e0fec573560fc347",
+  "existingMissions": [
+    {
+      "id": "k9785971s11decjbpnpgf9cmrs8ghkkj",
+      "hash": "d1f08dd9600013f7a62f21ea34f52a39ab4d6f94dd58d466364a2e5321deacbd"
+    },
+    {
+      "id": "k971q6rq1tgzknd7dm3kb4zc6h8gh3pv",
+      "hash": "29fb1247b59349eea17704517eac553da8bde06a9c8f3eeafc125ca872393c98"
+    },
+    {
+      "id": "k9741ysjwr8mv5tt0phf8jnvb98ghqdg",
+      "hash": "5986c1963d6cf99c3013f42760db89a57f292069fcf5344ffa416128db25627b"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "heading": "Mission Overview",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/workflow",
+      "heading": "Guided Workflow & Feature Guide",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/roadmap",
+      "heading": "Project roadmap",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/manifest",
+      "heading": "Manifest Intelligence",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/orchestrator",
+      "heading": "Intelligence Orchestrator",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/mission",
+      "heading": "Mission Console",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Continue on this page ↓View full guide →"
+    },
+    {
+      "path": "/providers",
+      "heading": "AI Provider Health",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/council",
+      "heading": "AI Council Workspace",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/evidence",
+      "heading": "Research & Memory",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/artifacts",
+      "heading": "Artifact Forge",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/delivery",
+      "heading": "Delivery Pipeline",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/readiness",
+      "heading": "Launch Readiness Checker",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/portfolio",
+      "heading": "Portfolio Intelligence",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/learning",
+      "heading": "Verified Learning Engine",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/capabilities",
+      "heading": "Capability & Reliability",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/incidents",
+      "heading": "Incident Center",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/resilience",
+      "heading": "Security & Resilience",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/teams",
+      "heading": "Team Governance",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/developers",
+      "heading": "Developer Integrations",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/comparisons",
+      "heading": "Comparative Validation",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/science",
+      "heading": "Scientific Experiments",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/generality",
+      "heading": "Generality Research",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    }
+  ],
+  "passed": true,
+  "discardedPrematureAudits": [
+    {
+      "path": "/roadmap",
+      "heading": "Guided Workflow & Feature Guide",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/manifest",
+      "heading": "Guided Workflow & Feature Guide",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    },
+    {
+      "path": "/manifest",
+      "heading": "Manifest Intelligence",
+      "viewport": 375,
+      "scrollWidth": 375,
+      "loading": false,
+      "missingAnchors": [],
+      "errorBoundary": false,
+      "guide": "Step 10 journey beta 20261018-c6e2Review mission authorization1/9 checkpoints recorded · The mission approval record is a prerequisite for governed execution.Go to next mission step →View full guide →"
+    }
+  ],
+  "selection": {
+    "alphaApprovedWithoutExecution": true,
+    "betaUnapproved": true,
+    "isolatedContracts": true,
+    "nextActionOpenedCouncil": true,
+    "betaPersistedAfterReload": true
+  },
+  "staleSelectionRecovered": true,
+  "uncaughtBrowserErrors": [],
+  "fixtures": [
+    {
+      "id": "k979ha2j7dmsxex62jnmqqexbh8gh5j1",
+      "title": "Step 10 journey beta 20261018-c6e2",
+      "status": "draft",
+      "approved": false,
+      "budget": 0,
+      "noExecution": true
+    },
+    {
+      "id": "k97dmpsbfyx6dksjyv6610wabx8ghkxr",
+      "title": "Step 10 journey alpha 20261018-c6e2",
+      "status": "running",
+      "approved": true,
+      "budget": 0,
+      "noExecution": true
+    }
+  ],
+  "billingUnchanged": true,
+  "existingMissionsUnchanged": true,
+  "signedOut": true,
+  "sessionClosed": true,
+  "sourceRevision": "1f38b191818b5d59387d1f7fb0d1a23b1ae63a05",
+  "sourceHashes": {
+    "src/lib/use-mission-guide.ts": "eb3e0e742bf098c36570a39b11020870f1d98019304d55d9de190803351d78e7",
+    "src/hooks/use-active-mission.ts": "8f5ba31e8fbbaa95ea9968edd22097b8ad5312821ef9b0dfa842b8369b36cdca",
+    "convex/missions.ts": "d84ec7979acfe519cd10b6a1095876c80a59a4a057e178055aa1d8fc68da055e"
+  },
+  "scope": "Signed-in 375x812 navigation and selection checks; prior accepted real provider/delivery/outcome evidence reused. No new inference. Terminal/review branches validated in unit tests, not simulated deployed mission states."
+}

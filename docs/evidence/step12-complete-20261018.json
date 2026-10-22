@@ -1,0 +1,416 @@
+{
+  "version": "step12-complete-v1",
+  "observedAt": "2026-10-18T18:43:50.450Z",
+  "step12Acceptance": "COMPLETE — supported operator release review",
+  "sourceRevision": "83b6332b5f5a2649365c0f3690781591fa68c6de",
+  "sourceHashes": [
+    {
+      "file": "convex/adaptiveRuntime.ts",
+      "sha256": "d91025d42a14d2dbf13da49c3355f4ace77934a7358577c30bf2ab67aff9ac6d"
+    },
+    {
+      "file": "convex/artifactCi.ts",
+      "sha256": "3dc39cb3d586e2c804a02c2007d030dc1139e26ef76fa7c4cf5078e52e5e6111"
+    },
+    {
+      "file": "convex/artifactCiActions.ts",
+      "sha256": "7aad57d4811532544856640a30c86dac7a34cd45d811a7fe47cd2fb767bc7f34"
+    },
+    {
+      "file": "convex/artifacts.ts",
+      "sha256": "fb5de309434c3d692cf48dbd732478d543293d716173329a71af5c7fa7eb78b9"
+    },
+    {
+      "file": "convex/artifactTests.ts",
+      "sha256": "687e4b334be02437b8de27c08914cfd32bc006411affb9b6507622cd687e2352"
+    },
+    {
+      "file": "convex/audit.ts",
+      "sha256": "0f49a87bd32a12a542614dd390fde9eb240c1e193372fe279814b6b8c4935914"
+    },
+    {
+      "file": "convex/benchmarks.ts",
+      "sha256": "82f0a0a82b1132a2d1cf4a6898782632bfe34d32fc5b946dadad6b8c92a2d799"
+    },
+    {
+      "file": "convex/billing.ts",
+      "sha256": "af7ed5d0bc2995bb658f3f313c6ff60af55780dfc1e0f5f9e741c10c94ac7154"
+    },
+    {
+      "file": "convex/billingDiagnostics.ts",
+      "sha256": "947c68e1f6bfae74dc06ccdfd7dfa5fe7735d963293722763836000f9f5ec43a"
+    },
+    {
+      "file": "convex/billingReview.ts",
+      "sha256": "db31b52d9e1f5e90aad7f60c1128d366999de7817e609bccba6e333c9944f6d5"
+    },
+    {
+      "file": "convex/continuation.ts",
+      "sha256": "f5ed8102f295b363e530fb580d2dae7148eeaf887335c6828398cb387aca475c"
+    },
+    {
+      "file": "convex/delivery.ts",
+      "sha256": "2c34bb29910465200bf4bdce92817f5c470ea3500485aa807e77dafcbb5973e3"
+    },
+    {
+      "file": "convex/executionClaims.ts",
+      "sha256": "8876747b4228a6aee8e16ba512bb0046f16bc23c470559a3454c814ec7c0b938"
+    },
+    {
+      "file": "convex/executionReview.ts",
+      "sha256": "793caace2069d3eab134587f154918470eab4cf02618a2cc0deedcb6970ab995"
+    },
+    {
+      "file": "convex/externalRuntime.ts",
+      "sha256": "7bfdf41f380ec09008e0e4d15c8cd579a8ff7f69e82a7e23efa97e6f5608f1a7"
+    },
+    {
+      "file": "convex/forge.ts",
+      "sha256": "e9cafc90086df54ccf716fb2c3d5db910f0797cdecd657c1057022d1c3a99003"
+    },
+    {
+      "file": "convex/forgeTeams.ts",
+      "sha256": "7d73a2042dd2be965254255bac7e85b215b3fb65342b1e17504144ee14bf7984"
+    },
+    {
+      "file": "convex/frontierControls.ts",
+      "sha256": "981e1f343e55a6584b8faac5a48b764f0593d448287e466f3d8688c4991ae865"
+    },
+    {
+      "file": "convex/frontierLab.ts",
+      "sha256": "1cc189d0d0cc6981932c5a6659753793de253640eef811de50bf1de68b0d0e2b"
+    },
+    {
+      "file": "convex/geminiMedia.ts",
+      "sha256": "ebf9c1e53d42f166fed90a01c8b85dc797cefb76d1fb8ec106160854a9a7dfdc"
+    },
+    {
+      "file": "convex/githubWriteTools.ts",
+      "sha256": "fac7a9c60f31ca22a95d73d605065661d7ad9ff2f6e4b147e9d74e0179f5db26"
+    },
+    {
+      "file": "convex/incidents.ts",
+      "sha256": "fcf0ba8434f35e6f38b40791b1d06cdf647eca3efcd9085ce2188b2423be589e"
+    },
+    {
+      "file": "convex/intelligenceOrchestrator.ts",
+      "sha256": "ed5ad14913c161448b4ad62f66eb5912ddbbb3fe7cfa99a09eb7b9520f7e43e3"
+    },
+    {
+      "file": "convex/learningEngine.ts",
+      "sha256": "96e28bf7de2f7013b847a27d29cfc747c25b81939f8f937a0462138dde23f0d3"
+    },
+    {
+      "file": "convex/learningReviews.ts",
+      "sha256": "e18126951c7ef8c600c2b9562ac7cc784b34dcb8a4802b2f32d0192788e162ba"
+    },
+    {
+      "file": "convex/liveComparisons.ts",
+      "sha256": "501329531b0c4dd7ba46695e2eb3d5ab6aa9ac6955ad20b31eb40e9050ce4d46"
+    },
+    {
+      "file": "convex/manifestIntelligence.ts",
+      "sha256": "9ce955c124a188b1298ec124fe98077a59974f5511d980eb2f1a1491742f1d9e"
+    },
+    {
+      "file": "convex/mediaChain.ts",
+      "sha256": "35242a0887ac179d3106a1b086d841bf6c7bc493930239b8ce0d4806b96b56d3"
+    },
+    {
+      "file": "convex/mediaChainState.ts",
+      "sha256": "f39ed0e4d02564c3c664fb7e1e65ac10056f9718627c0d389a02d4b2e77c14ec"
+    },
+    {
+      "file": "convex/memory.ts",
+      "sha256": "8aadd0f58aed88565a0ef4dc9541a6738caeb86c8713dc25a44aae5d7d158901"
+    },
+    {
+      "file": "convex/missionRunner.ts",
+      "sha256": "b8931d994d8fe64de73d8539ed2f3c4c2c28898a0c8725b840796ae1f0c79294"
+    },
+    {
+      "file": "convex/missions.ts",
+      "sha256": "e9393c090107a5a7cd9c5f479592063b38140ade0877e7e62d50c72490efc7bf"
+    },
+    {
+      "file": "convex/missionSources.ts",
+      "sha256": "9be8d5fa79ddd427a0969a47edc87168e79142cbceb70d7ba8598158831c14f9"
+    },
+    {
+      "file": "convex/multimodalRuntime.ts",
+      "sha256": "6ec87c4519abc4d4fbf76838bb6e5aae13f8e304e5217ddf4a9b1d5d3327267c"
+    },
+    {
+      "file": "convex/opportunityObservations.ts",
+      "sha256": "e021e1877a675baa1cda063703a240a197ea8162aba6a331f3c0cc2cd61fdfac"
+    },
+    {
+      "file": "convex/opportunityPlans.ts",
+      "sha256": "73ab0782a1622c67de8eda3a177164ae4b440763c4f4f2aedbb9201547f35825"
+    },
+    {
+      "file": "convex/orchestration.ts",
+      "sha256": "309db02f7e1a92c88b0cecbd2ab6a9e6dcfe462d0cc67228317fd161efe32f26"
+    },
+    {
+      "file": "convex/outcomeFeeds.ts",
+      "sha256": "e09c1ecc156c843509ff20cacf6974749beec0f00459137325b6e100aa6e0db6"
+    },
+    {
+      "file": "convex/payments.ts",
+      "sha256": "955359241ecdb8efb8dbe3f824f6a508d0553883a7a2d7fa85f6374175b9e8d2"
+    },
+    {
+      "file": "convex/permissions.ts",
+      "sha256": "bec88d2c1f1f759b2b38d3976220edee31a13cda06d7e94324750ced187dbc65"
+    },
+    {
+      "file": "convex/platformTasks.ts",
+      "sha256": "d69b7d2c989c9af031f0a531f46ba77fb00c0f06b132083641b8e81b2127b3b6"
+    },
+    {
+      "file": "convex/portfolio.ts",
+      "sha256": "f77eed25cf61f16bf33dc7d1d01c4a698cfc8d22e818afb463e9f2521e4ba063"
+    },
+    {
+      "file": "convex/privateMedia.ts",
+      "sha256": "7414d8823a8cc525266344d9e6eeabc4f6d126cc468b30ccef0010b121ef4076"
+    },
+    {
+      "file": "convex/productEvidenceImport.ts",
+      "sha256": "b938727a3483185cbcda8b55d5f81b9d61cded1f1ff92f2760150071553e7d7d"
+    },
+    {
+      "file": "convex/productTelemetry.ts",
+      "sha256": "3034c38e785a681b5e26d211317945f04b61829deebe9a85c7434a882c56882c"
+    },
+    {
+      "file": "convex/providerHealth.ts",
+      "sha256": "713280eb2105806560d89652b9cff58e421e85446650d133939e7fa5df5534a8"
+    },
+    {
+      "file": "convex/providerReconciliation.ts",
+      "sha256": "3e077cdaa1bb2da6bc9f84e89d7e5c10920e08bfacbc1a0f539b0e7e6f357e54"
+    },
+    {
+      "file": "convex/providerRecovery.ts",
+      "sha256": "accab22c3e1863e9825f281e5efa600ed0778d379e1ca0a9ffbb29777a99c3ff"
+    },
+    {
+      "file": "convex/providerUsage.ts",
+      "sha256": "047d1359a896caa7298e39137194a06b8a1232bdcfd077254bc34cbc48fa1626"
+    },
+    {
+      "file": "convex/readiness.ts",
+      "sha256": "872678a1d74f195a0786dd1271efabdfe6580143584c953399aca9c13b600e5f"
+    },
+    {
+      "file": "convex/reproducibleBenchmarks.ts",
+      "sha256": "813060f5c65a6fc2b1f3382c80819fe2f0c4bae18563d22fcf5b7cc68097ae2a"
+    },
+    {
+      "file": "convex/research.ts",
+      "sha256": "190ab89ab331bb68e9f9cc968864c13dce05d0598957817eed1b07bd754f0dd2"
+    },
+    {
+      "file": "convex/researchClaims.ts",
+      "sha256": "1f4dedb1622cc200913cb42bd1506a00e4fa51aece1075d1dd86d042e390239d"
+    },
+    {
+      "file": "convex/researchData.ts",
+      "sha256": "23f21a19b9c370c09184ca5ea0ec3380324468559749107accfbaa04492c4584"
+    },
+    {
+      "file": "convex/researchSources.ts",
+      "sha256": "5293bdfcc2951363c1bb626696a67515c61c54b03ca5d66b7d62f5aaf4a6d34c"
+    },
+    {
+      "file": "convex/resourceCapacity.ts",
+      "sha256": "f3d6ab4d8738d195b0cb545200f71a39d2a80ccd069a733f3d06ed53bf8ab45b"
+    },
+    {
+      "file": "convex/resourceCleanup.ts",
+      "sha256": "94fc8c3b88411596faf8b50b6248db41fa40c272e5b1e8ada354e8876482622d"
+    },
+    {
+      "file": "convex/runtimeReceipts.ts",
+      "sha256": "f6174fa0532a869c48faac48bee87c569813172418e19d6398d93608158ed660"
+    },
+    {
+      "file": "convex/signInOptions.ts",
+      "sha256": "8f98e2c3012af2358d5b088c644533595b27ad3c10050cb80c5c46d8f2dfde6f"
+    },
+    {
+      "file": "convex/siteTraffic.ts",
+      "sha256": "0424fe2713ea0b1ac79a3afe31bf4270ed9629790687ff709cca947b0405c1e6"
+    },
+    {
+      "file": "convex/teamDirectorySync.ts",
+      "sha256": "95447a7ba0195d5a3e99adf0f116ed95fdc4fdfa3765b781364995328072c042"
+    },
+    {
+      "file": "convex/teamProvisioning.ts",
+      "sha256": "fb1d27341366993e4136817a92f43cb5d7685086e4b4aa5d215315798a377c31"
+    },
+    {
+      "file": "convex/users.ts",
+      "sha256": "efd4e2e6e82348e8fcd36c12008c2d3f796f9da573c1f895a9eb3cf2ff71aabd"
+    },
+    {
+      "file": "convex/verification.ts",
+      "sha256": "42a52a96e7286cbbf936917167ef6c3142610deafb6599419e27e3c21b48039d"
+    },
+    {
+      "file": "convex/deliveryDispatch.ts",
+      "sha256": "a3a226da30fdf4c65ff2e8eae40f09d859dea05134ea8401f251e3d3536c10d7"
+    },
+    {
+      "file": "convex/evidenceAdmission.ts",
+      "sha256": "7b2815ef27d04a483f5b43a4211e5e38eccf31f94f6e03dfa464ae7a991aa75e"
+    },
+    {
+      "file": "convex/http.ts",
+      "sha256": "724d900af6e98f84ae70514a139da3e75a8232d1e9cb8c2e08bdf36c1597db10"
+    },
+    {
+      "file": "convex/auth.ts",
+      "sha256": "251b797e6a1a0406d0ee4a23d2cf25aa020483c951db6d2005e1c1ac5b94efa6"
+    },
+    {
+      "file": "convex/schema.ts",
+      "sha256": "e16a5f9119fd4d5d50f4d2dc1be71dddafa8bc88c3758f1ff50fd8ac1cbc5422"
+    },
+    {
+      "file": "convex/billingUsage.ts",
+      "sha256": "b876eb6f71c11c1dc84950ab982513480c2941d412c6a888f5a1a08c32e8c0c1"
+    },
+    {
+      "file": "convex/enterpriseIdentity.ts",
+      "sha256": "69974c2b4be562b13bd82c9c91dfc4b023f0d19650fb3f336ffa24783f223d29"
+    },
+    {
+      "file": "convex/providerClaimFence.ts",
+      "sha256": "35255e9c5f782031f23fc8f0f295f89d3330e0b50c0d7c421ef3432474e5e9a5"
+    },
+    {
+      "file": "src/components/artifact-browser-checks.tsx",
+      "sha256": "d20b8858890ab8472a0a53241c802913d712c60c5e1730d30a08bc2a5935d0d3"
+    },
+    {
+      "file": "src/lib/artifact-test-runner.ts",
+      "sha256": "f8293da64394cb5b3c9e85e7dcb864edaab52d5303c80a6333bb7156d29631c8"
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "sha256": "3938fce52bf69c34b662d23d590bc50a8502585607aabbd8d208aaed3b7ca365"
+    },
+    {
+      "file": "__tests__/convex/evidence-admission-batch.test.ts",
+      "sha256": "f18582aa0ed216e78aaaec2049480c3d46d9ed337ce3c41d61cabcda2eb48c9c"
+    },
+    {
+      "file": "scripts/check-evidence-admission.mjs",
+      "sha256": "e6b6d01038d9e146b56397e017c8c13a1c8e0e4de3c278b9c0cbe3b2918cdf1d"
+    }
+  ],
+  "inventory": {
+    "modules": 65,
+    "conventionalExports": 318,
+    "remainingReviewUnits": 0,
+    "finalBatchReviewed": 35
+  },
+  "validation": {
+    "fullSuite": {
+      "tests": 918,
+      "files": 161,
+      "exitCode": 0,
+      "durationSeconds": 158.82
+    },
+    "finalTargeted": {
+      "tests": 13,
+      "files": 1,
+      "passed": true
+    },
+    "strict": "passed; final documentation/status check follows",
+    "testingDeploy": "backward-compatible",
+    "genuineDeployed": {
+      "version": "step12-complete-deployed-v1",
+      "observedAt": "2026-10-18T18:40:25.525Z",
+      "environment": "Testing",
+      "passed": true,
+      "billingBefore": "e252fc261ec514a31af395a7b7eeb72cb393cbac90f863371b7be2d8d57b6d84",
+      "missionId": "k97202njm5qzzq2qezv70j7b858ghc74",
+      "billingAfter": "e252fc261ec514a31af395a7b7eeb72cb393cbac90f863371b7be2d8d57b6d84",
+      "researchReplay": true,
+      "costReplay": true,
+      "productReplay": true,
+      "negativeObservationRetained": true,
+      "oversizedUtf8Denied": true,
+      "invalidPageDenied": true,
+      "anonymousDenied": true,
+      "billingUnchanged": true,
+      "inference": false,
+      "dispatch": false,
+      "checkout": false,
+      "mobileViewport": 375,
+      "documentWidth": 375,
+      "reloadPersisted": true,
+      "browserErrors": [],
+      "signedOutAndClosed": true
+    }
+  },
+  "sourceScreen": {
+    "filesScreened": 285,
+    "credentialLiteralHitFiles": [],
+    "unsafePublicVariableNames": [],
+    "lockfile": "pnpm-lock.yaml",
+    "lockSha256": "86135a3ef1145628811b2342314f039f6f318f4d550c25c67a66fed262f2a098",
+    "revision": "8df12780f404dd90aba226f67988dcd39c513cd9"
+  },
+  "dependencyAdvisories": {
+    "sameLockfileAs": "docs/evidence/step12-dependency-audit-20261018.json",
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "admission": {
+    "operatorVerification": "100 per mission, 16 KiB payload, finite score, exact replay",
+    "runtimeCost": "100 measurements per mission for new manual cost saves; exact replay",
+    "productOutcomes": "100 per mission for new manual/imported evidence, exact replay; source telemetry retains its separately admitted 1000-event/source allowance",
+    "traffic": "100 per owner for new snapshots; exact source replay",
+    "researchManual": "100 per mission; 64 KiB; exact replay",
+    "artifactRevision": "100 per mission; 512 KiB UTF-8",
+    "browserEvidence": "20 per artifact; 512 KiB snapshot; exact replay",
+    "providerInvocations": "500 per owner, checked before billing reservation/network; durable runner replay before new admission",
+    "missionTasks": "100 per mission, before new external work; finish/callback settlement unblocked",
+    "adaptiveSelection": "100 changed selections per mission; unchanged state adds no row",
+    "learningExperimentsAndReuse": "100 per owner/category; reuse exact-key replay remains available",
+    "historyInspection": "4 MiB included encoded rows; conservative refusal if unknown; one boundary row may be read",
+    "historyPages": "1–20 items /40 rows /1 MiB, legacy missions 1–100 /200 rows /4 MiB",
+    "strategyHistory": "30 assumption entries and20 outcomes; reject new entries at capacity instead of dropping old evidence",
+    "controls": "Unchanged target corrections, artifact verification, package validation, revoked directory grant and runner audit state avoid redundant records"
+  },
+  "retention": "No existing history deleted; no cap placed on authoritative settlement for admitted work. Manual real transitions remain audited; this is not a global lifetime storage ceiling.",
+  "operations": {
+    "step13": "Fresh Live capture retained/retrieved: 75 data tables,2011 documents,1554319 bytes; timer-driven success/continuing targets remain open.",
+    "step14": "Existing isolated helper recovery and compatible source return accepted; full managed application interruption controls unavailable.",
+    "step15": "No identifiable actual provider invoice supplied or found; no provider billing connector exposed.",
+    "step16": "Current automated/deployed acceptance completed; final sign-off depends on13–15 and Step7 tenant SSO."
+  },
+  "newInference": false,
+  "newDispatch": false,
+  "checkout": false,
+  "payments": "Step17 LAST",
+  "independentSecurityCertification": false,
+  "productionReady": false,
+  "backupCountCorrection": {
+    "reason": "Previous counts included Convex _tables export registry metadata. Archive bytes and SHA-256 are unchanged.",
+    "dataTables": 75,
+    "dataDocuments": 2011,
+    "metadataTables": 1,
+    "metadataEntries": 75,
+    "verifiedBy": "scripts/check-recovery-point.py"
+  }
+}

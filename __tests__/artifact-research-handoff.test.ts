@@ -1,3 +1,4 @@
+// @vitest-environment edge-runtime
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { convexTest } from 'convex-test'
 import type { Id } from '../convex/_generated/dataModel'
@@ -10,6 +11,20 @@ const modules = import.meta.glob('../convex/**/*.ts')
 afterEach(() => vi.clearAllMocks())
 
 describe('artifact research handoff', () => {
+  it('retains the first draft when corrective inference becomes uncertain', async () => {
+    const t = convexTest(schema, modules)
+    const missionId = await t.run(ctx => ctx.db.insert('missions', { title: 'Retained draft', mission: 'Create a local tool', ownerKey: 'owner-a', autonomy: 'guided', approved: true, budget: 0, status: 'running', completion: 0 }))
+    vi.mocked(callAiProvider).mockResolvedValueOnce('<html>first incomplete draft</html>').mockRejectedValueOnce(new Error('Automatic fallback stopped; review invocation'))
+    const owner = t.withIdentity({ subject: 'owner-a' })
+    await expect(owner.action(api.artifacts.generate, { missionId, mission: 'ignored', artifactType: 'web-app', artifactName: 'Retained draft' })).rejects.toThrow(/Automatic fallback stopped/)
+    const drafts = await owner.query(api.artifacts.list, { missionId })
+    expect(drafts).toHaveLength(1)
+    expect(drafts[0]).toMatchObject({ content: '<html>first incomplete draft</html>', requiresApproval: true, qualityPassed: false, status: 'awaiting_approval' })
+    expect(callAiProvider).toHaveBeenCalledTimes(2)
+    await expect(owner.mutation(api.artifacts.approve, { id: drafts[0]._id, approved: true })).rejects.toThrow()
+    const metrics = await owner.query(api.platformTasks.summary, { missionId })
+    expect(metrics.rows[1]).toMatchObject({ failures: 1, pending: 0 })
+  })
   it('uses saved mission research and contract on the first attempt and retry', async () => {
     const t = convexTest(schema, modules)
     const missionId = await t.run(async ctx => {
@@ -34,6 +49,9 @@ describe('artifact research handoff', () => {
     const saved = await t.run(ctx => ctx.db.get(result.artifactId as Id<'artifacts'>))
     expect(saved?.missionId).toBe(missionId)
     expect(saved?.requiresApproval).toBe(true)
+    const drafts = await operator.query(api.artifacts.list, { missionId })
+    expect(drafts).toHaveLength(2)
+    expect(drafts.every(row => row.requiresApproval && row.content === '<html>draft</html>')).toBe(true)
     const metrics = await operator.query(api.platformTasks.summary, { missionId })
     expect(metrics.rows[1]).toMatchObject({ successes: 0, failures: 1, pending: 0, timedCount: 1 })
   })

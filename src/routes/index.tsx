@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { expansionPages } from '../components/expansion-guide'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { WorkspaceLayout } from '../components/workspace-layout'
@@ -5,7 +6,7 @@ import { useMissionGuide } from '../lib/use-mission-guide'
 import { derivePageState } from '../lib/page-progress'
 import { guidedWorkspaces } from '../lib/workspaces'
 
-export const Route = createFileRoute('/')({ component: OverviewPage })
+export const Route = createFileRoute('/')({ head: () => routeHead("/"), component: OverviewPage })
 
 export function OverviewPage() {
   const { missionId, mission, agents, research, artifacts, deliveries, councilComplete, sourceLinks = [], nextStage, recovery, evidenceLoading, stages: missionStages } = useMissionGuide()

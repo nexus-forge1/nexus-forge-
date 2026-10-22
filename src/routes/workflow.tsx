@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { MissionControl } from '../components/mission-control'
 import { WorkspaceLoading } from '../components/workspace-loading'
@@ -5,7 +6,7 @@ import { WorkspaceLayout } from '../components/workspace-layout'
 import { useMissionGuide } from '../lib/use-mission-guide'
 import { guidedWorkspaces } from '../lib/workspaces'
 
-export const Route = createFileRoute('/workflow')({ component: WorkflowPage })
+export const Route = createFileRoute('/workflow')({ head: () => routeHead("/workflow"), component: WorkflowPage })
 
 export function WorkflowPage() {
   const { missionId, mission, stages, nextStage, completed, evidenceLoading } = useMissionGuide()

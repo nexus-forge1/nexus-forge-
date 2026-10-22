@@ -1,0 +1,41 @@
+{
+  "scope": "Synthetic recovery drill only; not a production backup certification",
+  "status": "PASS",
+  "verifiedAt": "2026-10-17T19:03:23.106Z",
+  "retainedCopy": {
+    "filename": "retained-private-copy-20261017T163754Z.zip",
+    "bytes": 4677,
+    "sha256": "fdede09f36f8a57a59acc5a94d0459bbc22c999cc0cf898b3f3c59aafb3658f1",
+    "independentlyHashed": true,
+    "zipCRCVerified": true,
+    "externalRetentionObserved": "User uploaded retained copy into this ChatGPT session; bytes independently checked outside Railway volume"
+  },
+  "originalRestoreEvidence": {
+    "projectId": "b6124b64-1d28-4818-930a-71e3680b5746",
+    "environmentId": "e4c8f286-62de-4f3d-b13a-07aefff65dae",
+    "serviceId": "d95b5647-c5fa-4f9c-8459-fa93d72671ac",
+    "timestamp": "2026-10-17T16:37:58.460Z",
+    "phase": "backup_restore",
+    "result": "PASS",
+    "zipHashMatchesRetainedCopy": true,
+    "tableCount": 5,
+    "documentCount": 8,
+    "storedFilePayloads": 1,
+    "storedFileBytes": 53,
+    "recordAndStorageIdentityPreserved": true,
+    "foreignOwnerDenied": true,
+    "anonymousDenied": true,
+    "sourceUnchanged": true
+  },
+  "independentArchiveChecks": {
+    "documentStorageDigestMatches": true,
+    "storageMetadataDigestMatches": true,
+    "fileSizeMatches": true,
+    "claimMissionReferencesValid": true,
+    "effectClaimReferencesValid": true
+  },
+  "limitations": [
+    "No production restore performed in this verification.",
+    "External retention is verified at upload time; ongoing backup scheduling and retention are outside this receipt."
+  ]
+}

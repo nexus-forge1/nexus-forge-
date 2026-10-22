@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "audit:prod": "pnpm audit --prod"
+    "audit:prod": "pnpm audit --prod",
+    "check:capacity:authenticated": "node scripts/check-authenticated-capacity.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.3",

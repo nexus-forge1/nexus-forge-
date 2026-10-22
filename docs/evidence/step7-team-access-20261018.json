@@ -1,0 +1,29 @@
+{
+  "version": "step7-team-access-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T04:49:21.845Z",
+  "passed": true,
+  "pendingDenied": true,
+  "ownerProtected": true,
+  "viewerRead": true,
+  "viewerWriteDenied": true,
+  "directoryDenied": true,
+  "prepared": true,
+  "contributorWrite": true,
+  "revoked": true,
+  "revokedReadDenied": true,
+  "revokedWriteDenied": true,
+  "ownerStillAdmin": true,
+  "freshSignInDenied": true,
+  "membershipStillRevoked": true,
+  "billingUnchanged": true,
+  "browserRevocationNoticeObserved": true,
+  "returnNavigationWorked": true,
+  "sessionsSignedOutAndClosed": true,
+  "workspace": {
+    "testingConfigured": true,
+    "liveConfigured": true,
+    "domain": "www.network-x-ai.com",
+    "genuineTenantSignInVerified": false
+  }
+}

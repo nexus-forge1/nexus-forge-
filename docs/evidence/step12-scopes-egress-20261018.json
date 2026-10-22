@@ -1,0 +1,50 @@
+{
+  "version": "step12-scopes-egress-v1",
+  "observedAt": "2026-10-18T13:13:48.633Z",
+  "sourceRevision": "5b5e84826c48e9f2753ad21123706e0cd54e02b5",
+  "sourceSha256": {
+    "convex/schema.ts": "d956c7f803e45008d8af275d10fbb6cea614d30f838d5741a3d38d2e32aeb410",
+    "convex/memory.ts": "53135a76cbc37d4cba7f679260935f9094e6a4ae08ddf7d87b66cd0ec1113774",
+    "convex/missionSources.ts": "9be8d5fa79ddd427a0969a47edc87168e79142cbceb70d7ba8598158831c14f9",
+    "convex/portfolio.ts": "9cc119103e67405eaff0070cb7525c25eceb915279d1e3925d6115f82e6f0c0a",
+    "convex/research.ts": "2dbfbd225566a889ec7083cac4905b119fb7f675900e65eac572aa640dac9bd2",
+    "__tests__/convex/memory-scope-indexes.test.ts": "463234b9d680c8b1518537e2fdb1cd852fd31d30793f32e0dcdbb473ad6156d8",
+    "__tests__/convex/opportunity-egress.test.ts": "23c1cea8f4ae67f8281273c9f208bab8fa82543f5d19462e9ef69f351f473f13"
+  },
+  "verification": {
+    "fullRegression": {
+      "testsPassed": 784,
+      "filesPassed": 142
+    },
+    "targetedMemory": {
+      "testsPassed": 22,
+      "filesPassed": 4
+    },
+    "targetedEgress": {
+      "testsPassed": 34,
+      "filesPassed": 4
+    },
+    "strictTypeScript": "passed",
+    "testingDeployment": "backward-compatible"
+  },
+  "scope": {
+    "indexedMemoryReads": [
+      "browse",
+      "getMissionSynthesis",
+      "evaluateRetrievalInternal baseline",
+      "missionSources.list"
+    ],
+    "opportunityDiscovery": "Shared guarded Research Oracle discovery; direct source fetch implementation removed",
+    "httpAndModelFixtures": true,
+    "newRealInferenceRun": false,
+    "wholeApplicationSecurityReviewComplete": false,
+    "remaining": [
+      "Portfolio child-history aggregate scans",
+      "Broader public endpoint ownership inventory",
+      "Secret/client exposure and remaining egress",
+      "Automatic-evidence and audit growth",
+      "Legacy capacity overview fan-out"
+    ]
+  },
+  "paymentActivationStep": 17
+}

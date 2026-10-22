@@ -1,0 +1,84 @@
+{
+  "version": "step12-memory-outcome-review-v1",
+  "date": "2026-10-18",
+  "sourceRevision": "0a2554045ea1133c787cbd30ba6111ece71cf120",
+  "hashes": {
+    "convex/memoryContext.ts": "6ee2023670fe42616db0e402f59a4e05ea98808e9559ed17e3d5ea05f18f8d5b",
+    "convex/memory.ts": "e06504829048b0ace1018cd15d9549d67671ed423fb273c01c60c11804b7e172",
+    "convex/verification.ts": "4aaf8e9c64f877b95b7d3fd64fc24692f5dd069379b5064cb74dc8cf44209443",
+    "convex/schema.ts": "3a0e8ec28e5dcb48996ab4495f1e3eb5cd636072f9c8aa65bd874cf29714bb63",
+    "convex/aiProvider.ts": "19369eb2fde922c116e3b00c541dd4af5c20d4830d86b888921d1eeebb72d030",
+    "convex/providerHealth.ts": "713280eb2105806560d89652b9cff58e421e85446650d133939e7fa5df5534a8",
+    "convex/artifactCiActions.ts": "7aad57d4811532544856640a30c86dac7a34cd45d811a7fe47cd2fb767bc7f34",
+    "convex/benchmarks.ts": "82f0a0a82b1132a2d1cf4a6898782632bfe34d32fc5b946dadad6b8c92a2d799",
+    "convex/incidents.ts": "fcf0ba8434f35e6f38b40791b1d06cdf647eca3efcd9085ce2188b2423be589e",
+    "convex/forgeTeams.ts": "7d73a2042dd2be965254255bac7e85b215b3fb65342b1e17504144ee14bf7984",
+    "src/components/mission-control.tsx": "5c3dd2726bb77ff7a1fe351a079569ef95a8b07bc4c8946147a4e18b9b595801",
+    "__tests__/convex/memory-context-bounds.test.ts": "bff53b1a44ebb598bf298a1b64fa20c4b67c127ad135c83d88a61b00ef47ef98",
+    "__tests__/convex/measured-outcome-replay.test.ts": "7f186e95131045c02ad5552e02296fd3303b52516839c8da75ef42ebce6429f4",
+    "__tests__/convex/provider-response-bounds.test.ts": "8f6ed7d73479ff75cb094db14a3bdbe2179222b3c51cd27857150d615e43d1b6",
+    "__tests__/mission-control-guidance.test.tsx": "9f4259212cb9d6e88ada4bb00ee5415fc87554f9bb834065a115f93f9e105b2b",
+    "__tests__/provider-uncertainty.test.ts": "755fecff7c9abc5b78e9dfbacef3bc5d701939052dfe5cc730e9f349b37f75f2",
+    "__tests__/exact-artifact-ci.test.ts": "d70679645072ecff0672059a56622b96af708ba41de013863cad3edabd5bc684",
+    "__tests__/benchmark-provenance.test.ts": "9ca20fd8dd636bee2080fef33575bd94d9f6855e857b67c500f9bde314ec899b",
+    "__tests__/convex/control-retry-safety.test.ts": "72746503fc70835be9633a85929109539dc8365abc1d82291b359ae0883041f6",
+    "__tests__/convex/seven-runtime.test.ts": "f3399adf3b2ccc57138c6d00170cdc90d2c59de453593a279b484201e11cafce"
+  },
+  "verification": {
+    "fullTests": 884,
+    "testFiles": 157,
+    "passed": true,
+    "durationSeconds": 148.57,
+    "fullLog": "/tmp/step12-memory-review-full.log",
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "fixtures": [
+      "eligible context preserves original 60/80 newest windows",
+      "excluded/foreign/large history charged to bounded raw reads",
+      "unknown context blocks internal planning and shows operator review link",
+      "eight concurrent canonical measurement retries retain one derived set",
+      "owner and approval checks precede cached replay",
+      "changed or missing canonical evidence rejects without replacement",
+      "legacy positive/negative records retained",
+      "provider oversize and stream loss stop without fallback",
+      "configured key echoed in errors is redacted before truncation",
+      "diagnostic evidence private to operator",
+      "oversized CI/benchmark metadata rejected before recording or writing",
+      "unchanged team controls and shared-run retry do not duplicate audit rows"
+    ]
+  },
+  "sourceInventorySummary": {
+    "functionModules": 64,
+    "exportedFunctions": 312,
+    "bodyReviewedThisPass": 10,
+    "earlierScopedBodyReviews": 19,
+    "remainingFinalInventoryModules": 35
+  },
+  "canonicalLegacyNote": "Existing historical outcome rows are retained. The first new canonical measurement creates a receipt; later replays reuse its exact result. Historical operator assertions are not adopted as canonical.",
+  "scopeLimits": [
+    "No new genuine browser session or real provider/checkout/delivery replay in this increment; fixtures and existing accepted journey evidence used.",
+    "Canonical measurement admission is separate from authoritative delivery and billing settlement; original receipts are preserved.",
+    "No whole-application security clearance or lifetime account storage quota claimed."
+  ],
+  "realInference": false,
+  "paymentsActivated": false,
+  "wholeApplicationSecurityReviewComplete": false,
+  "automaticEvidenceAuditGrowthReviewComplete": false,
+  "remaining": [
+    {
+      "file": "convex/delivery.ts",
+      "scope": "Complete authenticated fetch response bounds, timeout/redirect policy and ambiguous external-write/dispatch admission review."
+    },
+    {
+      "file": "convex/ResendOTP.ts",
+      "scope": "Managed authentication sender response/timeout policy review; preserve genuine OTP contract."
+    },
+    {
+      "file": "convex/verification.ts",
+      "scope": "Remaining operator assertion/product/traffic write admission and pagination budgets; canonical measured-outcome replay is fixed."
+    },
+    {
+      "scope": "Remaining listed function modules, helper contracts, sensitive schema and frontend consumers must be reconciled before closing Step 12."
+    }
+  ]
+}

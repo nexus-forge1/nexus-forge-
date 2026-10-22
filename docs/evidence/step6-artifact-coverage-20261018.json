@@ -1,0 +1,243 @@
+{
+  "version": "artifact-coverage-v1",
+  "observedAt": "2026-10-18T04:22:30.220Z",
+  "browser": "141.0.7390.37",
+  "scope": "Authored standalone HTML fixtures only; no provider calls or external services",
+  "cases": [
+    {
+      "id": "interactive-calculator",
+      "width": 390,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: 14"
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: 0"
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Browser validity check rejected the input."
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-interactive-calculator.html",
+        "bytes": 1118,
+        "sha256": "2f03146d0ba5454a0245940194e449a8395d003f51aa5e8eba2cbf4c0612ac96"
+      },
+      "jsonDownload": true
+    },
+    {
+      "id": "interactive-calculator",
+      "width": 1280,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: 14"
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: 0"
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #amount"
+          },
+          {
+            "status": "pass",
+            "detail": "Browser validity check rejected the input."
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-interactive-calculator.html",
+        "bytes": 1118,
+        "sha256": "2f03146d0ba5454a0245940194e449a8395d003f51aa5e8eba2cbf4c0612ac96"
+      },
+      "jsonDownload": true
+    },
+    {
+      "id": "finished-campaign",
+      "width": 390,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Observed exact text: Neighborhood residents planning seasonal fruit purchases."
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #review"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: Review complete"
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-finished-campaign.html",
+        "bytes": 1761,
+        "sha256": "5d441a4a253079ee33b6f0066dcbae17473c42f0df65ee8f92d0ee97bfb20c2b"
+      },
+      "jsonDownload": true
+    },
+    {
+      "id": "finished-campaign",
+      "width": 1280,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Observed exact text: Neighborhood residents planning seasonal fruit purchases."
+          }
+        ],
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #review"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: Review complete"
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-finished-campaign.html",
+        "bytes": 1761,
+        "sha256": "5d441a4a253079ee33b6f0066dcbae17473c42f0df65ee8f92d0ee97bfb20c2b"
+      },
+      "jsonDownload": true
+    },
+    {
+      "id": "json-export",
+      "width": 390,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #label"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: {\"label\":\"Café 🚀\",\"count\":0}"
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-json-export.html",
+        "bytes": 1501,
+        "sha256": "367e3d371cc18731a62c02639c6b3c8012699b95e7e9f542218bd11e5c3cc92b"
+      },
+      "jsonDownload": true
+    },
+    {
+      "id": "json-export",
+      "width": 1280,
+      "passed": true,
+      "steps": [
+        [
+          {
+            "status": "pass",
+            "detail": "Filled #label"
+          },
+          {
+            "status": "pass",
+            "detail": "Clicked #run"
+          },
+          {
+            "status": "pass",
+            "detail": "Observed exact text: {\"label\":\"Café 🚀\",\"count\":0}"
+          }
+        ]
+      ],
+      "negativeControlDetected": true,
+      "mobileContained": true,
+      "htmlDownload": {
+        "filename": "nexus-forge-json-export.html",
+        "bytes": 1501,
+        "sha256": "367e3d371cc18731a62c02639c6b3c8012699b95e7e9f542218bd11e5c3cc92b"
+      },
+      "jsonDownload": true
+    }
+  ],
+  "passed": true
+}

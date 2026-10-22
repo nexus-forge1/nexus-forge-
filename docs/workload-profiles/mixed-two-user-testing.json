@@ -1,0 +1,25 @@
+{
+  "version": "mixed-two-user-v1",
+  "environment": "Testing",
+  "backendOrigin": "https://quick-rabbit-810.eu-west-1.convex.cloud",
+  "users": 2,
+  "workers": 4,
+  "iterations": 120,
+  "intervalMs": 5000,
+  "writeEvery": 3,
+  "inferenceOffsetsMs": [
+    0,
+    300000,
+    595000
+  ],
+  "readTimeoutMs": 10000,
+  "inferenceTimeoutMs": 60000,
+  "readP95LimitMs": 2000,
+  "writeP95LimitMs": 2000,
+  "inferenceP95LimitMs": 45000,
+  "maxErrorRate": 0,
+  "minimumActiveSpanMs": 595000,
+  "maxInferenceChargeCentsPerUser": 300,
+  "fixturePrefix": "step11-mixed-20261018-c9a5",
+  "scope": "Two distinct genuine OTP Testing identities; two mixed read/write lanes and two real intent-compilation lanes. Synthetic local-only drafts and notes, no delivery. Engineering observation, not an enterprise SLA or invoice reconciliation."
+}

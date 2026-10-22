@@ -1,3 +1,4 @@
+import {admitEvidence,evidencePage} from './evidenceAdmission'
 import { reserveUsage, settleUsage } from './billingUsage'
 import { checkProviderClaim } from './providerClaimFence'
 import { v } from 'convex/values'
@@ -26,6 +27,7 @@ export const begin = internalMutation({
         .first()
       if (active) throw new Error('Provider work is already pending for this run stage; review its invocation before retrying')
     }
+    await admitEvidence(ctx.db.query('providerInvocations').withIndex('by_owner',q=>q.eq('ownerKey',args.ownerKey)),'Provider invocation',500)
     const { executionClaimId: _claim, ...fields } = args
     const id = await ctx.db.insert('providerInvocations', { ...fields, startedAt: Date.now(), outcome: 'pending', usageStatus: 'pending', reports: [] })
     await reserveUsage(ctx, id, args.ownerKey)
@@ -55,8 +57,8 @@ export const history = query({
     const ownerKey = await requireOperator(ctx)
     if (args.missionId) {
       await requireOwnedMission(ctx, args.missionId)
-      return ctx.db.query('providerInvocations').withIndex('by_mission', q => q.eq('missionId', args.missionId)).order('desc').paginate(args.paginationOpts)
+      return ctx.db.query('providerInvocations').withIndex('by_mission', q => q.eq('missionId', args.missionId)).order('desc').paginate(evidencePage(args.paginationOpts))
     }
-    return ctx.db.query('providerInvocations').withIndex('by_owner', q => q.eq('ownerKey', ownerKey)).order('desc').paginate(args.paginationOpts)
+    return ctx.db.query('providerInvocations').withIndex('by_owner', q => q.eq('ownerKey', ownerKey)).order('desc').paginate(evidencePage(args.paginationOpts))
   },
 })

@@ -1,0 +1,39 @@
+{
+  "version": "step12-portfolio-history-v1",
+  "observedAt": "2026-10-18T13:35:16.402Z",
+  "sourceRevision": "5003176aad6a5ec35cd2c3cb13124bc3f0eb3f9a",
+  "sha256": {
+    "convex/portfolio.ts": "eb79bb94bb63ed08c6f147556aaf39d465c524ab09da41e38c018460bc14a07a",
+    "convex/portfolioHistory.ts": "7e735d03d76fa82d2f1ede9127b61d6f1600c7b8e26ee43b474afbb6658837f5",
+    "convex/schema.ts": "e0d870d6c816c620dd8745fc3de3e9773a047c6a448d3faaa0fd6362b38a6d8f",
+    "src/components/portfolio-history-notice.tsx": "855cf130892fcf2833087718c92a5c1e86dd6e748b07c01544a22369fa89800d",
+    "src/components/portfolio-intelligence.tsx": "14491c58ef2227d924e6c5d07405f33b0aad9f71f5de6967316738c52350abd4",
+    "src/components/mission-control.tsx": "a7a0168bab5cf88e3612516782dfe9bd82d156e40d937838e272f64d621aa7b3",
+    "__tests__/convex/portfolio-history-bounds.test.ts": "93bd42de80f6c6e2b5135554b37be48f9dfec5223d9ffd4f892e9a8749311f57",
+    "__tests__/portfolio-history-notice.test.tsx": "badc80cb245ad5af64037bfa7cae95589ae837b3ae1e5aeb63306e66515d25a2"
+  },
+  "limits": {
+    "missions": 100,
+    "includedRecords": 500,
+    "includedJsonBytes": 4194304,
+    "boundaryRowMayBeReadAndOmitted": true,
+    "exactDatabaseByteQuota": false
+  },
+  "verification": {
+    "targetedTests": 38,
+    "targetedFiles": 6,
+    "fullTests": 796,
+    "fullFiles": 144,
+    "strict": "passed",
+    "testingDeployment": "backward-compatible"
+  },
+  "scope": {
+    "learning": "explicit complete/partial sample metadata and UI disclosure",
+    "nextOpportunity": "newest timestamp-indexed measurement per owned mission; incomplete basis blocked",
+    "legacyAccountDecisionHistory": "exact within budget or actionable denial; mission-scoped fifty-row history retained",
+    "existingEvidenceDeleted": false,
+    "newRealInference": false,
+    "wholeApplicationSecurityReviewComplete": false
+  },
+  "paymentActivationStep": 17
+}

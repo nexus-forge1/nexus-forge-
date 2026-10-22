@@ -1,5 +1,21 @@
 # Backup operating policy and activation status
 
+## Current consolidated Step13 attempt — October18,2026 after19:13UTC
+
+At the operator's request to complete all of Step13, the existing daily backup task accepted an immediate-run request. Its saved03:00 America/New_York schedule is unchanged. Execution and delivery are asynchronous; acceptance of this request is not backup completion or timer-triggered success. No duplicate task was created. Accessible history did not resolve a successful capture receipt for the October18 07:01UTC invocation. Reconcile the immediate task's delivered result before requesting another capture.
+
+The October18 retained archive is verified:75 data tables/2,011 documents, excluding export metadata; separate saved-copy retrieval, SHA-256, CRC and relationship/freshness checks passed. The prior approved Managed Testing restore and exact return remain accepted; older rejected-attempt descriptions do not invalidate that later evidence. No new restore, data replacement, inference or dispatch was performed in this attempt.
+
+| Requirement | Accepted scope | Still required |
+| --- | --- | --- |
+| Capture and retrieval | Real private archive and separate-copy verification | Completed scheduled-capture receipt |
+| Isolated restore and return | Prior approved Managed Testing verification | No duplicate database-only drill required |
+| Media | Prior original banner retrieval/render; latest database has zero privateMedia rows | Current capture must inventory external assets and app uploads |
+| Freshness and retention | Stale-point checker; tasks preserve previous copies and flag excess | Recurring24-hour freshness observations and30-point retention inventory; elapsed retention cannot be observed in one session |
+| Four-hour full-service recovery | Database restore and synthetic helper results for their recorded scopes | Timed compatible application/backend/auth/media recovery and service verification; table-import duration alone is insufficient |
+
+Step13 remains open for those actual operational results. No additional Step13 substeps are created. Payments remain Step17 LAST. This current entry supersedes older summary statuses while preserving historical evidence.
+
 ## Held work resumed — 17 October 2026 UTC
 
 Previously paused acceptance work is active again. A fresh private Live backup was saved and independently retrieved, daily capture resumed, actual test-payment receipts reconciled, concurrent funded inference and a real client disconnect passed, and 540 regressions passed. The isolated Testing overwrite was canceled after automatic approval review rejected it; specific approval for replacement-and-return remains necessary. See [current resumption results and exact dependencies](HELD_WORK_RESUMPTION_2026_10_17.md). Full readiness remains partial; business activation, actual provider invoices, representative workload targets and managed-host fault controls are not fabricated.

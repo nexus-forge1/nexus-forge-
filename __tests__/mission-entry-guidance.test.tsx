@@ -18,6 +18,18 @@ function approved(path:string,title:string){
  state.guide={...state.guide,missionId:'m1',mission:{title:'Existing mission',mission:'Build a useful page',status:'running',approved:true,budget:25,autonomy:'Approval required'},nextStage:{path,title,note:'Continue with saved evidence.'}}
 }
 describe('Mission Console entry and continuation',()=>{
+ it.each(['complete','cancelled'])('does not offer approval or execution for a %s mission',status=>{
+  approved('/council','Run Council');state.guide.mission.status=status;state.guide.mission.approved=false
+  render(<MissionPage/>)
+  expect(screen.queryByRole('button',{name:'Approve mission contract'})).toBeNull()
+  expect(within(screen.getByTestId('mission-next-step')).getByRole('link')).toHaveAttribute('href',status==='complete'?'/learning':'#mission-contract')
+ })
+ it.each([true,false])('keeps review-held missions on portfolio review even with approved=%s',value=>{
+  approved('/council','Run Council');state.guide.mission.status='review';state.guide.mission.approved=value
+  render(<MissionPage/>)
+  expect(screen.queryByRole('button',{name:'Approve mission contract'})).toBeNull()
+  expect(within(screen.getByTestId('mission-next-step')).getByRole('link')).toHaveAttribute('href','/portfolio')
+ })
  it('leads a new user to the mission contract without premature Council navigation',()=>{
   render(<MissionPage/>)
   expect(within(screen.getByTestId('mission-next-step')).getByRole('link')).toHaveAttribute('href','#mission-contract')
@@ -36,7 +48,7 @@ describe('Mission Console entry and continuation',()=>{
   expect(panel.getByRole('link')).toHaveAttribute('href',path)
  })
  it('continues a completed mission to learning',()=>{
-  approved('/learning','Done');state.guide.nextStage=undefined;render(<MissionPage/>)
+  approved('/learning','Done');state.guide.mission.status='complete';state.guide.nextStage=undefined;render(<MissionPage/>)
   expect(within(screen.getByTestId('mission-next-step')).getByRole('link')).toHaveAttribute('href','/learning')
  })
 })
