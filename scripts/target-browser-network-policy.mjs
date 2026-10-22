@@ -3,7 +3,8 @@ import { isPublicAddress } from './public-https-target.mjs';
 
 /** Pin a DNS hostname to an IP that has already passed public-address validation. */
 export function createPinnedHostResolverRule(hostname, address) {
-  if (net.isIP(hostname)) return null;
+  const normalizedHostname = hostname.startsWith('[') && hostname.endsWith(']') ? hostname.slice(1, -1) : hostname;
+  if (net.isIP(normalizedHostname)) return null;
   if (!isPublicAddress(address)) throw new Error('Cannot pin a hostname to a private or reserved address.');
   const resolverAddress = net.isIP(address) === 6 ? `[${address}]` : address;
   return `MAP ${hostname} ${resolverAddress}`;
