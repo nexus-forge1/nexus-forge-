@@ -67,7 +67,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install isolated browser runner dependency
-        run: npm install --no-save --package-lock=false playwright
+        run: mkdir -p /tmp/browser-qa-deps && npm install --prefix /tmp/browser-qa-deps --no-save --package-lock=false playwright && ln -s /tmp/browser-qa-deps/node_modules/playwright node_modules/playwright
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
