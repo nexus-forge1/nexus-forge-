@@ -1,0 +1,163 @@
+name: NEXUS FORGE Target-App Browser QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Public HTTPS target application URL
+        required: true
+        type: string
+      routes_json:
+        description: JSON array of same-origin paths, for example ["/","/login"]
+        required: true
+        default: '["/"]'
+        type: string
+      expected_text:
+        description: Optional exact text expected on every route
+        required: false
+        type: string
+      draft_key:
+        description: Exact accepted Browser QA draft key
+        required: true
+        type: string
+      draft_revision:
+        description: Exact accepted Browser QA draft revision
+        required: true
+        type: string
+      draft_digest:
+        description: Exact SHA-256 digest of the saved draft content
+        required: true
+        type: string
+      target_source_commit:
+        description: Full 40-character source commit SHA deployed to the target app
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: target-browser-qa-${{ inputs.draft_key }}
+  cancel-in-progress: false
+
+jobs:
+  chromium-qa:
+    name: Real target-app Chromium QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout runner source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install isolated browser runner dependency
+        run: mkdir -p /tmp/browser-qa-deps && npm install --prefix /tmp/browser-qa-deps --no-save --package-lock=false playwright && ln -s /tmp/browser-qa-deps/node_modules/playwright node_modules/playwright
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Execute real target-app browser checks
+        env:
+          TARGET_URL: ${{ inputs.target_url }}
+          ROUTES_JSON: ${{ inputs.routes_json }}
+          EXPECTED_TEXT: ${{ inputs.expected_text }}
+          DRAFT_KEY: ${{ inputs.draft_key }}
+          DRAFT_REVISION: ${{ inputs.draft_revision }}
+          DRAFT_DIGEST: ${{ inputs.draft_digest }}
+          SOURCE_COMMIT: ${{ inputs.target_source_commit }}
+          RUNNER_COMMIT: ${{ github.sha }}
+          OUTPUT_DIR: qa-output
+        run: node scripts/target-app-browser-qa.mjs
+
+      - name: Retain screenshots, trace, and exact-revision report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: target-app-browser-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: qa-output/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish immutable target-browser QA report check
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          SOURCE_COMMIT: ${{ inputs.target_source_commit }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const crypto = require('node:crypto');
+            if (!fs.existsSync('qa-output/report.json')) {
+              core.setFailed('No target-app QA report exists; no verified report check can be published.');
+              return;
+            }
+            const reportText = fs.readFileSync('qa-output/report.json', 'utf8');
+            if (Buffer.byteLength(reportText, 'utf8') > 60000) {
+              core.setFailed('Target-app QA report exceeds the 60 KB evidence bound.');
+              return;
+            }
+            const report = JSON.parse(reportText);
+            if (report.version !== 'target-app-browser-qa-v1' ||
+                report.sourceCommit !== process.env.SOURCE_COMMIT ||
+                report.workflowCommit !== context.sha ||
+                !Array.isArray(report.routes)) {
+              core.setFailed('Target-app report is malformed or not bound to the supplied target source and workflow commit.');
+              return;
+            }
+            const digest = crypto.createHash('sha256').update(reportText).digest('hex');
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/attempts/${context.runAttempt}`;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'NEXUS target browser QA v1',
+              head_sha: context.sha,
+              external_id: digest,
+              details_url: runUrl,
+              status: 'completed',
+              conclusion: report.allPassed ? 'success' : 'failure',
+              output: {
+                title: report.allPassed ? 'Target-app Chromium QA passed' : 'Target-app Chromium QA failed',
+                summary: `Bounded target-app report SHA-256: ${digest}; routes: ${report.routes.length}; page errors: ${report.pageErrors?.length || 0}; console errors: ${report.consoleErrors?.length || 0}; request failures: ${report.requestFailures?.length || 0}.`,
+                text: reportText
+              }
+            });
+
+      - name: Enforce target-app browser outcome
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          if (!fs.existsSync('qa-output/report.json')) throw new Error('No target-app QA report was retained.');
+          const r = JSON.parse(fs.readFileSync('qa-output/report.json', 'utf8'));
+          if (r.version !== 'target-app-browser-qa-v1' ||
+              r.draftBinding?.draftKey !== process.env.DRAFT_KEY ||
+              String(r.draftBinding?.revision) !== process.env.DRAFT_REVISION ||
+              r.draftBinding?.contentDigest !== process.env.DRAFT_DIGEST ||
+              r.sourceCommit !== process.env.SOURCE_COMMIT ||
+              r.workflowCommit !== process.env.GITHUB_SHA ||
+              !Array.isArray(r.routes) || r.routes.length < 1) {
+            throw new Error('Target-app QA report did not match the exact requested draft and source commit.');
+          }
+          if (!r.allPassed) process.exit(1);
+          NODE
+        env:
+          DRAFT_KEY: ${{ inputs.draft_key }}
+          DRAFT_REVISION: ${{ inputs.draft_revision }}
+          DRAFT_DIGEST: ${{ inputs.draft_digest }}
+          SOURCE_COMMIT: ${{ inputs.target_source_commit }}
