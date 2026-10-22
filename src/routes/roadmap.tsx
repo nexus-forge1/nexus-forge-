@@ -1,8 +1,10 @@
+import { completionPlan } from '../lib/completion-plan'
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { recoveryChecks, releaseAudit, releaseReady } from '../lib/production-readiness'
 
-export const Route = createFileRoute('/roadmap')({ component: RoadmapPage })
+export const Route = createFileRoute('/roadmap')({ head: () => routeHead("/roadmap"), component: RoadmapPage })
 
 type Milestone={n:number;title:string;status:'done'|'partial'|'later';detail:string}
 const roadmap:Milestone[] = [
@@ -16,7 +18,7 @@ const roadmap:Milestone[] = [
     "n": 2,
     "title": "Finish Manifest Intelligence outcome system",
     "status": "partial",
-    "detail": "Opt-in hourly GitHub ingestion, source-scoped product-task event aggregation and evidence-based planning selection are implemented. Broader world context, complete resource accounting and representative measured adaptive improvement remain open."
+    "detail": "Opt-in hourly GitHub ingestion, source-scoped product-task event aggregation and evidence-based planning selection are implemented. Selected-blueprint context comparisons and private frozen validation plans now connect assumptions to measurable targets and stop conditions. Broader world context, complete resource accounting and representative measured adaptive improvement remain open."
   },
   {
     "n": 3,
@@ -52,7 +54,7 @@ const roadmap:Milestone[] = [
     "n": 8,
     "title": "Verified Learning Engine",
     "status": "partial",
-    "detail": "Reviewed-lesson handoffs now link to matched earlier/later cost, readiness and product observations with immutable receipts. Broader verified evidence, repeated comparisons and product outcomes remain open."
+    "detail": "Reviewed-lesson handoffs now link to matched earlier/later cost, readiness and product observations with immutable receipts. Repeated comparable-evidence reviews now recompute retrieval/reuse scores, reject duplicated measurements and retain regressions even with positive means. Representative verified evidence and product outcomes remain open."
   },
   {
     "n": 9,
@@ -88,7 +90,7 @@ const roadmap:Milestone[] = [
     "n": 14,
     "title": "Automated research and opportunity discovery",
     "status": "partial",
-    "detail": "Improve discovery evidence quality and integrated research validation."
+    "detail": "Research & Memory now includes a deduplicated source inventory, saved-age and uncited-record checks, safe citation links and mission-scoped JSON dossier export. Private claim reviews now retain exact saved research excerpts/citations with supporting, contradicting or unresolved assessments. Protected original-source snapshots now retain exact text hashes and declared-date status; source-backed claim excerpts pin those immutable receipts. Factual truth, broader world context and integrated discovery validation remain open."
   },
   {
     "n": 15,
@@ -154,10 +156,11 @@ function RoadmapPage() {
     <div className="workspace-head"><div><div className="section-kicker">PROJECT / ROADMAP</div><h1>What shipped. What remains.</h1></div><span className="status-chip">{roadmap.length} ACTIVE MILESTONES</span></div>
     <p>The roadmap tracks active capability milestones and preserves their original identifiers after retired work is removed. A working page or a passing test does not complete a whole milestone. All 16 workspaces remain in the guide; mission evidence follows its own checkpoints.</p>
     <div className="hero-actions"><Link className="primary-button" to="/workflow">Continue guided workflow →</Link><Link className="secondary-button" to="/evidence">Review research evidence →</Link><Link className="secondary-button" to="/incidents">Review recovery →</Link></div>
+    <div className="glass-card research-card" id="completion-order"><div className="panel-title"><span>REMAINING BUILD ORDER</span><span className="status-chip">STEP {completionPlan.find(step => step.status === 'NEXT')?.id} OF {completionPlan.length} · NEXT</span></div><p>This is the build checklist, separate from the 16-page operating guide. Keep these step numbers stable. A completed step must link to acceptance evidence; existing completed work is reused unless a defect or changed dependency requires a targeted recheck. Payment activation is step 17 and stays last.</p>{completionPlan.map(step => <article className="guard-item" key={step.id}><span>{step.id}</span><div><strong>{step.title}</strong><p>{step.acceptance}</p></div><span className="status-chip">{step.status}</span></article>)}</div>
     <div className="stats-strip compact"><div><strong>{done.length}</strong><span>Completed milestone</span></div><div><strong>{partial.length}</strong><span>Partially implemented</span></div><div><strong>{deferred.length}</strong><span>Deferred / not implemented</span></div></div>
-    <div className="glass-card research-card"><div className="panel-title"><span>NEXT WORK · FOUNDATION FIRST</span><span className="status-chip">IN PROGRESS</span></div>
+    <div className="glass-card research-card"><div className="panel-title"><span>IMPLEMENTATION & RELEASE CONTEXT</span><span className="status-chip">IN PROGRESS</span></div>
       <p><a href="https://github.com/nexus-forge1/nexus-forge-/blob/main/docs/RELEASE_STATUS_2026_10_17.md" target="_blank" rel="noreferrer">Current release evidence and remaining requirements →</a></p><p>The approved managed restore-and-return and isolated synthetic interruption/restore checks are recorded. {recoveryChecks.filter(check => check.status === 'verified').length}/{recoveryChecks.length} recovery checks have evidence for their stated environment. {releaseReady(releaseAudit.gates) ? 'The dated release evidence is complete for its stated scope.' : 'Full production readiness remains on hold while partial and blocked release gates remain open.'} <Link to="/capabilities">Review current checks, environments and remaining requirements →</Link></p>
-      <ol><li>Validate real product measurements against representative workloads; bounded runtimes and permissioned team/tool execution are implemented.</li><li>Opt-in hourly GitHub outcome feeds now preserve commit/blob/report identities. Outcome-based planning automatically selects a bounded policy from comparable nonoverlapping periods, retaining evidence IDs.</li><li>The versioned policy evaluator compares a naive baseline with guarded selection on published regression, provenance, overlap and drift fixtures. Historical controlled acceptance passed; public fixtures do not establish unseen transfer or model superiority.</li><li>Remaining empirical work includes representative learning improvement, independent competitor/scientific replication, pending-provider uncertainty and enterprise-scale acceptance. Actual provider invoices, representative workload targets, private archive transfer and supported managed-host fault controls remain specific dependencies. Customer payment activation is excluded from the current work.</li></ol>
+      <p>Payment activation is reserved for the final launch step. Current build priority is feature coverage and quality: research dossiers and claim-level review are implemented; selected-blueprint opportunity comparisons and immutable measurable validation plans are now implemented. Blueprint structural generation checks are accepted for the controlled Testing scope. Validation plans now retain frozen-target observation assessments and next decisions. Protected source captures and pinned excerpt provenance are accepted for bounded scope. Repeated-evidence learning reviews now retain gains and regressions without automatic promotion. Council, providers and recovery is next.</p><ul><li>Representative product workloads still require validation; bounded runtimes and permissioned team/tool execution are implemented.</li><li>Opt-in hourly GitHub outcome feeds now preserve commit/blob/report identities. Outcome-based planning automatically selects a bounded policy from comparable nonoverlapping periods, retaining evidence IDs.</li><li>The versioned policy evaluator compares a naive baseline with guarded selection on published regression, provenance, overlap and drift fixtures. Historical controlled acceptance passed; public fixtures do not establish unseen transfer or model superiority.</li><li>Remaining empirical work includes representative learning improvement, independent competitor/scientific replication, pending-provider uncertainty and enterprise-scale acceptance. External synthetic archive retention is verified against the original restore hash. Actual provider invoices, representative workload targets, recurring backup freshness and supported managed-host fault controls remain specific dependencies. Customer payment activation is the last step in the build order above.</li></ul>
       <p><a href="https://github.com/nexus-forge1/nexus-forge-/blob/main/docs/HELD_WORK_RESUMPTION_2026_10_17.md" target="_blank" rel="noreferrer">Resumed work: completed checks, restore boundary and next priority →</a></p><p>Real-service acceptance is partial: team execution, external JSON lookup and scheduled imports returned evidence. Multimodal Studio has been removed and media-provider acceptance is out of scope. <a href="https://github.com/nexus-forge1/nexus-forge-/blob/main/docs/REAL_SERVICE_ACCEPTANCE.md" target="_blank" rel="noreferrer">Review exact real-service results →</a></p><p>Reviewed intermediate Council continuation is implemented and compared against an uninterrupted baseline. <a href="https://github.com/nexus-forge1/nexus-forge-/blob/main/docs/COUNCIL_CONTINUATION.md" target="_blank" rel="noreferrer">Review comparison results and safety limits →</a></p><div className="hero-actions"><Link className="primary-button" to="/resilience">Open six expanded capabilities →</Link><Link className="secondary-button" to="/capabilities">Operational evidence →</Link></div>
       <p>Dependency and resource preflight checks block execution in the backend. Mission Control displays blockers, advisories, and resource availability; authorization and execution wait for ready preflight and incident clearance.</p>
     </div>

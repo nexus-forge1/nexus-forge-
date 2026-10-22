@@ -1,0 +1,72 @@
+{
+  "version": "step12-resource-cleanup-v1",
+  "observedAt": "2026-10-18T15:18:08.682Z",
+  "sourceRevision": "ec1531e0a06940e76910726a591522b240968b44",
+  "sha256": {
+    "convex/resourceCleanup.ts": "94fc8c3b88411596faf8b50b6248db41fa40c272e5b1e8ada354e8876482622d",
+    "convex/orchestration.ts": "309db02f7e1a92c88b0cecbd2ab6a9e6dcfe462d0cc67228317fd161efe32f26",
+    "convex/executionRequirements.ts": "9b26d1d4954fd920366277191e682a897d2baa3751ca4c8a0fac67e2190b1330",
+    "convex/schema.ts": "08b16fc98a3db20e16b3d5d31a07cd26892519367a353966b6831e72da3fd03d",
+    "src/components/requirement-history.tsx": "3766274d1f794b0ee34b8553996193bc7ceac6d722e184536d6c5305573a55c5",
+    "src/components/mission-control.tsx": "2479ec2a951dcb597253338a86dd6a165778c6c4ce2451043fe96c950b72b7ce",
+    "scripts/check-resource-cleanup.mjs": "5ea9459308100fa7963dbf80eebf326b19595a5e540032a54d0c3ad68961271c",
+    "__tests__/convex/resource-cleanup.test.ts": "71093dce71876590611d6350057ae3c77143524b8e97b5c6c3f5d5baeb0a0c8d",
+    "__tests__/requirement-history.test.tsx": "20195add784310fe9d16a07209459ee0d674fdb67ad198f409d4b1649009ba20"
+  },
+  "verification": {
+    "targetedTests": 35,
+    "targetedFiles": 6,
+    "fullTests": 821,
+    "fullFiles": 147,
+    "strict": "passed",
+    "testingDeployment": "backward-compatible"
+  },
+  "deployedFixture": {
+    "version": "step12-deployed-cleanup-v1",
+    "environment": "Testing",
+    "prefix": "step12-cleanup-20261018-f3b8",
+    "observedAt": "2026-10-18T15:15:43.732Z",
+    "passed": true,
+    "billingBefore": "e252fc261ec514a31af395a7b7eeb72cb393cbac90f863371b7be2d8d57b6d84",
+    "missionId": "k97cv6qvsbae5fn3k868b6f5518ggncp",
+    "resourceIds": [
+      "mn762eszc93h9vhe3m7636z5wn8ghwaq",
+      "mn77y6drssbj0n9hvz1zhjpng98gg8p7",
+      "mn75teqnga4wvjs3dsaxdb0qnn8gh9wj"
+    ],
+    "heldBefore": "8026d3cfe3ed434848dfab9a7bedcaadf009dbfe948864dde05a3a20340d7c3d",
+    "prepared": true,
+    "status": {
+      "generation": 1,
+      "released": 3,
+      "status": "complete"
+    },
+    "resourcesAfterHash": "8c7a34f106ce14e6524bd92045426e1b828d988348a8f4e53a32a9b4677bcb9a",
+    "billingUnchanged": true,
+    "platformTasks": 0,
+    "verifiedAt": "2026-10-18T15:16:28.038Z",
+    "ui": {
+      "viewport": 375,
+      "documentWidth": 375,
+      "status": [
+        "Cleanup complete · 3 reservation(s) released in generation 1."
+      ],
+      "historyBeforeCleanup": "three held resource rows",
+      "dependencyEmptyState": true,
+      "reloadPersisted": true
+    },
+    "sessionSignedOut": true,
+    "sessionClosed": true,
+    "browserErrors": 0
+  },
+  "limits": {
+    "cleanupBatchRows": 20,
+    "includedJsonBytes": 4194304,
+    "paginationRows": 20,
+    "paginationMaximumRowsRead": 40,
+    "paginationMaximumBytesRead": 1048576,
+    "boundaryRowMayBeRead": true
+  },
+  "wholeApplicationSecurityReviewComplete": false,
+  "paymentActivationStep": 17
+}

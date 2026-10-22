@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto'
 import { Buffer } from 'node:buffer'
 import { v } from 'convex/values'
+import {boundedText} from './boundedResponse'
 import { action } from './_generated/server'
 import { internal } from './_generated/api'
 import { artifactCiRepository, artifactCiWorkflow, artifactCiCheckName, exactRunId, verifyExactCiReport } from './artifactCiProvenance'
@@ -15,7 +16,7 @@ function client(write: boolean) {
     if (allowed.includes(response.status)) return { status: response.status }
     if (!response.ok) throw new Error('GitHub artifact CI request failed (HTTP ' + response.status + '). Review repository access and retry.')
     if (response.status === 204) return null
-    return response.json()
+    return JSON.parse(await boundedText(response,1024*1024))
   }
 }
 export const publish = action({

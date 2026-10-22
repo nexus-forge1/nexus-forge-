@@ -1,3 +1,4 @@
+import { requiredBlueprintSections } from "../convex/blueprintCompleteness";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "../convex/schema";
@@ -34,6 +35,27 @@ afterEach(() => {
 });
 
 describe("Manifest provider-to-ledger persistence", () => {
+  it("persists a complete compact response with three distinct strategies in one provider call", async () => {
+    const t=convexTest(schema,modules),operator=t.withIdentity(identity("compact-blueprint-owner"));
+    vi.stubEnv("GROQ_API_KEY","test-provider-key");
+    const nl=String.fromCharCode(10),f=String.fromCharCode(96).repeat(3);
+    const complete=requiredBlueprintSections.map(section=>"## "+section+nl+"A concrete proposed step with a measurable acceptance threshold.").join(nl+nl);
+    const fetchMock=vi.fn(async()=>new Response(JSON.stringify({choices:[{message:{content:complete+nl+f+"manifest-strategies"+nl+JSON.stringify(candidates)+nl+f}}],usage:{prompt_tokens:900,completion_tokens:1500,total_tokens:2400}}),{status:200,headers:{"content-type":"application/json"}}));
+    vi.stubGlobal("fetch",fetchMock);
+    const result=await operator.action(api.manifestIntelligence.synthesize,{intent:"Propose a bounded bakery planning checklist.",domain:"QA software",budget:4,horizon:"one day",constraints:"No external action.",acceptanceCriteria:"Keep all required sections and strategies."});
+    expect(result).toMatchObject({blueprintComplete:true,strategyCount:3,missingSections:[]});
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request=JSON.parse((fetchMock.mock.calls[0] as any)[1].body);
+    expect(request.max_tokens).toBe(3000);expect(request.messages[0].content).not.toContain("[context truncated");
+    expect(JSON.parse((await operator.query(api.manifestIntelligence.listBlueprints,{}))[0].value).sectionCheck).toMatchObject({version:"blueprint-sections-v2",complete:true});
+  });
+  it("rejects oversized context before inference or ledger writes", async () => {
+    const t=convexTest(schema,modules),operator=t.withIdentity(identity("oversize-blueprint-owner")),fetchMock=vi.fn();
+    vi.stubGlobal("fetch",fetchMock);
+    await expect(operator.action(api.manifestIntelligence.synthesize,{intent:"i".repeat(3000),domain:"QA",budget:4,horizon:"one day",constraints:"c".repeat(2000),acceptanceCriteria:"a".repeat(2000)})).rejects.toThrow(/no inference was started/);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(await operator.query(api.manifestIntelligence.listBlueprints,{})).toEqual([]);
+  });
   it("shows only owned mission research with saved HTTPS citations in Manifest context", async () => {
     const t = convexTest(schema, modules);
     const ids = await t.run(async (ctx) => {
@@ -189,7 +211,8 @@ describe("Manifest provider-to-ledger persistence", () => {
       acceptanceCriteria: "Save a readable blueprint and three structured candidates.",
     });
 
-    expect(result).toMatchObject({ saved: true, strategyCount: 3, strategyBlockValid: true });
+    expect(result).toMatchObject({ saved: true, strategyCount: 3, strategyBlockValid: true, blueprintComplete: false });
+    expect(result.missingSections).toContain("Next action");
     expect(result.blueprint).toContain("A bounded proposal");
     expect(result.blueprintKey).toMatch(/^manifest:/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -416,7 +439,7 @@ describe("Manifest provider-to-ledger persistence", () => {
       domain: "AI product / venture",
       budget: 25,
       horizon: "14 days",
-    })).rejects.toThrow(/failed \(503, retryable\)/i);
+    })).rejects.toThrow(/Automatic fallback stopped/i);
 
     expect(await operator.query(api.manifestIntelligence.listBlueprints, {})).toEqual([]);
     expect(await operator.query(api.manifestIntelligence.listStrategies, {})).toEqual([]);

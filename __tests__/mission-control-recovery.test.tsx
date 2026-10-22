@@ -42,7 +42,7 @@ describe('Mission Control recovery feedback', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Request cancellation' }))
     await waitFor(() => expect(claimState.cancel).toHaveBeenCalledWith({ missionId: 'mission-test' }))
     expect(confirm).toHaveBeenCalledWith(expect.stringContaining('provider work already in flight may finish'))
-    expect(await screen.findByRole('status')).toHaveTextContent('Cancellation recorded')
+    expect(await screen.findByText(/Cancellation recorded/)).toHaveAttribute('role', 'status')
     vi.unstubAllGlobals()
   })
   it('shows outcome errors even when portfolio snapshots are unavailable and restores the button', async () => {

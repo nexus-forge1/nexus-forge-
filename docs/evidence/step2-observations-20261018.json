@@ -1,0 +1,30 @@
+{
+  "version": "step2-observation-acceptance-v1",
+  "observedAt": "2026-10-18T00:55:23.451Z",
+  "environment": "Testing",
+  "scope": "Synthetic QA observations, not actual customer outcomes",
+  "strategyId": "kh75wsjhrxfqs3gpnaf1kygwzn8gg4pe",
+  "planId": "tn79b829pfjamnwaj1hr849b3d8ghtkm",
+  "observationIds": [
+    "ts76b258rh6gb4cq6cad3143b98ghjem",
+    "ts7016knefs8vf31twbjrzp0q58ghb2h",
+    "ts7es263sptb7gx5ejy8z47eq98gghrf"
+  ],
+  "statuses": [
+    "failed",
+    "inconclusive",
+    "passed"
+  ],
+  "frozenTargets": true,
+  "idempotentReceipt": true,
+  "strategyUnchanged": true,
+  "billingUnchanged": true,
+  "passed": true,
+  "browser": {
+    "renderedStatuses": true,
+    "persistedAfterReload": true,
+    "observationCountAfterReload": 3,
+    "signedOut": true,
+    "closed": true
+  }
+}

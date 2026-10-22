@@ -1,0 +1,40 @@
+{
+  "version": "step12-capacity-inspection-v1",
+  "observedAt": "2026-10-18T16:15:25.773Z",
+  "sourceRevision": "478964ede76202a1232f3871ec0b0cc0a97f4d85",
+  "sha256": {
+    "convex/capacityInspection.ts": "b993a4a630cf14ee8946f151f3093a14595907083ab54fcffa3b61f8150cb0e2",
+    "convex/resourceCapacity.ts": "f3d6ab4d8738d195b0cb545200f71a39d2a80ccd069a733f3d06ed53bf8ab45b",
+    "convex/recordCapacityModel.ts": "e253d429d5217d7ee465f2733cc3248293e81598cb29e571892a9a92447d6228",
+    "src/components/resource-capacity.tsx": "7e0349c1e02ec225f70a08f2b700537c2ae733ed40a7f5ab32f44c737bdcb86b",
+    "__tests__/convex/capacity-inspection.test.ts": "8a3553004d1c527acb14ae353f1a3f3318543a274e473482379189045ec7a0c1",
+    "__tests__/resource-capacity-ui.test.tsx": "7a12e92bf57a9c8e06d1fd5c21b56f4a5b1b0a0b3e14772155481acd09b3b8dc"
+  },
+  "verification": {
+    "targetedTests": 14,
+    "targetedFiles": 4,
+    "fullTests": 834,
+    "fullFiles": 149,
+    "strict": "passed",
+    "testingDeployment": "backward-compatible",
+    "deterministicFixtures": true,
+    "newRealInference": false
+  },
+  "limits": {
+    "scannedRecords": 500,
+    "includedJsonBytes": 4194304,
+    "oneBoundaryRecordMayBeRead": true,
+    "legacyOverviewSharedBudget": true,
+    "currentCollectionIndependentBudgets": true,
+    "exactDatabaseByteQuota": false
+  },
+  "scope": {
+    "unknownRemainingSlotsNotAdvertised": true,
+    "unknownDistinctFromConfirmedFullQuota": true,
+    "privateRecordBodiesNotReturned": true,
+    "existingEvidenceUnchanged": true,
+    "runtimeAdmissionAndHistoryFilterReviewStillOpen": true,
+    "wholeApplicationSecurityReviewComplete": false
+  },
+  "paymentActivationStep": 17
+}

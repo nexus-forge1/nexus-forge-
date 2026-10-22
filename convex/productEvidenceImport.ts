@@ -51,8 +51,8 @@ async function fetchReport(args:{missionId:Id<"missions">;commitSha:string;repor
     return { input: input as Infer<typeof inputValidator>, receipt }
 }
 export const importReport=action({args:{missionId:v.id("missions"),commitSha:v.string(),reportId:v.string()},returns:v.id("productOutcomes"),handler:async(ctx,args):Promise<Id<"productOutcomes">>=>{await ctx.runQuery(api.missions.getById,{id:args.missionId});const report=await fetchReport(args);return ctx.runMutation(internal.verification.importProductOutcomeInternal,{...report.input,receipt:report.receipt})}})
-export const pollFeed=internalAction({args:{feedId:v.id("outcomeFeeds"),generation:v.number()},handler:async(ctx,a)=>{
- const feed=await ctx.runQuery(internal.outcomeFeeds.authorized,a);if(!feed)return;
+export const pollFeed=internalAction({args:{feedId:v.id("outcomeFeeds"),generation:v.number(),sequence:v.optional(v.number())},handler:async(ctx,a)=>{
+ const feed=await ctx.runMutation(internal.outcomeFeeds.claimPoll,a);if(!feed)return;
  try{const token=process.env.GITHUB_ACCESS_TOKEN;if(!token)throw Error('GitHub access not configured');const response=await fetch("https://api.github.com/repos/"+repository+"/commits/main",{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},redirect:"error",signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error('GitHub branch lookup failed');const {boundedText}=await import('./boundedResponse');const data=JSON.parse(await boundedText(response,100000));if(!/^[a-f0-9]{40}$/.test(data.sha))throw Error('Invalid GitHub commit');const report=await fetchReport({missionId:feed.missionId,reportId:feed.reportId,commitSha:data.sha});await ctx.runMutation(internal.outcomeFeeds.ingest,{...a,...report.input,receipt:report.receipt});await ctx.runMutation(internal.outcomeFeeds.reschedule,{...a,lastCommit:data.sha,error:""})}
  catch{await ctx.runMutation(internal.outcomeFeeds.reschedule,{...a,error:"Report unavailable or invalid; previous evidence retained."})}
 }})

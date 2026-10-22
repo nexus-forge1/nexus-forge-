@@ -91,7 +91,7 @@ export const getById = internalQuery({
 
 export const getOpenForRun = internalQuery({
   args: { runId: v.id("missionRuns") }, returns: v.union(incident, v.null()),
-  handler: async (ctx, args) => ctx.db.query("incidents").filter(q => q.and(q.eq(q.field("runId"), args.runId), q.eq(q.field("status"), "open"))).order("desc").first(),
+  handler: async (ctx, args) => ctx.db.query("incidents").withIndex("by_run_status", q => q.eq("runId", args.runId).eq("status", "open")).order("desc").first(),
 })
 
 export const diagnose = action({

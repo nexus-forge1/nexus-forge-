@@ -38,6 +38,15 @@ function mocks(failDispatch = false) {
   return { fetchMock, bundle: () => bundle }
 }
 describe('exact artifact snapshot publication', () => {
+  it('rejects oversized metadata before remote writes or CI receipt creation',async()=>{
+    const{t,owner,testRunId}=await fixture()
+    vi.stubEnv('GITHUB_ACCESS_TOKEN','fixture-token')
+    const network=vi.fn().mockResolvedValue(new Response('x'.repeat(1024*1024+1)))
+    vi.stubGlobal('fetch',network)
+    await expect(owner.action(api.artifactCiActions.publish,{testRunId,publishSnapshot:true})).rejects.toThrow(/exceeds limit/)
+    expect(network).toHaveBeenCalledTimes(1)
+    expect((await t.run(c=>c.db.get('artifactTestRuns',testRunId)))?.ci).toBeUndefined()
+  })
   it('rejects anonymous and other-owner publication before external requests', async () => {
     const { t, testRunId } = await fixture(), { fetchMock } = mocks()
     await expect(t.action(api.artifactCiActions.publish, { testRunId, publishSnapshot: true })).rejects.toThrow(/Authenticated operator/)

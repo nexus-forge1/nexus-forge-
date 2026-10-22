@@ -11,7 +11,7 @@ it('polls without a user session only for the opted-in feed, checks the Git blob
  let commit='a'.repeat(40);const network=vi.fn(async(url:any)=>String(url).endsWith('/commits/main')?Response.json({sha:commit}):Response.json({type:'file',path,encoding:'base64',size:bytes.length,sha:createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex'),content:bytes.toString('base64')}));vi.stubGlobal('fetch',network);
  const feedId=await owner.mutation(api.outcomeFeeds.create,{missionId,reportId:'daily'});
  await t.action(internal.productEvidenceImport.pollFeed,{feedId,generation:1});expect((await owner.query(api.verification.productOutcomes,{paginationOpts:{numItems:20,cursor:null}})).page).toHaveLength(1);
- commit='b'.repeat(40);await t.action(internal.productEvidenceImport.pollFeed,{feedId,generation:1});expect((await owner.query(api.verification.productOutcomes,{paginationOpts:{numItems:20,cursor:null}})).page).toHaveLength(1);
+ commit='b'.repeat(40);await t.action(internal.productEvidenceImport.pollFeed,{feedId,generation:1,sequence:1});expect((await owner.query(api.verification.productOutcomes,{paginationOpts:{numItems:20,cursor:null}})).page).toHaveLength(1);
  expect((await owner.query(api.outcomeFeeds.list,{}))[0]).toMatchObject({lastCommit:commit,lastError:''});
  await owner.mutation(api.outcomeFeeds.setEnabled,{feedId,enabled:false});const calls=network.mock.calls.length;await t.action(internal.productEvidenceImport.pollFeed,{feedId,generation:1});expect(network).toHaveBeenCalledTimes(calls);
 })

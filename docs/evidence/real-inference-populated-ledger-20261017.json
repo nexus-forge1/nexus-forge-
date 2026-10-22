@@ -1,0 +1,190 @@
+{
+  "version": "real-inference-workload-v1",
+  "observedAt": "2026-10-17T22:38:38.034Z",
+  "environment": "Testing",
+  "identityScope": "One fresh reserved-email OTP account; real configured providers; one actual test-payment fulfillment.",
+  "inference": {
+    "concurrency": 2,
+    "durationMs": 5103,
+    "results": [
+      {
+        "status": "fulfilled",
+        "index": 1,
+        "durationMs": 4996,
+        "saved": true,
+        "strategyCount": 3,
+        "strategyBlockValid": true,
+        "blueprintBytes": 5622,
+        "blueprintSHA256": "76825f9d8c8751ad48dd44056d2a2a3fffa1c08ba1b8eaa68c115eeb9915dfed"
+      },
+      {
+        "status": "fulfilled",
+        "index": 2,
+        "durationMs": 4009,
+        "saved": true,
+        "strategyCount": 3,
+        "strategyBlockValid": true,
+        "blueprintBytes": 8063,
+        "blueprintSHA256": "c95cdad6f274e70917385119e34e5b06e5235a30432c52ead0d29a02a3c240a3"
+      }
+    ]
+  },
+  "invocations": [
+    {
+      "stage": "manifest-strategy",
+      "outcome": "succeeded",
+      "usageStatus": "recorded",
+      "reports": [
+        {
+          "provider": "cloudflare",
+          "model": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
+          "promptTokens": 1564,
+          "completionTokens": 377,
+          "totalTokens": 1941
+        }
+      ]
+    },
+    {
+      "stage": "manifest-strategy",
+      "outcome": "succeeded",
+      "usageStatus": "recorded",
+      "reports": [
+        {
+          "provider": "groq",
+          "model": "openai/gpt-oss-20b",
+          "promptTokens": 1745,
+          "completionTokens": 850,
+          "totalTokens": 2595
+        }
+      ]
+    },
+    {
+      "stage": "manifest-blueprint",
+      "outcome": "succeeded",
+      "usageStatus": "recorded",
+      "reports": [
+        {
+          "provider": "groq",
+          "model": "openai/gpt-oss-20b",
+          "promptTokens": 885,
+          "completionTokens": 2400,
+          "totalTokens": 3285
+        }
+      ]
+    },
+    {
+      "stage": "manifest-blueprint",
+      "outcome": "succeeded",
+      "usageStatus": "recorded",
+      "reports": [
+        {
+          "provider": "groq",
+          "model": "openai/gpt-oss-20b",
+          "promptTokens": 885,
+          "completionTokens": 2400,
+          "totalTokens": 3285
+        }
+      ]
+    }
+  ],
+  "billing": {
+    "mode": "test",
+    "paidTestReceipts": 1,
+    "availablePrepaidCents": 996,
+    "reservedCents": 0,
+    "unresolved": 0,
+    "holds": [
+      {
+        "status": "settled",
+        "reservedCents": 100,
+        "chargedCents": 1,
+        "providerCostUsd": 0.000215148,
+        "costBasis": "standard-token-rates-2026-10-17"
+      },
+      {
+        "status": "settled",
+        "reservedCents": 100,
+        "chargedCents": 1,
+        "providerCostUsd": 0.000385875,
+        "costBasis": "standard-token-rates-2026-10-17"
+      },
+      {
+        "status": "settled",
+        "reservedCents": 100,
+        "chargedCents": 1,
+        "providerCostUsd": 0.000786375,
+        "costBasis": "standard-token-rates-2026-10-17"
+      },
+      {
+        "status": "settled",
+        "reservedCents": 100,
+        "chargedCents": 1,
+        "providerCostUsd": 0.000786375,
+        "costBasis": "standard-token-rates-2026-10-17"
+      }
+    ]
+  },
+  "scope": "Two concurrent real inference proposals and optional structured retries, no delivery or external business execution. Test payment is not revenue; standard-rate calculation is not provider invoice reconciliation.",
+  "inferencePassed": true,
+  "populatedLedgerReads": {
+    "version": "authenticated-read-capacity-v1",
+    "profile": {
+      "label": "Populated real-inference ledger - four workers sharing one OTP session",
+      "environment": "Testing",
+      "backendOrigin": "https://quick-rabbit-810.eu-west-1.convex.cloud",
+      "workers": 4,
+      "iterations": 30,
+      "intervalMs": 1000,
+      "timeoutMs": 10000,
+      "p95LimitMs": 2000,
+      "maxErrorRate": 0
+    },
+    "startedAt": "2026-10-17T22:38:38.213Z",
+    "observedAt": "2026-10-17T22:39:07.259Z",
+    "durationMs": 29047,
+    "sessionCount": 4,
+    "authentication": "Caller-supplied bearer sessions passed private-query preflight; distinct users are not inferred.",
+    "scope": "Bounded authenticated provider-ledger reads only. Does not exercise inference, mission writes, delivery or sustained full-service capacity.",
+    "summary": {
+      "completed": 120,
+      "planned": 120,
+      "failures": 0,
+      "p95Ms": 75,
+      "errorRate": 0,
+      "stoppedEarly": false,
+      "passed": true
+    },
+    "ledgerUnchanged": true,
+    "invocationCount": 4
+  },
+  "passed": false,
+  "generatedSectionChecks": [
+    {
+      "version": "blueprint-sections-v1",
+      "complete": false,
+      "missingSections": [
+        "Novelty hypothesis",
+        "Next action"
+      ]
+    },
+    {
+      "version": "blueprint-sections-v1",
+      "complete": true,
+      "missingSections": []
+    }
+  ],
+  "contentPassed": false,
+  "observedDraftUi": {
+    "incompleteDraftFlagged": true,
+    "missingNextActionDisplayed": true,
+    "guidedMissionHandoffLinks": 0,
+    "automaticPaidReplay": false
+  },
+  "acceptanceDecision": "PARTIAL: inference persistence, metering and populated reads passed; one saved draft has missing required sections. Structural warning and handoff guard verified against that actual draft.",
+  "cleanup": {
+    "signedOut": true,
+    "browserClosed": true,
+    "retainedTestPrepaidCents": 996,
+    "subscriptionCreated": false
+  }
+}

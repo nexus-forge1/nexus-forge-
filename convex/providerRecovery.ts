@@ -1,3 +1,4 @@
+import {admitEvidence,evidencePage} from './evidenceAdmission'
 import { reserveUsage, settleUsage } from './billingUsage'
 import { checkProviderClaim } from './providerClaimFence'
 import { v } from 'convex/values'
@@ -30,6 +31,7 @@ export const reserve = internalMutation({
         return { invocationId: row._id, answer: result.answer }
       }
     }
+    await admitEvidence(ctx.db.query('providerInvocations').withIndex('by_owner',q=>q.eq('ownerKey',args.ownerKey)),'Provider invocation',500)
     const { requestDigest: _digest, executionClaimId: _claim, ...fields } = args
     const invocationId = await ctx.db.insert('providerInvocations', { ...fields, startedAt: Date.now(), outcome: 'pending', usageStatus: 'pending', reports: [] })
     await reserveUsage(ctx, invocationId, args.ownerKey)

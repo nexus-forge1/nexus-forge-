@@ -1,0 +1,22 @@
+{
+  "version": "step8-developer-lookup-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T05:05:16.869Z",
+  "passed": true,
+  "requestKey": "step8-read-d3e8-20261018",
+  "prepared": true,
+  "receiptDigest": "7165f4bfe985ccdc846e55a8954764bba721aaa56cf7ebd8d48900edde7e8609",
+  "resultSha256": "c7b3ca9534f703cf30de2bc9c15ff7461684aab10ed73f517b3d260c108ede59",
+  "exactQuery": true,
+  "credentialHeadersAbsent": true,
+  "untrustedLabel": true,
+  "inspected": true,
+  "identicalReceiptAfterReplay": true,
+  "adapterRevoked": true,
+  "revokedExecutionDenied": true,
+  "billingUnchanged": true,
+  "browserSubmitted": true,
+  "browserSameKeyReplay": true,
+  "sessionSignedOutAndClosed": true,
+  "gitHubEvidence": "Prior accepted exact branch/commit read-back reused; no new remote write"
+}

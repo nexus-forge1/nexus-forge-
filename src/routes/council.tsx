@@ -1,3 +1,5 @@
+import {operatorError} from '../lib/operator-error'
+import { routeHead } from '../lib/route-metadata'
 import { CouncilMemoryInspection } from "../components/council-memory-inspection"
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useMutation } from 'convex/react'
@@ -7,7 +9,7 @@ import { WorkspaceLoading } from '../components/workspace-loading'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
 
-export const Route = createFileRoute('/council')({ component: CouncilPage })
+export const Route = createFileRoute('/council')({ head: () => routeHead("/council"), component: CouncilPage })
 
 export function CouncilPage() {
   const { evidenceLoading, missionId, mission, agents, councilComplete, hasResearch } = useActiveMission()
@@ -29,7 +31,7 @@ export function CouncilPage() {
       try {
         await remember({ missionId, category: 'lesson', key: 'latest-orchestration', value: result.summary, confidence: result.ok ? 0.9 : 0.5, source: 'NEXUS Council' })
       } catch (memoryError) {
-        setMemoryWarning(`Council planning completed, but the learning memory could not be saved: ${memoryError instanceof Error ? memoryError.message : 'unknown memory error'}. The orchestration receipt is still available above.`)
+        setMemoryWarning(`Council planning completed, but the learning memory could not be saved: ${operatorError(memoryError,'Review saved memory before trying another manual save')}. The orchestration receipt is still available above.`)
       }
     } catch (e) { setError(e instanceof Error ? e.message : 'Council orchestration failed.') } finally { setBusy(false) }
   }

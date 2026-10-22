@@ -1,0 +1,51 @@
+{
+  "version": "blueprint-quality-v2",
+  "observedAt": "2026-10-18T00:43:59.655Z",
+  "environment": "Testing",
+  "passed": true,
+  "automaticActionRetries": 0,
+  "durationMs": 2257,
+  "blueprintKey": "manifest:kh76ag4pq50sza73h76f2y4y798gge75",
+  "blueprintId": "kh76ag4pq50sza73h76f2y4y798gge75",
+  "sections": {
+    "version": "blueprint-sections-v2",
+    "complete": true,
+    "missingSections": [],
+    "emptySections": [],
+    "duplicateSections": []
+  },
+  "distinctStrategies": true,
+  "strategyCount": 3,
+  "exactPersistedText": true,
+  "invocations": [
+    {
+      "id": "p97esqsh2rdrqy76rx2kg7rk1x8ggx3v",
+      "stage": "manifest-blueprint",
+      "outcome": "succeeded",
+      "usageStatus": "recorded",
+      "reports": [
+        {
+          "provider": "groq",
+          "model": "openai/gpt-oss-20b",
+          "promptTokens": 650,
+          "completionTokens": 1571
+        }
+      ]
+    }
+  ],
+  "billing": {
+    "mode": "test",
+    "prepaidCents": 999,
+    "heldCents": 0,
+    "unresolved": 0,
+    "settled": true,
+    "realCustomerCharge": false
+  },
+  "browser": {
+    "persistedAfterReload": true,
+    "guideStage": "Review the three strategies",
+    "signedOut": true,
+    "closed": true
+  },
+  "scope": "Single fictional Testing proposal; structural completeness and exact duplicate identities only. Not representative workload, source verification or semantic uniqueness certification."
+}

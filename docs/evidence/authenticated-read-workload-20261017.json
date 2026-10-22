@@ -1,0 +1,53 @@
+{
+  "version": "authenticated-read-capacity-v1",
+  "profile": {
+    "label": "Testing authenticated reads - one fresh reserved OTP account",
+    "environment": "Testing",
+    "backendOrigin": "https://quick-rabbit-810.eu-west-1.convex.cloud",
+    "workers": 4,
+    "iterations": 30,
+    "intervalMs": 1000,
+    "timeoutMs": 10000,
+    "p95LimitMs": 2000,
+    "maxErrorRate": 0
+  },
+  "startedAt": "2026-10-17T22:26:59.239Z",
+  "observedAt": "2026-10-17T22:27:28.283Z",
+  "durationMs": 29045,
+  "sessionCount": 4,
+  "authentication": "Caller-supplied bearer sessions passed private-query preflight; distinct users are not inferred.",
+  "scope": "Bounded authenticated provider-ledger reads only. Does not exercise inference, mission writes, delivery or sustained full-service capacity.",
+  "summary": {
+    "completed": 120,
+    "planned": 120,
+    "failures": 0,
+    "p95Ms": 89,
+    "errorRate": 0,
+    "stoppedEarly": false,
+    "passed": true
+  },
+  "observedIdentityScope": "One fresh reserved-email OTP account; four workers share its signed-in session. New account has no provider-invocation history.",
+  "samplesSHA256": "1d3ad73266829e64652cd9d4f36fe1799b780115ab785e42824bcb92f7295e97",
+  "perWorker": [
+    {
+      "worker": 0,
+      "completed": 30,
+      "failures": 0
+    },
+    {
+      "worker": 1,
+      "completed": 30,
+      "failures": 0
+    },
+    {
+      "worker": 2,
+      "completed": 30,
+      "failures": 0
+    },
+    {
+      "worker": 3,
+      "completed": 30,
+      "failures": 0
+    }
+  ]
+}

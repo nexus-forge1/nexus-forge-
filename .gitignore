@@ -57,13 +57,12 @@ next-env.d.ts
 .gitconfig
 .macaly-git-wrapper.sh
 
-# Local secrets and environment configuration must never be committed.
+# Local secrets and environment configuration. Never commit real credentials.
 .env
 .env.local
 .env.*
 !.env.example
-
-# Local credential stores, browser PKI, MCP settings, and private working files.
+.cody/credentials.json
 /.aws/
 /.pki/
 /.mcp.json

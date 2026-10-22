@@ -1,10 +1,11 @@
+import { routeHead } from '../lib/route-metadata'
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useAction,useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { PricingOptions } from '../components/pricing-options'
-export const Route=createFileRoute('/billing')({component:Billing})
+export const Route=createFileRoute('/billing')({ head: () => routeHead("/billing"),component:Billing})
 function Account(){
  const mine=useQuery(api.billing.mine,{}),portal=useAction(api.payments.portal),[error,setError]=useState(''),[busy,setBusy]=useState(false)
  const money=(n:number)=>'$'+(n/100).toFixed(2)

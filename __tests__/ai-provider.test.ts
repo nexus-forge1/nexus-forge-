@@ -208,14 +208,13 @@ describe("provider accounting boundaries", () => {
     expect(record).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
-  it("still falls back for an unusable provider answer after an accounting failure", async () => {
+  it("stops for review for an unusable provider answer after an accounting failure", async () => {
     configure();
     const fetchMock = vi.fn().mockResolvedValueOnce(response({ total_tokens: 42 }, "")).mockResolvedValueOnce(completion("usable fallback"));
     vi.stubGlobal("fetch", fetchMock);
     const record = vi.fn().mockRejectedValue(new Error("temporary save failure"));
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    await expect(callAiProvider("planner", "bounded prompt", 100, record)).resolves.toBe("usable fallback");
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock.mock.calls[1][0]).toContain("api.cerebras.ai");
+    await expect(callAiProvider("planner", "bounded prompt", 100, record)).rejects.toThrow(/Automatic fallback stopped/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

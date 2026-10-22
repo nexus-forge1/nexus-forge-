@@ -1,0 +1,205 @@
+{
+  "version": "step9-research-evaluation-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T05:28:41.298Z",
+  "scope": "Synthetic operator-recorded fixtures; not scientific findings, independent replication or model performance evidence",
+  "passed": true,
+  "billingUnchanged": true,
+  "protocols": [
+    {
+      "kind": "comparison",
+      "passed": true,
+      "summary": {
+        "claim": "Bounded measured comparison only; no general superiority, novelty, AGI or superintelligence certification",
+        "domainResults": [
+          {
+            "domain": "controlled",
+            "heldOut": false,
+            "meanImprovement": 2.5,
+            "n": 2
+          }
+        ],
+        "heldOutReady": false,
+        "heldOutStatus": "not-applicable",
+        "heldOutTargetMet": null,
+        "improved": 2,
+        "meanImprovement": 2.5,
+        "n": 2,
+        "provenance": "Operator-supplied evidence; not independently verified",
+        "ready": true,
+        "regressed": 0,
+        "standardError": 0.5,
+        "targetMet": true,
+        "unchanged": 0
+      },
+      "closed": true,
+      "idempotentAfterClose": true,
+      "conflictDenied": true,
+      "newTrialDenied": true,
+      "inconclusiveRetained": true,
+      "prematureClosureDenied": true,
+      "trials": [
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "comparison",
+            "caseKey": "comparison-9f3c-0",
+            "baseline": 0,
+            "candidate": 2,
+            "domain": "controlled"
+          },
+          "digest": "52b016e57573bc666f63075d7c1976a49f0e22c95ee6408e251205a3a2afc200"
+        },
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "comparison",
+            "caseKey": "comparison-9f3c-1",
+            "baseline": 0,
+            "candidate": 3,
+            "domain": "controlled"
+          },
+          "digest": "088c0ab3c696fb2a197137e1b22e7945e0772befc97e2eee3dabe55299952167"
+        }
+      ]
+    },
+    {
+      "kind": "science",
+      "passed": true,
+      "summary": {
+        "claim": "Bounded measured comparison only; no general superiority, novelty, AGI or superintelligence certification",
+        "domainResults": [
+          {
+            "domain": "controlled",
+            "heldOut": false,
+            "meanImprovement": -1,
+            "n": 2
+          }
+        ],
+        "heldOutReady": false,
+        "heldOutStatus": "not-applicable",
+        "heldOutTargetMet": null,
+        "improved": 0,
+        "meanImprovement": -1,
+        "n": 2,
+        "provenance": "Operator-supplied evidence; not independently verified",
+        "ready": true,
+        "regressed": 1,
+        "standardError": 1,
+        "targetMet": false,
+        "unchanged": 1
+      },
+      "closed": true,
+      "idempotentAfterClose": true,
+      "conflictDenied": true,
+      "newTrialDenied": true,
+      "inconclusiveRetained": true,
+      "prematureClosureDenied": true,
+      "trials": [
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "science",
+            "caseKey": "science-9f3c-0",
+            "baseline": 5,
+            "candidate": 3,
+            "domain": "controlled"
+          },
+          "digest": "2e08dda77e48d3469a969cd9265e5b2da8469a7016f51f267b73d569a9a94291"
+        },
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "science",
+            "caseKey": "science-9f3c-1",
+            "baseline": 5,
+            "candidate": 5,
+            "domain": "controlled"
+          },
+          "digest": "645e17a5288f7df96bbf8645f7bc926c9a6a764478e2badb2cebc060e54ddb40"
+        }
+      ]
+    },
+    {
+      "kind": "generality",
+      "passed": true,
+      "summary": {
+        "claim": "Bounded measured comparison only; no general superiority, novelty, AGI or superintelligence certification",
+        "domainResults": [
+          {
+            "domain": "training",
+            "heldOut": false,
+            "meanImprovement": 10,
+            "n": 2
+          },
+          {
+            "domain": "held",
+            "heldOut": true,
+            "meanImprovement": -1,
+            "n": 1
+          }
+        ],
+        "heldOutReady": true,
+        "heldOutStatus": "domain-target-missed",
+        "heldOutTargetMet": false,
+        "improved": 2,
+        "meanImprovement": 6.333333333333333,
+        "n": 3,
+        "provenance": "Operator-supplied evidence; not independently verified",
+        "ready": true,
+        "regressed": 1,
+        "standardError": 3.6666666666666665,
+        "targetMet": true,
+        "unchanged": 0
+      },
+      "closed": true,
+      "idempotentAfterClose": true,
+      "conflictDenied": true,
+      "newTrialDenied": true,
+      "inconclusiveRetained": true,
+      "prematureClosureDenied": true,
+      "trials": [
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "generality",
+            "caseKey": "generality-9f3c-0",
+            "baseline": 0,
+            "candidate": 10,
+            "domain": "training"
+          },
+          "digest": "0a12465307b7f8f86fbe86d4f72dff23dce451b80f64dfb0ad3b1694373bf55b"
+        },
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "generality",
+            "caseKey": "generality-9f3c-1",
+            "baseline": 0,
+            "candidate": 10,
+            "domain": "training"
+          },
+          "digest": "8b4989eac31dcfbe106ab81a721bb30b45d5bc2b228447a1a8c5b5b999359ac5"
+        },
+        {
+          "fixture": {
+            "origin": "authored step9 fixture",
+            "kind": "generality",
+            "caseKey": "generality-9f3c-2",
+            "baseline": 0,
+            "candidate": -1,
+            "domain": "held"
+          },
+          "digest": "b9913c8475eaa6e514999cd38591b1ce043ab6f45e8a90a773929dc235fc1fab"
+        }
+      ]
+    }
+  ],
+  "browser": {
+    "heldOutMissVisible": true,
+    "reloadReopenPassed": true,
+    "exportPreservedHeldOutMiss": true,
+    "exportTrialCount": 3,
+    "signedOutAndClosed": true
+  }
+}

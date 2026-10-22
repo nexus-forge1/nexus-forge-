@@ -1,0 +1,11 @@
+{
+  "label": "Proposed bounded authenticated-read engineering profile",
+  "environment": "Testing",
+  "backendOrigin": "https://quick-rabbit-810.eu-west-1.convex.cloud",
+  "workers": 4,
+  "iterations": 30,
+  "intervalMs": 1000,
+  "timeoutMs": 10000,
+  "p95LimitMs": 2000,
+  "maxErrorRate": 0
+}

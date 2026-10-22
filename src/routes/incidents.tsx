@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useMutation, useQuery } from 'convex/react'
 import { useState } from 'react'
@@ -7,7 +8,7 @@ import { WorkspaceLoading } from '../components/workspace-loading'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
 
-export const Route = createFileRoute('/incidents')({ component: IncidentsPage })
+export const Route = createFileRoute('/incidents')({ head: () => routeHead("/incidents"), component: IncidentsPage })
 
 export function IncidentsPage() {
   const { evidenceLoading, missionId, mission } = useActiveMission()

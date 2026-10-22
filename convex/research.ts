@@ -4,6 +4,7 @@ import { api, internal } from "./_generated/api"
 import { callManagedAi } from "./providerAccounting"
 import { requireOwnedMission } from "./permissions"
 import { parseResearchResponse } from "./researchResponse"
+import { boundedText } from "./boundedResponse"
 
 const researchValidator = v.object({ _id: v.id("research"), _creationTime: v.number(), missionId: v.id("missions"), query: v.string(), result: v.string(), citations: v.array(v.string()), createdAt: v.number() })
 
@@ -11,6 +12,8 @@ type WebSource = { title: string; url: string; snippet: string }
 const MAX_QUERY_LENGTH = 500
 const MAX_SEARCH_HTML = 300_000
 const MAX_SOURCE_HTML = 120_000
+// JSON escaping can expand a 120,000-byte source up to sixfold.
+const MAX_GATEWAY_ENVELOPE = 768_000
 const EGRESS_GATEWAY_TIMEOUT_MS = 15_000
 const EGRESS_HEALTH_TIMEOUT_MS = 8_000
 
@@ -38,7 +41,7 @@ function assertEgressGatewayConfigured(): void {
 
 type GatewayPage = { status: number; contentType: string; body: string; finalUrl: string }
 
-async function fetchResearchPageViaGateway(value: string): Promise<GatewayPage> {
+export async function fetchResearchPageViaGateway(value: string): Promise<GatewayPage> {
   const config = egressGatewayConfig()
   if (!config) {
     throw new EgressGatewayUnavailableError("Research egress gateway is not configured; source retrieval stopped (fail closed).")
@@ -59,7 +62,7 @@ async function fetchResearchPageViaGateway(value: string): Promise<GatewayPage> 
   if (response.status === 401 || response.status >= 500) {
     throw new EgressGatewayUnavailableError("Research egress gateway is unavailable; source retrieval stopped (fail closed).")
   }
-  const data = (await response.json().catch(() => null)) as
+  const data = (await boundedText(response, MAX_GATEWAY_ENVELOPE).then(JSON.parse).catch(() => { throw new EgressGatewayUnavailableError("Research egress gateway returned an invalid or oversized response; source retrieval stopped (fail closed).") })) as
     | { ok?: unknown; status?: unknown; contentType?: unknown; finalUrl?: unknown; hops?: unknown; body?: unknown }
     | null
   if (!data || data.ok !== true) {
@@ -67,13 +70,18 @@ async function fetchResearchPageViaGateway(value: string): Promise<GatewayPage> 
     // individual source is skipped safely; no direct fetch happens.
     throw new Error(`Research source was rejected by the egress gateway (${typeof data?.ok === "boolean" ? "policy" : "contract"}).`)
   }
+  if (!response.ok || !Number.isInteger(data.status) || (data.status as number) < 100 || (data.status as number) > 599 ||
+      typeof data.contentType !== "string" || data.contentType.length > 256 ||
+      typeof data.body !== "string" || new TextEncoder().encode(data.body).byteLength > MAX_SOURCE_HTML) {
+    throw new EgressGatewayUnavailableError("Research egress gateway returned an invalid page contract; source retrieval stopped (fail closed).")
+  }
   // Defense in depth: revalidate every redirect hop and the final URL at the
   // application layer even though the gateway already enforced the policy.
   const hops = Array.isArray(data.hops) ? data.hops : []
-  if (!hops.length || hops.some(hop => typeof hop !== "string" || !isSafeResearchUrl(hop))) {
+  if (!hops.length || hops.length > 5 || hops.some(hop => typeof hop !== "string" || hop.length > 2048 || !isSafeResearchUrl(hop))) {
     throw new Error("Research source redirect chain is not allowed")
   }
-  if (typeof data.finalUrl !== "string" || !isSafeResearchUrl(data.finalUrl)) {
+  if (typeof data.finalUrl !== "string" || data.finalUrl.length > 2048 || !isSafeResearchUrl(data.finalUrl)) {
     throw new Error("Research source final URL is not allowed")
   }
   return {
@@ -158,7 +166,8 @@ function cleanHtml(html: string): string {
     .trim()
 }
 
-async function discoverWebSources(query: string, limit: number): Promise<WebSource[]> {
+export async function discoverWebSources(query: string, limit: number): Promise<WebSource[]> {
+  if (query.length < 3 || query.length > MAX_QUERY_LENGTH || !Number.isInteger(limit) || limit < 1 || limit > 5) throw new Error('Discovery requires a 3–500 character question and 1–5 sources.')
   assertEgressGatewayConfigured()
   const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`
   const response = await fetch(searchUrl, {
@@ -209,11 +218,11 @@ export const egressHealth = internalAction({
         signal: AbortSignal.timeout(EGRESS_HEALTH_TIMEOUT_MS),
         redirect: "error",
       })
-      const data = (await response.json().catch(() => null)) as { ok?: unknown; policy?: unknown } | null
+      const data = JSON.parse(await boundedText(response, 8192)) as { ok?: unknown; policy?: unknown } | null
       return {
         configured: true,
         healthy: response.status === 200 && data?.ok === true,
-        policy: typeof data?.policy === "string" ? data.policy : null,
+        policy: typeof data?.policy === "string" && data.policy.length <= 256 ? data.policy : null,
       }
     } catch {
       return { configured: true, healthy: false, policy: null }

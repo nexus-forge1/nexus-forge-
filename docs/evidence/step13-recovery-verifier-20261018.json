@@ -1,0 +1,68 @@
+{
+  "version": "step13-recovery-verifier-v1",
+  "verification": {
+    "version": "recovery-point-verification-v1",
+    "verifiedAt": "2026-10-18T18:57:32.239063+00:00",
+    "capturedAt": "2026-10-18T18:37:00+00:00",
+    "captureTimeBasis": "supplied capture receipt; not inferred from file modification time",
+    "bytes": 1554319,
+    "sha256": "82b4d514a008cdfdb21a7429b181154d301e278ea59b2f7c3fa9749498b23892",
+    "savedCopyMatchesSource": true,
+    "zipCrcPassed": true,
+    "tableCount": 75,
+    "documentCount": 2011,
+    "storagePayloads": 0,
+    "privateMediaRecords": 0,
+    "relationshipIssues": {},
+    "freshness": "fresh",
+    "ageHours": 0.342,
+    "passed": true,
+    "restorePerformed": false,
+    "fullServiceRecoveryEstablished": false,
+    "externalMacalyAssetsCovered": false
+  },
+  "source": {
+    "verifierSha256": "f10451720e72a8f40c97639656c9fe27781dcbaf2a9c24aadc1e128e3ad312fd",
+    "testSha256": "21fa22d08334061c90b28ee5de536341d3491fb0a5290dd99118d08b7f25abf9"
+  },
+  "validation": {
+    "newVerifierTests": 9,
+    "affectedTests": 16,
+    "files": 3,
+    "passed": true,
+    "strict": "passed",
+    "previousFullRegression": {
+      "tests": 918,
+      "files": 161,
+      "reused": true
+    }
+  },
+  "countCorrection": {
+    "previousCombinedTables": 76,
+    "previousCombinedRows": 2086,
+    "dataTables": 75,
+    "dataDocuments": 2011,
+    "registryTables": 1,
+    "registryEntries": 75,
+    "archiveDigestChanged": false
+  },
+  "automations": [
+    {
+      "title": "NEXUS FORGE backups",
+      "enabled": true,
+      "schedule": "BEGIN:VEVENT\nDTSTART;TZID=America/New_York:20261015T030000\nRRULE:FREQ=DAILY\nEND:VEVENT",
+      "promptUpdated": true
+    },
+    {
+      "title": "NEXUS FORGE restore drill",
+      "enabled": true,
+      "schedule": "BEGIN:VEVENT\nDTSTART;TZID=America/New_York:20261101T080000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1\nEND:VEVENT",
+      "promptUpdated": true
+    }
+  ],
+  "step13": "NEXT — verifier and task integration complete; recurring success, retention and full-service recovery targets remain unverified",
+  "payments": "Step17 LAST",
+  "noDatabaseImport": true,
+  "noInference": true,
+  "noDispatch": true
+}

@@ -1,3 +1,5 @@
+import {RequirementHistory} from './requirement-history';
+import {PortfolioHistoryNotice} from "./portfolio-history-notice";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -44,10 +46,11 @@ export function MissionControl({
   );
   const decision = useQuery(api.portfolio.decisionSnapshot);
   const learning = useQuery(api.portfolio.learningSnapshot);
-  const preflight = useQuery(
-    api.memory.getAdaptivePreflightForOperator,
+  const preflightStatus = useQuery(
+    api.memory.adaptivePreflightStatus,
     missionId ? { missionId } : "skip",
   );
+  const preflight = preflightStatus?.ok ? preflightStatus.value : undefined;
   const orchestration = useQuery(
     api.orchestration.preflight,
     missionId ? { missionId } : "skip",
@@ -79,7 +82,7 @@ export function MissionControl({
   const resolved =
     incidents?.filter((i) => i.status === "resolved").length ?? 0;
   const latest = verifications?.[0];
-  const preflightReason = preflight?.rationale?.[0] ?? "No prior learning rationale is available for this mission.";
+  const preflightReason = preflight?.rationale[0] ?? "No prior learning rationale is available for this mission.";
   const approved = decisions?.find(
     (d) => d.decision === "approve" && d.action === "Execute approved mission",
   );
@@ -110,6 +113,24 @@ export function MissionControl({
     finally { setBusy(null); }
   }
 
+  async function verifyOutcome() {
+    if (!missionId || !verifiedDelivery) return;
+    setBusy("verifyOutcome");
+    setReceipt(null);
+    setActionError(null);
+    try {
+      const result = await recordMeasuredOutcome({ deliveryId: verifiedDelivery._id });
+      setReceipt(
+        result.passed
+          ? `Measured outcome: ${Math.round(result.score * 100)}% — all four evidence domains passed; mission completed.`
+          : `Measured outcome: ${Math.round(result.score * 100)}% — review the failed evidence domains before treating the mission as complete.`,
+      );
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Outcome recording failed. Review delivery evidence and retry.");
+    } finally {
+      setBusy(null);
+    }
+  }
   async function cancelSelectedMission() {
     if (!missionId || !workflowRun || !["running", "paused"].includes(workflowRun.status)) return;
     const confirmed = window.confirm(
@@ -129,24 +150,6 @@ export function MissionControl({
     }
   }
 
-  async function verifyOutcome() {
-    if (!missionId || !verifiedDelivery) return;
-    setBusy("verifyOutcome");
-    setReceipt(null);
-    setActionError(null);
-    try {
-      const result = await recordMeasuredOutcome({ deliveryId: verifiedDelivery._id });
-      setReceipt(
-        result.passed
-          ? `Measured outcome: ${Math.round(result.score * 100)}% — all four evidence domains passed; mission completed.`
-          : `Measured outcome: ${Math.round(result.score * 100)}% — review the failed evidence domains before treating the mission as complete.`,
-      );
-    } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Outcome recording failed. Review delivery evidence and retry.");
-    } finally {
-      setBusy(null);
-    }
-  }
   async function recordEscalationReview() {
     if (!escalatedIncident) return;
     if (reviewRecovery.trim().length < 12 || reviewLesson.trim().length < 12) {
@@ -288,7 +291,7 @@ export function MissionControl({
           <span>ADAPTIVE PREFLIGHT</span>
           <span className="live-pill">● LEARNING / ADVISORY</span>
         </div>
-        {preflight ? (
+        {preflightStatus?.ok === false ? <><p role="alert">{preflightStatus.message}</p><Link className="secondary-button" to="/evidence">Review retained memory →</Link></> : preflight ? (
           <>
             <div className="decision-line">
               <span>WHY THE PLAN MAY CHANGE</span>
@@ -296,25 +299,25 @@ export function MissionControl({
             </div>
             <div className="stats-strip compact">
               <div>
-                <strong>{(preflight.riskSignals ?? []).length}</strong>
+                <strong>{preflight.riskSignals.length}</strong>
                 <span>Risk signals</span>
               </div>
               <div>
-                <strong>{(preflight.reusePatterns ?? []).length}</strong>
+                <strong>{preflight.reusePatterns.length}</strong>
                 <span>Reuse patterns</span>
               </div>
               <div>
-                <strong>{(preflight.requiredEvidence ?? []).length}</strong>
+                <strong>{preflight.requiredEvidence.length}</strong>
                 <span>Evidence requirements</span>
               </div>
               <div>
-                <strong>{(preflight.recoveryGuidance ?? []).length}</strong>
+                <strong>{preflight.recoveryGuidance.length}</strong>
                 <span>Recovery signals</span>
               </div>
             </div>
             <div className="console-grid">
               <div>
-                {(preflight.riskSignals ?? []).slice(0, 3).map((s, i) => (
+                {preflight.riskSignals.slice(0, 3).map((s, i) => (
                   <div className="guard-item" key={`risk-${i}`}>
                     <span>!</span>
                     <div>
@@ -323,7 +326,7 @@ export function MissionControl({
                     </div>
                   </div>
                 ))}
-                {(preflight.reusePatterns ?? []).slice(0, 3).map((s, i) => (
+                {preflight.reusePatterns.slice(0, 3).map((s, i) => (
                   <div className="guard-item" key={`reuse-${i}`}>
                     <span>↻</span>
                     <div>
@@ -334,7 +337,7 @@ export function MissionControl({
                 ))}
               </div>
               <div>
-                {(preflight.requiredEvidence ?? []).map((x, i) => (
+                {preflight.requiredEvidence.map((x, i) => (
                   <div className="guard-item" key={`evidence-${i}`}>
                     <span>✓</span>
                     <div>
@@ -419,7 +422,7 @@ export function MissionControl({
                   <strong>{r.key}</strong>
                   <small>
                     {r.mode.toUpperCase()} resource ·{" "}
-                    {r.available ? "available" : `held by ${r.heldByMission}`}
+                    {r.available ? "available" : r.heldByMission ? `held by ${r.heldByMission}` : "held by another mission"}
                   </small>
                 </div>
                 <span className="status-chip">
@@ -437,6 +440,7 @@ export function MissionControl({
           <p>{missionId ? "Loading dependency and resource preflight…" : "Select a mission to inspect dependency and resource preflight."}</p>
         )}
       </div>
+      {missionId&&<RequirementHistory key={missionId} missionId={missionId}/>}
       {missionId && mission && workflowRun && (workflowRun.status === "running" || workflowRun.status === "paused") && mission.status !== "cancelled" && (
         <div className="glass-card research-card" data-testid="mission-cancellation-panel">
           <div className="panel-title">
@@ -461,6 +465,7 @@ export function MissionControl({
         </div>
         {decision ? (
           <>
+            <PortfolioHistoryNotice scope={decision.historyScope}/>
             <div className="stats-strip compact">
               <div>
                 <strong>{decision.totalMissions}</strong>
@@ -507,7 +512,6 @@ export function MissionControl({
                   <strong>{workflowRun ? `${workflowRun.status.toUpperCase()} · ${workflowRun.currentStage.replaceAll("_", " ").toUpperCase()}` : missionId && workflowRun === undefined ? "Loading runner status…" : "NOT STARTED"}</strong>
                 </div>
                 {workflowRun?.lastError && <p className="receipt">{workflowRun.lastError}</p>}
-
                 {escalatedIncident && <div className="glass-card research-card" data-testid="escalation-review-form"><div className="panel-title"><span>HUMAN REVIEW REQUIRED</span><span className="status-chip">ESCALATED</span></div><p>{escalatedIncident.stage.replaceAll("_", " ")}: {escalatedIncident.message}</p><p>{escalatedIncident.diagnosis || "Record the actual recovery after reviewing the run evidence. Do not guess or mark an unverified recovery as complete."}</p><label htmlFor="escalation-recovery">RECOVERY ACTION / INVESTIGATION</label><textarea id="escalation-recovery" rows={3} value={reviewRecovery} onChange={event => setReviewRecovery(event.target.value)} placeholder="Describe the recovery or investigation actually performed…" /><label htmlFor="escalation-lesson">REUSABLE LESSON</label><textarea id="escalation-lesson" rows={3} value={reviewLesson} onChange={event => setReviewLesson(event.target.value)} placeholder="Record what should change to prevent this failure…" /><button className="secondary-button" data-testid="resolve-escalation" onClick={() => void recordEscalationReview()} disabled={busy !== null || reviewRecovery.trim().length < 12 || reviewLesson.trim().length < 12}>{busy === "reviewEscalation" ? "Saving review…" : "Record human review (does not resume workflow)"}</button></div>}
                 <p>Runs Council orchestration, persists agent handoffs, generates and structurally verifies an artifact, then pauses for artifact and delivery approvals. External delivery and deployment are never automatic.</p>
                 {!mission.approved ? (
@@ -590,6 +594,7 @@ export function MissionControl({
         </div>
         {learning ? (
           <>
+            <PortfolioHistoryNotice scope={learning.historyScope}/>
             <div className="stats-strip compact">
               <div>
                 <strong>{learning.missionsObserved}</strong>

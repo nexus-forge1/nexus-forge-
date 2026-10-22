@@ -1,0 +1,427 @@
+{
+  "version": "step12-resource-admission-v1",
+  "environment": "Testing",
+  "observedAt": "2026-10-18T06:48:42.562Z",
+  "passed": true,
+  "billingBefore": "e252fc261ec514a31af395a7b7eeb72cb393cbac90f863371b7be2d8d57b6d84",
+  "missionId": "k9770b3h6wzh39zrr8hw0khrvh8ggyx5",
+  "missionHash": "d1c2e6a467fc43f694a6cc046a75d9136efd5871b6cd03de0498e5bf22282a4b",
+  "callerOwnerKeyIgnored": true,
+  "concurrentMissionAdmission": true,
+  "oversizeRejected": true,
+  "memoryId": "kh7b222qz81ztppgnanpx5wkc58ghhcp",
+  "concurrentManualAdmission": true,
+  "memoryHash": "e3409d771bf0dc0117346f9b8aef0a16d0363e8b5cf5a90528d6416387b8ec28",
+  "alternatePortfolioBlocked": true,
+  "legacyPolicyCompatible": true,
+  "noOpAuditUnchanged": true,
+  "catalog": {
+    "collections": [
+      {
+        "id": "missions",
+        "label": "Missions"
+      },
+      {
+        "id": "manual-memory",
+        "label": "Manual memory saves"
+      },
+      {
+        "id": "learning-reviews",
+        "label": "Learning evidence reviews"
+      },
+      {
+        "id": "comparison",
+        "label": "Comparison protocols"
+      },
+      {
+        "id": "science",
+        "label": "Scientific protocols"
+      },
+      {
+        "id": "generality",
+        "label": "Generality protocols"
+      },
+      {
+        "id": "packages",
+        "label": "Integration packages"
+      },
+      {
+        "id": "adapters",
+        "label": "External GET adapters"
+      },
+      {
+        "id": "runtime",
+        "label": "Active runtime receipts"
+      },
+      {
+        "id": "benchmarks",
+        "label": "Evaluation reports"
+      },
+      {
+        "id": "feeds",
+        "label": "Outcome feeds"
+      },
+      {
+        "id": "sources",
+        "label": "Product event sources"
+      },
+      {
+        "id": "reconciliations",
+        "label": "Provider invoice comparisons"
+      }
+    ],
+    "scope": "Private admission counts. Each collection loads separately. Related-record limits below apply to their named parent, not to your whole account. This is not storage, traffic, provider quota or billing evidence.",
+    "scopedLimits": [
+      {
+        "id": "source-captures",
+        "label": "Source retrieval attempts",
+        "limit": 10,
+        "note": "Pending, captured and failed attempts count. A repeated request consumes another attempt.",
+        "parent": "Each research record"
+      },
+      {
+        "id": "claim-reviews",
+        "label": "Claim reviews",
+        "limit": 100,
+        "note": "Exact immutable replay returns the existing review at capacity.",
+        "parent": "Each mission"
+      },
+      {
+        "id": "opportunity-plans",
+        "label": "Validation plans",
+        "limit": 20,
+        "note": "An identical frozen plan returns the existing record at capacity.",
+        "parent": "Each strategy"
+      },
+      {
+        "id": "opportunity-observations",
+        "label": "Validation observations",
+        "limit": 50,
+        "note": "Exact immutable replay returns the existing observation at capacity.",
+        "parent": "Each plan"
+      },
+      {
+        "id": "lab-trials",
+        "label": "Paired experiment trials",
+        "limit": 100,
+        "note": "Exact case replay returns the existing trial; a conflicting case remains rejected.",
+        "parent": "Each protocol"
+      }
+    ]
+  },
+  "prepared": true,
+  "rows": [
+    {
+      "blocked": true,
+      "complete": true,
+      "count": 1,
+      "id": "missions",
+      "label": "Missions",
+      "limit": 1,
+      "remaining": 0,
+      "scope": "All saved missions count, including complete and cancelled missions. Existing evidence is retained."
+    },
+    {
+      "blocked": true,
+      "complete": true,
+      "count": 1,
+      "id": "manual-memory",
+      "label": "Manual memory saves",
+      "limit": 1,
+      "remaining": 0,
+      "scope": "Counts new manual saves under these limits. Older notes and automatically generated evidence are retained and excluded."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "learning-reviews",
+      "label": "Learning evidence reviews",
+      "limit": 20,
+      "remaining": 20,
+      "scope": "Every retained review counts. Selected evidence snapshots are limited to 300,000 UTF-8 bytes."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "comparison",
+      "label": "Comparison protocols",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Open and closed protocols both count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "science",
+      "label": "Scientific protocols",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Open and closed protocols both count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "generality",
+      "label": "Generality protocols",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Open and closed protocols both count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "packages",
+      "label": "Integration packages",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Every version counts, including retired versions."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "adapters",
+      "label": "External GET adapters",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Enabled and disabled adapters count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "runtime",
+      "label": "Active runtime receipts",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Pending, complete and failed active receipts count. Retired media history is excluded."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "benchmarks",
+      "label": "Evaluation reports",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Every reproducible evaluation report counts."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "feeds",
+      "label": "Outcome feeds",
+      "limit": 20,
+      "remaining": 20,
+      "scope": "Enabled and disabled feeds count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "sources",
+      "label": "Product event sources",
+      "limit": 20,
+      "remaining": 20,
+      "scope": "Enabled and disabled event sources count."
+    },
+    {
+      "blocked": false,
+      "complete": true,
+      "count": 0,
+      "id": "reconciliations",
+      "label": "Provider invoice comparisons",
+      "limit": 100,
+      "remaining": 100,
+      "scope": "Every immutable comparison counts. Invoice authenticity remains separate."
+    }
+  ],
+  "recordsUnchangedAfterRejections": true,
+  "billingUnchanged": true,
+  "noInference": true,
+  "mobile": {
+    "heading": "Security & Resilience",
+    "width": 375,
+    "scrollWidth": 375,
+    "rows": [
+      {
+        "id": "missions",
+        "state": "ready",
+        "text": "Missions\n\nAll saved missions count, including complete and cancelled missions. Existing evidence is retained.\n\n\t1\t1\t0\tLimit reached"
+      },
+      {
+        "id": "manual-memory",
+        "state": "ready",
+        "text": "Manual memory saves\n\nCounts new manual saves under these limits. Older notes and automatically generated evidence are retained and excluded.\n\n\t1\t1\t0\tLimit reached"
+      },
+      {
+        "id": "learning-reviews",
+        "state": "ready",
+        "text": "Learning evidence reviews\n\nEvery retained review counts. Selected evidence snapshots are limited to 300,000 UTF-8 bytes.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "comparison",
+        "state": "ready",
+        "text": "Comparison protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "science",
+        "state": "ready",
+        "text": "Scientific protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "generality",
+        "state": "ready",
+        "text": "Generality protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "packages",
+        "state": "ready",
+        "text": "Integration packages\n\nEvery version counts, including retired versions.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "adapters",
+        "state": "ready",
+        "text": "External GET adapters\n\nEnabled and disabled adapters count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "runtime",
+        "state": "ready",
+        "text": "Active runtime receipts\n\nPending, complete and failed active receipts count. Retired media history is excluded.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "benchmarks",
+        "state": "ready",
+        "text": "Evaluation reports\n\nEvery reproducible evaluation report counts.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "feeds",
+        "state": "ready",
+        "text": "Outcome feeds\n\nEnabled and disabled feeds count.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "sources",
+        "state": "ready",
+        "text": "Product event sources\n\nEnabled and disabled event sources count.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "reconciliations",
+        "state": "ready",
+        "text": "Provider invoice comparisons\n\nEvery immutable comparison counts. Invoice authenticity remains separate.\n\n\t0\t100\t100\tAvailable"
+      }
+    ],
+    "parentRows": 5
+  },
+  "mobileReload": {
+    "width": 375,
+    "scrollWidth": 375,
+    "rows": [
+      {
+        "id": "missions",
+        "state": "ready",
+        "text": "Missions\n\nAll saved missions count, including complete and cancelled missions. Existing evidence is retained.\n\n\t1\t1\t0\tLimit reached"
+      },
+      {
+        "id": "manual-memory",
+        "state": "ready",
+        "text": "Manual memory saves\n\nCounts new manual saves under these limits. Older notes and automatically generated evidence are retained and excluded.\n\n\t1\t1\t0\tLimit reached"
+      },
+      {
+        "id": "learning-reviews",
+        "state": "ready",
+        "text": "Learning evidence reviews\n\nEvery retained review counts. Selected evidence snapshots are limited to 300,000 UTF-8 bytes.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "comparison",
+        "state": "ready",
+        "text": "Comparison protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "science",
+        "state": "ready",
+        "text": "Scientific protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "generality",
+        "state": "ready",
+        "text": "Generality protocols\n\nOpen and closed protocols both count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "packages",
+        "state": "ready",
+        "text": "Integration packages\n\nEvery version counts, including retired versions.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "adapters",
+        "state": "ready",
+        "text": "External GET adapters\n\nEnabled and disabled adapters count.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "runtime",
+        "state": "ready",
+        "text": "Active runtime receipts\n\nPending, complete and failed active receipts count. Retired media history is excluded.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "benchmarks",
+        "state": "ready",
+        "text": "Evaluation reports\n\nEvery reproducible evaluation report counts.\n\n\t0\t100\t100\tAvailable"
+      },
+      {
+        "id": "feeds",
+        "state": "ready",
+        "text": "Outcome feeds\n\nEnabled and disabled feeds count.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "sources",
+        "state": "ready",
+        "text": "Product event sources\n\nEnabled and disabled event sources count.\n\n\t0\t20\t20\tAvailable"
+      },
+      {
+        "id": "reconciliations",
+        "state": "ready",
+        "text": "Provider invoice comparisons\n\nEvery immutable comparison counts. Invoice authenticity remains separate.\n\n\t0\t100\t100\tAvailable"
+      }
+    ]
+  },
+  "visibleQuotaRejection": {
+    "alert": "Mission record limit reached (1). Existing evidence is retained; review Record capacity in Security & Resilience.",
+    "width": 375,
+    "scrollWidth": 375
+  },
+  "sessionsSignedOut": true,
+  "sessionClosed": true,
+  "uncaughtBrowserErrors": [],
+  "sourceRevision": "61f019c7f4ce2a650439af2463bde4e6b2e5ba61",
+  "sourceHashes": {
+    "convex/recordAdmission.ts": "e60c489c56bdfdffaf895bdc163e55867a36a7533db5708d23fbb6ff05123da6",
+    "convex/resourceCapacity.ts": "e854b8b978d8a28bc7671aefcd025f7c94fbb8915a01aca06520c6db76e1a2ce",
+    "convex/recordCapacityModel.ts": "40907e95a4d7b2d513ea1a9592096e7bcba6f0cefcf6d966c17d030747a5c3d8",
+    "convex/frontierControls.ts": "46a03505635d02bc70d123a9777a5994cefee4bebc97236edfea0d249119809d",
+    "convex/memory.ts": "f4a4a78011947af8d5e2df0f76886c0ab7624193379b58d4d86dc099a44a4b84",
+    "convex/missions.ts": "208a8b86deaec5a4870ad13d4d6632fc97e038825c6cbf1e579679967fc3666a",
+    "convex/portfolio.ts": "d719c6529db305bd9ced004048884f6c8e28213e98aaecf7f23fb15a141cb3ab",
+    "src/components/resource-capacity.tsx": "54148b7882e613d6d7e46e1e42401adcbee53ee6fcdb0a2ca6d841507197323e",
+    "src/lib/operator-error.ts": "fca966b3cbd03aaed07e7df87e4ae244d4efadf333251e468d01dd9cea97a961",
+    "convex/schema.ts": "06b08e43a4acfd62a2d02ed4402e0a2ee6c7a1cde559d74cdc887a1e39986309",
+    "convex/frontierModel.ts": "046b9de45edbab14b41f0b51bd8ceb84599622f934e35bde428caf0927589fdf",
+    "convex/frontierSupport.ts": "635f22c2c808680f5fdc4cfc50bfb4996139f37328f8bd540f3a0ad524a48ab3",
+    "src/components/frontier-controls.tsx": "c70fbd654e8144ccb58c904f910d251fb36f4c04688ad7f92b0416d45222467b",
+    "src/routes/mission.tsx": "640feb74b899686c1d29551176f4f53f76c533c257e2363e9583a2d9afa1e33b",
+    "src/routes/council.tsx": "4669d48602fae381f1f41228a2deaa5e8b6d25b86ee2a803b3e62000d19d3f52",
+    "src/routes/learning.tsx": "fa5b456bee58fafa562242839a0dd9e52b023cd350927d5822656ae526fc437b"
+  },
+  "verification": {
+    "fullTestsPassed": 764,
+    "testFilesPassed": 138,
+    "strictTypeScriptPassed": true,
+    "overallCheckPassed": true,
+    "testingDeploymentBackwardCompatible": true
+  },
+  "securityReviewComplete": false
+}

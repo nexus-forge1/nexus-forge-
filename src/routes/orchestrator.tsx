@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { useActiveMission } from "../hooks/use-active-mission";
 import type { Id } from "../../convex/_generated/dataModel";
 import { WorkspaceLayout } from "../components/workspace-layout";
 
-export const Route = createFileRoute("/orchestrator")({ component: IntelligenceOrchestratorPage });
+export const Route = createFileRoute("/orchestrator")({ head: () => routeHead("/orchestrator"), component: IntelligenceOrchestratorPage });
 
 type Strategy = { name: string; rationale: string; tradeoff: string; expectedOutcome: string };
 type Specification = {

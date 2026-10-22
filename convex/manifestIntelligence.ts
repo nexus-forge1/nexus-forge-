@@ -1,3 +1,6 @@
+import {boundEvidence} from './evidenceAdmission'
+import { buildBlueprintPrompt, blueprintOutputTokens } from "./blueprintGeneration";
+import { assessBlueprint } from "./blueprintCompleteness";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { action, internalMutation, mutation, query } from "./_generated/server";
@@ -23,9 +26,9 @@ export const listBlueprints = query({
     // an empty private history until a session exists instead of crashing the page.
     if (!operatorId) return [];
     const rows = await ctx.db.query("memories")
-      .withIndex("by_owner", q => q.eq("ownerKey", operatorId))
+      .withIndex("by_owner_category", q => q.eq("ownerKey", operatorId).eq("category","manifest-blueprint"))
       .order("desc")
-      .take(40);
+      .take(8);
     return rows
       .filter(row => row.category === "manifest-blueprint")
       .slice(0, 8)
@@ -46,7 +49,7 @@ export const listStrategies = query({
   handler: async (ctx) => {
     const operatorId = await getAuthUserId(ctx);
     if (!operatorId) return [];
-    const rows = await ctx.db.query("memories").withIndex("by_owner", q => q.eq("ownerKey", operatorId)).order("desc").take(100);
+    const rows = await ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", operatorId).eq("category","manifest-strategy")).order("desc").take(30);
     return rows.filter(row => row.category === "manifest-strategy").slice(0, 30).map(({ _id, _creationTime, key, value, confidence, source }) => ({ _id, _creationTime, key, value, confidence, source }));
   },
 });
@@ -117,6 +120,7 @@ export const attachAssumptionEvidence = mutation({
     if (!operatorId) throw new Error("Authenticated operator session required");
     const row = await ctx.db.get(args.strategyId);
     if (!row || row.ownerKey !== operatorId || row.category !== "manifest-strategy") throw new Error("Strategy record not found or access denied");
+    boundEvidence(args,'Assumption evidence',8192);
     const url = args.url.trim();
     let parsedUrl: URL;
     try { parsedUrl = new URL(url); } catch { throw new Error("Enter a valid HTTPS source URL."); }
@@ -147,8 +151,10 @@ export const attachAssumptionEvidence = mutation({
       reviewedAt: Date.now(),
       addedAt: Date.now(),
     };
+    if(existing.some(item=>Object.entries(evidence).filter(([k])=>k!=="reviewedAt"&&k!=="addedAt").every(([k,v])=>item[k]===v)))return null;
+    if(existing.length>=30)throw new Error("Thirty assumption evidence entries are retained; review or create a separate strategy before adding more.");
     await ctx.db.patch(row._id, {
-      value: JSON.stringify({ ...strategy, assumptionEvidence: [...existing, evidence].slice(-30) }),
+      value: JSON.stringify({ ...strategy, assumptionEvidence: [...existing, evidence] }),
     });
     return null;
   },
@@ -187,7 +193,9 @@ export const recordStrategyOutcome = mutation({
     }
     const recordedAt = Date.now();
     const outcome = { outcomeStatus: args.outcomeStatus, actualResult, evidence, actualCost: actualCost ?? null, recordedAt };
-    const outcomeHistory = [...previousHistory, outcome].slice(-20);
+    if(previousHistory.some(item=>Object.entries(outcome).filter(([k])=>k!=="recordedAt").every(([k,v])=>item[k]===v)))return null;
+    if(previousHistory.length>=20)throw new Error("Twenty strategy outcomes are retained; create a separate strategy for a new experiment.");
+    const outcomeHistory = [...previousHistory, outcome];
     await ctx.db.patch(row._id, { value: JSON.stringify({ ...parsed, ...outcome, outcomeHistory }), confidence: args.outcomeStatus === "inconclusive" ? 0.35 : 0.9, source: "manifest-intelligence-operator-measured-outcome" });
     return null;
   },
@@ -210,9 +218,9 @@ export const listProviderUsage = query({
     const operatorId = await getAuthUserId(ctx);
     if (!operatorId) return [];
     const rows = await ctx.db.query("memories")
-      .withIndex("by_owner", q => q.eq("ownerKey", operatorId))
+      .withIndex("by_owner_category", q => q.eq("ownerKey", operatorId).eq("category","manifest-provider-usage"))
       .order("desc")
-      .take(200);
+      .take(30);
     return rows.filter(row => row.category === "manifest-provider-usage").slice(0, 30).flatMap(row => {
       try {
         const parsed = JSON.parse(row.value) as Record<string, unknown>;
@@ -331,6 +339,7 @@ export const saveBlueprint = internalMutation({
         constraints: args.constraints ?? '',
         acceptanceCriteria: args.acceptanceCriteria ?? '',
         blueprint: args.blueprint,
+        sectionCheck: assessBlueprint(args.blueprint),
       }),
       confidence: 0.75,
       source: "manifest-intelligence-ai-draft",
@@ -351,7 +360,7 @@ export const synthesize = action({
     constraints: v.optional(v.string()),
     acceptanceCriteria: v.optional(v.string()),
   },
-  returns: v.object({ blueprint: v.string(), blueprintKey: v.string(), saved: v.boolean(), strategyCount: v.number(), strategyBlockValid: v.boolean() }),
+  returns: v.object({ blueprint: v.string(), blueprintKey: v.string(), saved: v.boolean(), strategyCount: v.number(), strategyBlockValid: v.boolean(), blueprintComplete: v.optional(v.boolean()), missingSections: v.optional(v.array(v.string())) }),
   handler: async (ctx, args) => {
     const operatorId = await getAuthUserId(ctx);
     if (!operatorId) throw new Error("Authenticated operator session required");
@@ -363,44 +372,8 @@ export const synthesize = action({
     const domain = args.domain.slice(0, 100);
     const constraints = (args.constraints ?? '').trim().slice(0, 2000);
     const acceptanceCriteria = (args.acceptanceCriteria ?? '').trim().slice(0, 2000);
-    const prompt = `You are Manifest Intelligence inside NEXUS FORGE: an outcome-oriented synthesis engine that combines generative creation, long-horizon systems thinking, general-purpose task decomposition, and specialist-agent critique into one practical plan. This is a product design framework, not a claim that the system is AGI, a singularity, or superintelligent.
-
-Create a concise, original, execution-ready blueprint from the user's intent. Distinguish established facts from hypotheses. Prefer low-cost, testable steps. Never promise guaranteed revenue, sentience, AGI, or scientific breakthroughs. Keep humans in control of consequential actions. Do not assume tools, integrations, or model capabilities that have not been verified. Do not recommend providers, API products, or paid/free tiers as available unless they are listed in the configured NEXUS FORGE provider set or explicitly marked as options to verify. Avoid claiming any service has a free tier or that a deployment happened unless verified. Prefer the user's existing stack and current configured providers; clearly label any proposed external dependency.
-
-Return these exact headings in Markdown:
-## Manifest
-Turn the intent into a tangible artifact or measurable outcome.
-## Four-way synthesis
-Explain how generative creation, compounding improvement, cross-domain generality, and specialist intelligence work together in this plan.
-## Candidate strategies
-Propose three meaningfully different approaches, not superficial variations. For each, state the core mechanism, prerequisites, time-to-first-evidence, expected value, reversibility, and main failure mode. Identify which assumptions are unverified.
-## Decision scorecard
-Compare the three approaches on goal fit, evidence strength, delivery risk, time, and total estimated cost. Use a 1–5 scale with a short rationale for each score; define whether higher is better. Keep estimated costs separate from actual measured spend, show the arithmetic or assumptions behind estimates, and never imply a tool/provider price is verified unless it is configured and known. Recommend one approach and explain the trade-off; if evidence is insufficient, recommend the smallest experiment instead of false precision.
-## System design
-Describe the key components and how information flows between them.
-## First experiment
-Give one small experiment that can distinguish between the leading approaches, acceptance criteria, a clear pass/fail test, and the evidence to capture.
-## Execution sequence
-List 5–7 ordered steps, identifying which outputs require independent verification.
-## Risks and guardrails
-Name key failure modes, privacy/security concerns, and human approval points.
-## Success metrics
-Give 3–5 measurable metrics and how each is measured, including a baseline and decision threshold where practical.
-## Novelty hypothesis
-State what could be differentiated and how to validate that claim against existing products; do not assert that no one else has built it.
-## Next action
-Give the single most useful action to take first.
-
-USER INTENT:
-${intent}
-
-DOMAIN: ${domain}
-BUDGET CAP: $ ${budget} USD
-TIME HORIZON: ${horizon}
-
-Write specific, realistic guidance tailored to the intent. Do not describe the blueprint as completed work; it is a proposal until executed and verified.`;
-    const structuredPrompt = `${prompt}\n\nMISSION SPECIFICATION REQUIREMENTS:\n- Constraints and operator assumptions: ${constraints || "Not supplied; identify unknowns instead of inventing constraints."}\n- Required acceptance criteria: ${acceptanceCriteria || "Not supplied; propose measurable criteria and label them as proposals for operator review."}\n- Explicitly identify goal, deliverable, target user, dependencies, permitted tools/resources, risk level, required human approvals, and rollback/stop conditions.\n- If an essential requirement is missing, state the gap and ask a focused clarification question rather than inventing facts.` + "\n\nAppend a fenced JSON block labelled manifest-strategies with three objects containing string fields name, mechanism, prerequisites, timeToEvidence, expectedValue, reversibility, failureMode, unverifiedAssumptions. Keep the blueprint Markdown before it readable. Do not claim execution.";
-    const generated = await callManagedAi(ctx, { ownerKey: operatorId, stage: "manifest-blueprint", role: "planner", prompt: structuredPrompt, maxTokens: 2400 });
+    const structuredPrompt = buildBlueprintPrompt({ intent, domain, budget, horizon, constraints, acceptanceCriteria });
+    const generated = await callManagedAi(ctx, { ownerKey: operatorId, stage: "manifest-blueprint", role: "planner", prompt: structuredPrompt, maxTokens: blueprintOutputTokens });
     const extraction = extractManifestStrategies(generated);
     const blueprint = extraction.blueprint;
     let strategies = extraction.strategies;
@@ -430,6 +403,7 @@ Write specific, realistic guidance tailored to the intent. Do not describe the b
     if (strategies.length > 0) {
       await ctx.runMutation(internal.manifestIntelligence.saveStrategies, { ownerKey: operatorId, blueprintKey, strategies });
     }
-    return { blueprint, blueprintKey, saved: true, strategyCount: strategies.length, strategyBlockValid };
+    const sectionCheck = assessBlueprint(blueprint);
+    return { blueprint, blueprintKey, saved: true, strategyCount: strategies.length, strategyBlockValid, blueprintComplete: sectionCheck.complete, missingSections: sectionCheck.missingSections };
   },
 });
