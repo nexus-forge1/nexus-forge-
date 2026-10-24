@@ -169,8 +169,11 @@ export const proposeSelfRepairPatch = query({
   args: { incidentKey: v.string(), patchFiles: v.array(patchFile), maxFiles: v.number(), rollbackDigest: v.string() },
   returns: v.object({ valid: v.boolean(), blockers: strings, patchDigest: v.string(), fileCount: v.number(), reversible: v.boolean() }),
   handler: async (ctx, a) => {
-    const ownerKey = await requireOperator(ctx), incidentKey = key(a.incidentKey, 'Incident key'), row = await ctx.db.query('scopeERepairTraces').withIndex('by_owner_incident', q => q.eq('ownerKey', ownerKey).eq('incidentKey', incidentKey)).first()
-    if (!row) throw new ConvexError('Repair incident not found')
+    const ownerKey = await requireOperator(ctx)
+    const emptyProposal = { valid: false, reversible: false, fileCount: 0, blockers: ['No repair incident registered yet. Ingest a diagnostic trace to begin.'], patchDigest: '' }
+    if (!a.incidentKey.trim()) return emptyProposal
+    const incidentKey = key(a.incidentKey, 'Incident key'), row = await ctx.db.query('scopeERepairTraces').withIndex('by_owner_incident', q => q.eq('ownerKey', ownerKey).eq('incidentKey', incidentKey)).first()
+    if (!row) return emptyProposal
     const maxFiles = integer(a.maxFiles, 'Maximum patch files', 1, 20), blockers: string[] = []
     if (!a.patchFiles.length) blockers.push('Patch is empty')
     if (a.patchFiles.length > maxFiles) blockers.push('Patch exceeds configured blast-radius bound')
@@ -298,11 +301,14 @@ export const recordAgentHeartbeat = mutation({
 
 export const evaluateDeadManSwitch = query({
   args: { agentKey: v.string(), at: v.optional(v.number()) },
-  returns: v.object({ agentKey: v.string(), timedOut: v.boolean(), ageMs: v.number(), timeoutMs: v.number(), action: v.string(), failoverTargetKey: v.optional(v.string()) }),
+  returns: v.object({ agentKey: v.string(), timedOut: v.boolean(), ageMs: v.number(), timeoutMs: v.number(), action: v.string(), failoverTargetKey: v.optional(v.string()), pulseAgeMs: v.optional(v.number()), status: v.optional(v.string()), failoverEligible: v.optional(v.boolean()), targetKey: v.optional(v.union(v.string(), v.null())), message: v.optional(v.string()) }),
   handler: async (ctx, a) => {
-    const ownerKey = await requireOperator(ctx), agentKey = key(a.agentKey, 'Agent key'), at = a.at === undefined ? Date.now() : integer(a.at, 'Evaluation timestamp', 0, Date.now() + 30000)
+    const ownerKey = await requireOperator(ctx)
+    const idle = { agentKey: a.agentKey.trim(), timedOut: false, ageMs: 0, timeoutMs: 0, action: 'idle', pulseAgeMs: 0, status: 'idle', failoverEligible: false, targetKey: null, message: 'No heartbeat recorded yet' }
+    if (!a.agentKey.trim()) return idle
+    const agentKey = key(a.agentKey, 'Agent key'), at = a.at === undefined ? Date.now() : integer(a.at, 'Evaluation timestamp', 0, Date.now() + 30000)
     const heartbeat = await ctx.db.query('scopeEAgentHeartbeats').withIndex('by_owner_agent', q => q.eq('ownerKey', ownerKey).eq('agentKey', agentKey)).first()
-    if (!heartbeat) throw new ConvexError('No heartbeat has been recorded for this agent')
+    if (!heartbeat) return idle
     const ageMs = Math.max(0, at - heartbeat.pulseAt), timedOut = heartbeat.status === 'offline' || ageMs > heartbeat.deadManTimeoutMs
     return { agentKey, timedOut, ageMs, timeoutMs: heartbeat.deadManTimeoutMs, action: timedOut ? heartbeat.failoverTargetKey ? 'failover-eligible' : 'offline-no-target' : 'healthy', failoverTargetKey: heartbeat.failoverTargetKey }
   },
@@ -354,16 +360,18 @@ export const calculateArbitrageRanking = query({
   args: { maxSamples: v.optional(v.number()), costWeight: v.optional(v.number()), maxLatencyMs: v.optional(v.number()), ruleKey: v.optional(v.string()) },
   returns: v.object({ ranking: v.array(v.object({ provider: v.string(), model: v.string(), estimatedCostPerMillion: v.number(), latencyMs: v.number(), tokensPerSecond: v.number(), score: v.number(), eligible: v.boolean() })), sampledAt: v.number(), appliedRule: v.optional(v.string()) }),
   handler: async (ctx, a) => {
-    const ownerKey = await requireOperator(ctx), maxSamples = integer(a.maxSamples ?? 100, 'Maximum samples', 1, 200), ruleKey = a.ruleKey ? key(a.ruleKey, 'Rule key') : undefined
-    const rule = ruleKey ? await ctx.db.query('scopeEArbitrageRules').withIndex('by_owner_rule', q => q.eq('ownerKey', ownerKey).eq('ruleKey', ruleKey)).first() : null
-    if (ruleKey && (!rule || !rule.enabled)) throw new ConvexError('Requested arbitrage switch rule is missing or disabled')
+    const ownerKey = await requireOperator(ctx), maxSamples = integer(a.maxSamples ?? 100, 'Maximum samples', 1, 200), ruleKey = a.ruleKey?.trim() ? key(a.ruleKey, 'Rule key') : undefined
+    const configuredRule = ruleKey ? await ctx.db.query('scopeEArbitrageRules').withIndex('by_owner_rule', q => q.eq('ownerKey', ownerKey).eq('ruleKey', ruleKey)).first() : null
+    // Missing or disabled rules are initial configuration states, not query failures.
+    // Rank with the existing neutral defaults and explicit caller overrides.
+    const rule = configuredRule?.enabled ? configuredRule : null
     const costWeight = boundedNumber(a.costWeight ?? rule?.costWeight ?? 0.5, 'Cost weight', 0, 1), maxLatencyMs = boundedNumber(a.maxLatencyMs ?? rule?.maxLatencyMs ?? 10000, 'Latency threshold', 1, 600000), maxCostPerMillion = rule?.maxCostPerMillion ?? Number.MAX_SAFE_INTEGER, minTokensPerSecond = rule?.minTokensPerSecond ?? 0
     const samples = await ctx.db.query('scopeEProviderSamples').withIndex('by_owner_model_sampled', q => q.eq('ownerKey', ownerKey)).order('desc').take(maxSamples)
     const latest = new Map<string, typeof samples[number]>()
     for (const sample of samples) { const k = sample.provider + ':' + sample.model; if (!latest.has(k)) latest.set(k, sample) }
     const rows = [...latest.values()], maxCost = Math.max(1, ...rows.map(s => s.inputCostPerMillion + s.outputCostPerMillion)), maxLatency = Math.max(1, ...rows.map(s => s.latencyMs))
     const ranking = rows.map(s => { const estimatedCostPerMillion = s.inputCostPerMillion + s.outputCostPerMillion, eligible = s.available && s.latencyMs <= maxLatencyMs && estimatedCostPerMillion <= maxCostPerMillion && s.tokensPerSecond >= minTokensPerSecond; const score = (1 - costWeight) * estimatedCostPerMillion / maxCost + costWeight * s.latencyMs / maxLatency; return { provider: s.provider, model: s.model, estimatedCostPerMillion, latencyMs: s.latencyMs, tokensPerSecond: s.tokensPerSecond, score, eligible } }).sort((x,y) => Number(y.eligible) - Number(x.eligible) || x.score - y.score)
-    return { ranking, sampledAt: rows.reduce((latestAt, row) => Math.max(latestAt, row.sampledAt), 0), appliedRule: ruleKey }
+    return { ranking, sampledAt: rows.reduce((latestAt, row) => Math.max(latestAt, row.sampledAt), 0), appliedRule: rule ? ruleKey : undefined }
   },
 })
 
