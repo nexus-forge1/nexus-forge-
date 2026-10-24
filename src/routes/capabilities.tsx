@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { missionProgressPercent } from '../lib/mission-progress'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useQuery } from 'convex/react'
@@ -6,11 +7,15 @@ import { api } from '../../convex/_generated/api'
 import { RealServiceEvidence } from '../components/real-service-evidence'
 import { ProductionReleaseReadiness } from '../components/production-release-readiness'
 import { ArtifactBenchmarkEvidence } from '../components/artifact-benchmark-evidence'
+import { PlatformUsageEvidence } from '../components/platform-usage-evidence'
+import { CapabilityReliabilityControls } from '../components/expanded-capabilities'
+import { SloReliabilityPanel } from '../components/slo-reliability-panel'
+import { ReliabilityStressWorkbench } from '../components/reliability-stress-workbench'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { useActiveMission } from '../hooks/use-active-mission'
 import { useOwnedMissions } from '../hooks/use-owned-missions'
 
-export const Route = createFileRoute('/capabilities')({ component: CapabilityDashboard })
+export const Route = createFileRoute('/capabilities')({ head: () => routeHead("/capabilities"), component: CapabilityDashboard })
 
 type ProviderResult = {
   name: string
@@ -53,6 +58,8 @@ function CapabilityDashboard() {
   const passedVerifications = (verifications ?? []).filter(item => item.passed).length
   const openIncidents = activeIncidents.filter(item => item.status !== 'resolved').length
   const healthyProviders = (providers ?? []).filter(item => item.status === 'healthy').length
+  const verificationState = checking ? 'CHECKING' : error ? 'UNAVAILABLE' : providers ? (providers.length > 0 && healthyProviders === providers.length ? 'LIVE · HEALTHY' : 'LIVE · DEGRADED') : 'NOT VERIFIED'
+  const verificationDetail = checkedAt === null ? 'No live provider capability sample has been captured in this page session.' : `Last sample ${new Date(checkedAt).toLocaleString()}; point-in-time only, not an uptime guarantee.`
   const readyToReview = missionRows.filter(item => item.status === 'review').length
   const running = missionRows.filter(item => item.status === 'running').length
 
@@ -71,8 +78,10 @@ function CapabilityDashboard() {
         </div>
       </div>
 
-      <RealServiceEvidence/><ProductionReleaseReadiness />
+      <div className="glass-card research-card" id="live-platform-verification" aria-live="polite"><div className="panel-title"><span>LIVE PLATFORM VERIFICATION</span><span className="live-pill">{verificationState}</span></div><p>Capability telemetry is sourced from the existing server-side provider health action. The status is not green until a live sample is captured; missing or stale evidence is never interpreted as healthy.</p><div className="stats-strip compact"><div><strong>{providers ? providers.length : '—'}</strong><span>Providers sampled</span></div><div><strong>{providers ? healthyProviders : '—'}</strong><span>Healthy samples</span></div><div><strong>{checkedAt === null ? '—' : `${Math.round((Date.now() - checkedAt) / 1000)}s`}</strong><span>Sample age</span></div></div><p className="muted-copy">{verificationDetail}</p><button className="primary-button" disabled={checking} onClick={() => void runProviderCheck()}>{checking ? 'Capturing capability telemetry…' : 'Verify platform capabilities now'}</button>{error && <p role="alert" className="warning">{error}</p>}</div>
+      <CapabilityReliabilityControls/><SloReliabilityPanel/><ReliabilityStressWorkbench/><RealServiceEvidence/><ProductionReleaseReadiness />
       <ArtifactBenchmarkEvidence />
+      <PlatformUsageEvidence />
       <div className="stats-strip">
         <div><strong>{missions ? missionRows.length : '—'}</strong><span>Recent missions</span></div>
         <div><strong>{missions ? running : '—'}</strong><span>Running</span></div>
@@ -119,6 +128,20 @@ function CapabilityDashboard() {
         </div>
       </div>
 
+      <div className="glass-card research-card" id="reliability-slo-dashboard">
+        <div className="panel-title"><span>RELIABILITY AGGREGATE & SLO TRACKER</span><span className="live-pill">{(openIncidents>0||(providers!==null&&healthyProviders<providers.length)||failedVerifications>0)?'DEGRADATION ALERT':'MONITORING'}</span></div>
+        <p>Aggregate telemetry from the currently selected mission and latest manual provider sample. This dashboard distinguishes recorded failures from missing historical uptime instrumentation.</p>
+        <div className="stats-strip compact"><div><strong>{missionRows.length}</strong><span>Loaded missions</span></div><div><strong>{openIncidents}</strong><span>Open incidents</span></div><div><strong>{failedVerifications}</strong><span>Failed verifications</span></div><div><strong>{providers===null?'—':providers.length-healthyProviders}</strong><span>Non-healthy provider samples</span></div></div>
+        {(openIncidents>0||failedVerifications>0||(providers!==null&&healthyProviders<providers.length))&&<p role="alert" className="warning">Degradation detected: inspect each failure class below. A missing provider sample or unavailable mission history is not counted as healthy.</p>}
+        <h3>Failure-mode classification</h3>
+        <div className="decision-line"><span>MISSION / EXECUTION</span><strong>{openIncidents>0?openIncidents+' unresolved incident(s) — inspect recorded stage and message':'No unresolved incidents in the loaded mission scope'}</strong></div>
+        <div className="decision-line"><span>VERIFICATION / QUALITY</span><strong>{failedVerifications>0?failedVerifications+' failed verification result(s)':'No failed verification results in the loaded mission scope'}</strong></div>
+        <div className="decision-line"><span>PROVIDER / DEPENDENCY</span><strong>{providers===null?'Not sampled':providers.filter(p=>p.status!=='healthy').map(p=>p.label+': '+p.status).join('; ')||'All sampled providers reported healthy at the last check'}</strong></div>
+        <h3>Uptime & service-level objective</h3>
+        <div className="field-grid"><div className="decision-line"><span>PROPOSED AVAILABILITY TARGET</span><strong>99.9%</strong></div><div className="decision-line"><span>OBSERVED UPTIME</span><strong>NOT MEASURED</strong></div><div className="decision-line"><span>MEASUREMENT WINDOW</span><strong>Historical probe series unavailable</strong></div><div className="decision-line"><span>SLO STATUS</span><strong>UNVERIFIED — DO NOT CLAIM COMPLIANCE</strong></div></div>
+        <p className="muted-copy">The 99.9% value is a proposed target, not a measured result. Reliable uptime and error-budget accounting require a retained timestamped probe series; this view does not fabricate one from a single provider check or incident count.</p>
+        <div className="hero-actions"><Link className="secondary-button" to="/economics">Cost & quota telemetry →</Link><Link className="secondary-button" to="/payment-readiness">Payment readiness boundary →</Link></div>
+      </div>
       <div className="glass-card research-card">
         <div className="panel-title"><span>RELIABILITY INTERPRETATION</span><span className="live-pill">NO UNPROVEN CLAIMS</span></div>
         <div className="decision-line"><span>LIVE DEPLOYMENT</span><strong>Available in the published app; hourly public-shell probes are available through the release checklist. This panel does not display live uptime telemetry.</strong></div>
