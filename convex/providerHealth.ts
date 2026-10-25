@@ -9,6 +9,7 @@ const configs = [
   { name: "groq", label: "Groq", url: "https://api.groq.com/openai/v1", key: "GROQ_API_KEY", model: "openai/gpt-oss-20b" },
   { name: "cerebras", label: "Cerebras", url: "https://api.cerebras.ai/v1", key: "CEREBRAS_API_KEY", model: "gpt-oss-120b" },
   { name: "openrouter", label: "OpenRouter (free-model fallback chain)", url: "https://openrouter.ai/api/v1", key: "OPENROUTER_API_KEY", model: "openai/gpt-oss-120b:free" },
+  { name: "ollama", label: "NEXUS Ollama local models", url: "http://127.0.0.1:11434/v1", key: "OLLAMA_BASE_URL", model: "nexus-forge-chat:1b" },
 ] as const;
 
 const providerResult = v.object({
@@ -78,27 +79,37 @@ export const check: any = (action as any)({
     for (const provider of configs) {
       const rawKey = process.env[provider.key]?.trim();
       const key = rawKey?.replace(/^["\']|["\']$/g, "").trim();
-      if (!key || (provider.name === "cloudflare" && !process.env.CLOUDFLARE_ACCOUNT_ID?.trim())) {
-        results.push({ name: provider.name, label: provider.label, configured: false, status: "unconfigured", latencyMs: 0, detail: provider.name === "cloudflare" && !process.env.CLOUDFLARE_ACCOUNT_ID?.trim() ? "Cloudflare account ID is not configured." : "API key is not configured." });
+      const configured = provider.name === "ollama" ? Boolean(key) : Boolean(key) && (provider.name !== "cloudflare" || Boolean(process.env.CLOUDFLARE_ACCOUNT_ID?.trim()));
+      if (!configured) {
+        const detail = provider.name === "cloudflare" && !process.env.CLOUDFLARE_ACCOUNT_ID?.trim()
+          ? "Cloudflare account ID is not configured."
+          : provider.name === "ollama"
+            ? "OLLAMA_BASE_URL is not configured."
+            : "API key is not configured.";
+        results.push({ name: provider.name, label: provider.label, configured: false, status: "unconfigured", latencyMs: 0, detail });
         continue;
       }
 
       const started = Date.now();
       try {
-        const model = process.env[`${provider.name.toUpperCase()}_MODEL`]?.trim() || process.env[`${provider.key}_MODEL`]?.trim() || provider.model;
+        const model = provider.name === "ollama"
+          ? process.env.OLLAMA_MODEL_CHAT?.trim() || provider.model
+          : process.env[`${provider.name.toUpperCase()}_MODEL`]?.trim() || process.env[`${provider.key}_MODEL`]?.trim() || provider.model;
         const openRouterModels = provider.name === "openrouter"
           ? [model, process.env.OPENROUTER_SECONDARY_MODEL?.trim() || "meta-llama/llama-3.3-70b-instruct:free", "openrouter/free"]
               .filter((candidate, index, all) => Boolean(candidate) && all.indexOf(candidate) === index)
           : undefined;
         const endpoint = provider.name === "cloudflare"
           ? `${provider.url}/${process.env.CLOUDFLARE_ACCOUNT_ID?.trim()}/ai/v1/chat/completions`
-          : `${provider.url}/chat/completions`;
+          : provider.name === "ollama"
+            ? `${(key || provider.url).replace(/\/$/, "")}/chat/completions`
+            : `${provider.url}/chat/completions`;
         const response = await fetch(endpoint, {
           method: "POST",
           signal: AbortSignal.timeout(25000),
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${key}`,
+            ...(provider.name !== "ollama" ? { Authorization: `Bearer ${key}` } : {}),
             ...(provider.name === "openrouter" ? { "HTTP-Referer": "https://bphntw8kdojl9qvuifywyjtk.macaly.app", "X-Title": "NEXUS FORGE" } : {}),
           },
           body: JSON.stringify({
