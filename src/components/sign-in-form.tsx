@@ -11,15 +11,22 @@ export function SignInForm(){
  const [mode,setMode]=useState<'signin'|'signup'>('signin'),[step,setStep]=useState<'email'|'code'>('email')
  const [email,setEmail]=useState(''),[code,setCode]=useState(''),[error,setError]=useState<string|null>(null),[notice,setNotice]=useState('')
  const [loading,setLoading]=useState(false),[resendIn,setResendIn]=useState(0)
- const pending=useRef(false),codeInput=useRef<HTMLInputElement>(null)
- useEffect(()=>{if(step==='code'&&!loading)codeInput.current?.focus()},[step,loading])
- useEffect(()=>{if(step!=='code'||resendIn<=0)return;const timer=window.setTimeout(()=>setResendIn(n=>Math.max(0,n-1)),1000);return()=>window.clearTimeout(timer)},[step,resendIn])
+ const pending=useRef(false),codeInput=useRef<HTMLInputElement>(null),emailInput=useRef<HTMLInputElement>(null),previousStep=useRef(step),resendUntil=useRef(0)
+ useEffect(()=>{if(step==='code'&&!loading)codeInput.current?.focus();else if(step==='email'&&previousStep.current==='code')emailInput.current?.focus();previousStep.current=step},[step,loading])
+ useEffect(()=>{
+  if(step!=='code'||resendIn<=0)return
+  const update=()=>setResendIn(Math.max(0,Math.ceil((resendUntil.current-Date.now())/1000)))
+  const timer=window.setInterval(update,1000)
+  window.addEventListener('focus',update);document.addEventListener('visibilitychange',update)
+  return()=>{window.clearInterval(timer);window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update)}
+ },[step,resendIn])
+ function beginCooldown(){resendUntil.current=Date.now()+30000;setResendIn(30)}
  async function requestCode(){
   const form=new FormData();form.set('email',email.trim().toLowerCase());await signIn('resend-otp',form)
  }
  async function submitEmail(event:FormEvent<HTMLFormElement>){
   event.preventDefault();if(pending.current)return;pending.current=true;setError(null);setNotice('');setLoading(true)
-  try{await requestCode();setEmail(email.trim().toLowerCase());setCode('');setResendIn(30);setStep('code')}
+  try{await requestCode();setEmail(email.trim().toLowerCase());setCode('');beginCooldown();setStep('code')}
   catch{setError('We couldn’t send a code. Check your email address and try again.')}
   finally{pending.current=false;setLoading(false)}
  }
@@ -31,8 +38,8 @@ export function SignInForm(){
  }
  async function resend(){
   if(pending.current||resendIn>0)return;pending.current=true;setLoading(true);setError(null);setNotice('')
-  try{await requestCode();setCode('');setResendIn(30);setNotice('A new code is on its way. Use the latest email.');codeInput.current?.focus()}
-  catch{setError('We couldn’t send another code. Wait a moment, then try again.');setResendIn(30)}
+  try{await requestCode();setCode('');beginCooldown();setNotice('A new code is on its way. Use the latest email.');codeInput.current?.focus()}
+  catch{setError('We couldn’t send another code. Wait a moment, then try again.');beginCooldown()}
   finally{pending.current=false;setLoading(false)}
  }
  async function workspace(){
@@ -73,7 +80,7 @@ export function SignInForm(){
     {step==='email'?<>
      <form onSubmit={submitEmail} aria-busy={loading}>
       <label htmlFor="operator-email">Email address</label>
-      <div className="welcome-input"><Mail size={18} aria-hidden="true"/><input id="operator-email" name="email" type="email" autoComplete="email" required maxLength={254} value={email} disabled={loading} onChange={e=>{setEmail(e.target.value);setError(null)}} placeholder="you@example.com" aria-describedby={error?'email-help access-error':'email-help'}/></div>
+      <div className="welcome-input"><Mail size={18} aria-hidden="true"/><input ref={emailInput} id="operator-email" name="email" type="email" autoComplete="email" required maxLength={254} value={email} disabled={loading} onChange={e=>{setEmail(e.target.value);setError(null)}} placeholder="you@example.com" aria-describedby={error?'email-help access-error':'email-help'}/></div>
       <p id="email-help" className="welcome-field-help">We’ll email you a sign-in code. No password to remember.</p>
       <button className="welcome-submit" type="submit" disabled={loading}><span>{loading?'Sending…':mode==='signup'?'Create account with email':'Send verification code'}</span><ArrowRight size={18} aria-hidden="true"/></button>
      </form>
