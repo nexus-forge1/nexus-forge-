@@ -2,6 +2,7 @@ import { action, internalAction, internalMutation, mutation, query } from "./_ge
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
 import { requireOperator } from "./permissions"
+import { boundedText } from "./boundedResponse"
 
 type CheckSpec = { key: string; name: string; criterion: string; severity: "required" | "warning" }
 type CheckResult = CheckSpec & { status: "pass" | "fail"; detail: string; evidence: string }
@@ -23,7 +24,7 @@ export function normalizeUrl(siteUrl: string): string {
   try { parsed = new URL(normalized) } catch { throw new Error("Enter a valid deployment URL, for example https://example.com") }
   if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Only http and https URLs are supported")
   if (parsed.username || parsed.password) throw new Error("Deployment URLs must not contain embedded credentials")
-  const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "")
+  const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.+$/, "")
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local") || hostname.endsWith(".internal") || hostname === "metadata.google.internal" || hostname === "metadata") {
     throw new Error("Local and metadata hosts cannot be probed")
   }
@@ -48,12 +49,13 @@ async function probe(url: string): Promise<{ ok: boolean; status: number; header
       if (![301, 302, 303, 307, 308].includes(response.status)) break
       const location = response.headers.get("location")
       if (!location) break
+      await response.body?.cancel()
       if (hop === 5) throw new Error("Redirect limit exceeded")
       currentUrl = normalizeUrl(new URL(location, currentUrl).toString())
     }
     if (!response) throw new Error("No response received")
     const headers = JSON.stringify(Object.fromEntries(response.headers.entries()))
-    const body = await response.text().catch(() => "")
+    const body = await boundedText(response, 1_000_000)
     return { ok: response.ok, status: response.status, headers, bodySnippet: body.slice(0, 5000), finalUrl: currentUrl }
   } catch (error) {
     return { ok: false, status: 0, headers: "{}", bodySnippet: "", error: error instanceof Error ? error.message : String(error), finalUrl: url }
@@ -63,7 +65,7 @@ async function probe(url: string): Promise<{ ok: boolean; status: number; header
 async function runChecks(url: string): Promise<CheckResult[]> {
   const first = await probe(url)
   const finalUrl = first.finalUrl ?? url
-  const second = finalUrl !== url ? await probe(finalUrl) : first
+  const second = first
   const html = second.bodySnippet
   const lower = html.toLowerCase()
   return CHECKS.map(spec => {
@@ -182,3 +184,4 @@ export const getRun: any = (query as any)({
     }
   },
 })
+
