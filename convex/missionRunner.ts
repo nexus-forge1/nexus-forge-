@@ -25,7 +25,7 @@ async function startApprovedInternal(c: any, missionId: any) {
   const m = await c.db.get(missionId);
   if (!m) throw Error("Mission not found");
   if (!m.approved) throw Error("Mission requires approval before execution");
-  if (m.status === "complete") return null;
+  if (m.status === "complete" || m.status === "cancelled") return null;
   const existing = await c.db.query("missionRuns").withIndex("by_mission", q => q.eq("missionId", missionId)).order("desc").first();
   if (existing && (existing.status === "running" || existing.status === "paused")) {
     await c.scheduler.runAfter(0, (internal as any).missionRunner.tickInternal, { runId: existing._id });
@@ -249,3 +249,4 @@ export const tickInternal: any = (internalAction as any)({
 });
 
 export const tickNow: any = (internalMutation as any)({ args: { runId: v.id("missionRuns") }, returns: v.null(), handler: async (ctx, args) => { await ctx.scheduler.runAfter(0, (internal as any).missionRunner.tickInternal, { runId: args.runId }); return null; } });
+
