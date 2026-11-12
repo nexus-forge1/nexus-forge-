@@ -8,4 +8,8 @@ pnpm-lock.yaml and pnpm-workspace.yaml are authoritative for the existing GitHub
 
 A clean GitHub type check then exposed two existing test modules importing esbuild without a direct development dependency. The sandbox had a hoisted copy, masking that missing declaration. Declare esbuild 0.27.0 explicitly and regenerate the pnpm importer; this uses the same compiler version already present in the validated sandbox.
 
+The latest completed full GitHub CI run on cc8c579 passed locked installation, production audit and type checking, then reported 1,208 passing and 98 failing tests across 22 failing files; another suite could not load its mixed-workload profile, which is now included in the branch. Several fixtures still target the retired provider routing or older UI/metadata contracts. Do not merge this PR or call full regression acceptance complete until those failures are resolved. DOM benchmarks, exact Chromium checks and Live public probes passed in that run.
+
+CodeQL reported four high-severity patterns: URL substring comparisons in provider fixtures, permissive script closing tags and repeated entity decoding in research text extraction. Exact hostname comparisons and bounded block removal with one-pass entity decoding are patched in the candidate. Type checking and production build pass after these edits; the independent CodeQL rerun remains required. These backend source repairs have not been deployed to Live while release checks are blocked.
+
 This reconciliation does not establish representative service capacity, full-service recovery, invoice reconciliation or payment activation. Database target remains Live; no load or restore work was run against Live. B17 remains locked.
