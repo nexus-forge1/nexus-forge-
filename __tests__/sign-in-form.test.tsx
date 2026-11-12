@@ -36,6 +36,7 @@ describe('welcome and account access',()=>{
   expect(signIn.mock.calls[1][1].get('code')).toBe('123456')
   fireEvent.click(screen.getByRole('button',{name:'Use another email'}))
   expect(screen.getByLabelText('Email address')).toHaveValue('person@example.com')
+  expect(screen.getByLabelText('Email address')).toHaveFocus()
   expect(screen.queryByRole('alert')).toBeNull()
  })
  it('prevents duplicate email requests and keeps a failed send recoverable',async()=>{
@@ -65,6 +66,20 @@ describe('welcome and account access',()=>{
   expect(signIn.mock.calls[1][1].get('code')).toBeNull()
   expect(screen.getByLabelText('Verification code')).toHaveValue('')
   expect(screen.getByRole('status')).toHaveTextContent('Use the latest email')
+ })
+ it('recovers the resend countdown after a background tab without sending automatically',async()=>{
+  vi.useFakeTimers();vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));render(<SignInForm/>);email()
+  await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Send verification code'})))
+  expect(screen.getByRole('button',{name:'Resend code in 30s'})).toBeDisabled()
+  // Browser timers can be throttled while a tab is hidden; advance the clock without running them.
+  vi.setSystemTime(new Date('2026-01-01T00:00:15Z'));fireEvent(document,new Event('visibilitychange'))
+  expect(screen.getByRole('button',{name:'Resend code in 15s'})).toBeDisabled()
+  vi.setSystemTime(new Date('2026-01-01T00:01:00Z'));fireEvent(window,new Event('focus'))
+  expect(screen.getByRole('button',{name:'Resend code'})).toBeEnabled()
+  expect(signIn).toHaveBeenCalledTimes(1)
+  await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Resend code'})))
+  expect(signIn).toHaveBeenCalledTimes(2)
+  expect(screen.getByRole('button',{name:'Resend code in 30s'})).toBeDisabled()
  })
  it('offers Workspace only when configured and recovers from a failed organization login',async()=>{
   const {rerender}=render(<SignInForm/>)
