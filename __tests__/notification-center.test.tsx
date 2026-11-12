@@ -19,16 +19,16 @@ beforeEach(()=>{
 describe('Notification Center',()=>{
  it('marks only loaded unread notifications read and confirms the scope',async()=>{
   render(<NotificationCenter/>)
-  fireEvent.click(screen.getByRole('button',{name:'Mark all loaded read'}))
+  fireEvent.click(screen.getByRole('button',{name:'Acknowledge all loaded'}))
   await waitFor(()=>expect(mocks.mutation).toHaveBeenCalledTimes(2))
   expect(mocks.mutation).toHaveBeenNthCalledWith(1,{id:'n-1',read:true})
   expect(mocks.mutation).toHaveBeenNthCalledWith(2,{id:'n-2',read:true})
-  expect(await screen.findByRole('status')).toHaveTextContent('Marked 2 loaded notifications as read.')
+  expect(await screen.findByRole('status')).toHaveTextContent('Acknowledged 2 loaded event(s).')
  })
  it('retains an error when one of the bulk updates fails',async()=>{
   mocks.mutation.mockRejectedValueOnce(new Error('Notification permission denied'))
   render(<NotificationCenter/>)
-  fireEvent.click(screen.getByRole('button',{name:'Mark all loaded read'}))
+  fireEvent.click(screen.getByRole('button',{name:'Acknowledge all loaded'}))
   expect(await screen.findByRole('alert')).toHaveTextContent('Notification permission denied')
  })
 })

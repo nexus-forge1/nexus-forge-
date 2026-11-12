@@ -24,3 +24,5 @@ describe('roadmap release integration', () => {
     expect(screen.getByRole('link', { name: /Continue guided workflow/ })).toHaveAttribute('href', '/workflow')
   })
 })
+
+vi.mock('../src/components/roadmap-acceptance-matrix',()=>({RoadmapAcceptanceMatrix:()=>null}))

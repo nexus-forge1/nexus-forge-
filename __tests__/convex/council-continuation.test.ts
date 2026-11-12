@@ -1,17 +1,18 @@
 // @vitest-environment edge-runtime
+import {ollamaFixture} from '../helpers/ollama-fixture'
 import { afterEach,beforeEach,describe,it,expect,vi } from 'vitest'
 import { convexTest } from 'convex-test'
 import schema from '../../convex/schema'
 import { api,internal } from '../../convex/_generated/api'
 const modules=import.meta.glob('../../convex/**/*.ts')
-beforeEach(()=>{vi.useFakeTimers();vi.stubEnv('GROQ_API_KEY','controlled-key');vi.stubEnv('CEREBRAS_API_KEY','');vi.stubEnv('CLOUDFLARE_API_TOKEN','')})
+beforeEach(()=>{vi.useFakeTimers();vi.stubEnv('OLLAMA_API_KEY','controlled-key');vi.stubEnv('CEREBRAS_API_KEY','');vi.stubEnv('CLOUDFLARE_API_TOKEN','')})
 afterEach(()=>{vi.clearAllTimers();vi.useRealTimers();vi.unstubAllGlobals();vi.unstubAllEnvs();vi.restoreAllMocks()})
 async function fixture(){
  const t=convexTest(schema,modules),owner=t.withIdentity({subject:'continuation-owner'}),other=t.withIdentity({subject:'other-owner'})
  const missionId=await t.run(c=>c.db.insert('missions',{title:'Continuation',mission:'Compare identical recovery outcomes',autonomy:'guided',budget:0,status:'running',completion:0,approved:true,ownerKey:'continuation-owner'}))
  const runId=await t.run(c=>c.db.insert('missionRuns',{missionId,startedAt:Date.now(),deadlineAt:Date.now()+600000,maxRetries:2,retries:0,status:'running',currentStage:'orchestration',nextActionAt:Date.now()}))
  const deadlineAt=(await t.run(c=>c.db.get(runId)))!.deadlineAt
- const fetchMock=vi.fn(async()=>new Response(JSON.stringify({choices:[{message:{content:'PRIVATE_CONTROLLED_FINDING'}}]}),{status:200}));vi.stubGlobal('fetch',fetchMock)
+ const fetchMock=vi.fn(async()=>new Response(JSON.stringify(ollamaFixture({choices:[{message:{content:'PRIVATE_CONTROLLED_FINDING'}}]})),{status:200}));vi.stubGlobal('fetch',fetchMock)
  const args={missionId,mission:'Compare identical recovery outcomes',missionRunId:runId}
  const baseline=await t.action(internal.forge.orchestrateInternal,args)
  const originalClaim=(await t.run(c=>c.db.query('executionClaims').collect()))[0]

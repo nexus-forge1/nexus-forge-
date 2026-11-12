@@ -119,7 +119,7 @@
     "description": "Register immutable versioned agent contracts, validate JSON examples and retire package versions."
   },
   "/comparisons": {
-    "title": "Comparative Validation — NEXUS FORGE",
+    "title": "Model Comparison Audit — NEXUS FORGE",
     "description": "Preregister baseline and candidate comparisons and retain paired observations and measured results."
   },
   "/science": {
@@ -127,8 +127,8 @@
     "description": "Preregister falsifiable hypotheses, collect immutable measurements and export reproducible evidence."
   },
   "/generality": {
-    "title": "Generality Research — NEXUS FORGE",
-    "description": "Measure bounded transfer across preregistered training and held-out task domains."
+    "title": "Generality & Alignment Research — NEXUS FORGE",
+    "description": "Evaluate multi-domain transfer with held-out trial protocols and explicit recursive improvement containment bounds."
   },
   "/billing": {
     "title": "Billing and Usage — NEXUS FORGE",
@@ -274,19 +274,60 @@
     "title": "Competitive Validation & Novelty — NEXUS FORGE",
     "description": "Compare capability claims with cited prior art and evaluate competitive moat assumptions."
   },
-  "/generality": {
-    "title": "Generality & Alignment Research — NEXUS FORGE",
-    "description": "Evaluate multi-domain transfer with held-out trial protocols and explicit recursive improvement containment bounds."
-  },
   "/payment-readiness": {
     "title": "Payment Activation Readiness — NEXUS FORGE",
     "description": "Readiness-only payment boundary with explicit missing gates and a permanent release lock."
   },
-  "/super-builder": { "title": "Super-Intelligence App Builder — NEXUS FORGE", "description": "Shape reviewed intent into a staged TanStack and Convex build contract." },
-  "/self-healing": { "title": "Self-Healing Platform Engine — NEXUS FORGE", "description": "Correlate diagnostic references with bounded repair proposals, rollback gates and sandbox verification states." },
-  "/agent-swarm": { "title": "Dynamic Agent Swarm Foundry — NEXUS FORGE", "description": "Plan specialist agent roles, capability assignments and bottleneck-driven orchestration." },
-  "/agent-watchdog": { "title": "Autonomous Agent Watchdog — NEXUS FORGE", "description": "Inspect agent pulse thresholds, dead-man failover policy and task rerouting decisions." },
-  "/arbitrage-router": { "title": "Multi-Model Arbitrage Router — NEXUS FORGE", "description": "Compare estimated model costs and latency under transparent routing thresholds." },
-  "/event-scrubber": { "title": "Interactive Event Scrubber — NEXUS FORGE", "description": "Step through supplied mission states and inspect historical text diffs without replaying side effects." },
-  "/audit-export": { "title": "Governed Compliance Packager — NEXUS FORGE", "description": "Assemble a reviewable audit dossier with a local SHA-256 integrity digest and JSON export." }
+  "/super-builder": {
+    "title": "Super-Intelligence App Builder — NEXUS FORGE",
+    "description": "Shape reviewed intent into a staged TanStack and Convex build contract."
+  },
+  "/self-healing": {
+    "title": "Self-Healing Platform Engine — NEXUS FORGE",
+    "description": "Correlate diagnostic references with bounded repair proposals, rollback gates and sandbox verification states."
+  },
+  "/agent-swarm": {
+    "title": "Dynamic Agent Swarm Foundry — NEXUS FORGE",
+    "description": "Plan specialist agent roles, capability assignments and bottleneck-driven orchestration."
+  },
+  "/agent-watchdog": {
+    "title": "Autonomous Agent Watchdog — NEXUS FORGE",
+    "description": "Inspect agent pulse thresholds, dead-man failover policy and task rerouting decisions."
+  },
+  "/arbitrage-router": {
+    "title": "Multi-Model Arbitrage Router — NEXUS FORGE",
+    "description": "Compare estimated model costs and latency under transparent routing thresholds."
+  },
+  "/event-scrubber": {
+    "title": "Interactive Event Scrubber — NEXUS FORGE",
+    "description": "Step through supplied mission states and inspect historical text diffs without replaying side effects."
+  },
+  "/audit-export": {
+    "title": "Governed Compliance Packager — NEXUS FORGE",
+    "description": "Assemble a reviewable audit dossier with a local SHA-256 integrity digest and JSON export."
+  },
+  "/business-dossier": {
+    "title": "Business Dossier — NEXUS FORGE",
+    "description": "Review the retained business-readiness evidence and unresolved requirements."
+  },
+  "/customer-ops": {
+    "title": "Customer Operations Workbench — NEXUS FORGE",
+    "description": "Manage private customer operations and review recorded service workflows."
+  },
+  "/export-exit": {
+    "title": "Export & Exit — NEXUS FORGE",
+    "description": "Review ownership and export the retained project records."
+  },
+  "/preview-factory": {
+    "title": "App Preview Factory — NEXUS FORGE",
+    "description": "Review isolated app previews and their retained validation evidence."
+  },
+  "/rollback-planner": {
+    "title": "Rollback Planner — NEXUS FORGE",
+    "description": "Prepare rollback evidence and compatible recovery steps."
+  },
+  "/secrets": {
+    "title": "Secrets & Access — NEXUS FORGE",
+    "description": "Review secret-handling and access boundaries for project delivery."
+  }
 }

@@ -86,14 +86,14 @@ describe('governed memory lifecycle',()=>{
   expect((await f.inspect(a)).eligible).toBe(true);expect((await f.inspect(b)).eligible).toBe(false)
   expect((await f.inspect(a)).history).toHaveLength(3)
  })
- it('retires a superseded record without deleting sources or rewriting a saved Council receipt',async()=>{
+ it('archives a superseded record without deleting sources or rewriting a saved Council receipt',async()=>{
   const f=await fixture(),a=await f.memory('old'),b=await f.memory('replacement')
   await f.review(a)
   const s=await f.t.query(internal.memory.getCouncilMemorySelection,{missionId:f.missionId})
   const receiptId=await f.t.mutation(internal.memory.recordCouncilMemorySelection,{missionId:f.missionId,missionText:'Review bounded scoped memory',corpusCutoff:s.corpusCutoff,selected:s.selected,candidate:s.candidate,learningContext:'Frozen prior lesson context',preflightContext:'Frozen preflight'})
   const before=await f.t.run(c=>c.db.get(receiptId)),source=await f.t.run(c=>c.db.get(a))
   await f.review(b,{supersedes:a})
-  expect((await f.inspect(a)).review?.status).toBe('retired');expect((await f.inspect(b)).eligible).toBe(true)
+  expect((await f.inspect(a)).review?.status).toBe('archived');expect((await f.inspect(b)).eligible).toBe(true)
   expect(await f.t.run(c=>c.db.get(a))).toEqual(source);expect(await f.t.run(c=>c.db.get(receiptId))).toEqual(before)
   const fresh=await f.t.query(internal.memory.getCouncilMemorySelection,{missionId:f.missionId})
   expect(fresh.selected.map(r=>r.memoryId)).toEqual([b])

@@ -1,4 +1,5 @@
 // @vitest-environment edge-runtime
+import {ollamaFixture} from '../helpers/ollama-fixture'
 import {afterEach,beforeEach,it,expect,vi} from 'vitest'
 import {convexTest} from 'convex-test'
 import schema from '../../convex/schema'
@@ -8,17 +9,17 @@ const modules=import.meta.glob('../../convex/**/*.ts')
 const answer='{"arithmetic":"89","sorting":"2,5,9","logic":"yes","extraction":"OR-731|48.50|2026-11-04","constraint":"READY","filtered-ordering":"10,8"}'
 beforeEach(()=>{
  vi.stubEnv('VITE_STRIPE_MODE','test');vi.stubEnv('CONVEX_CLOUD_URL','https://quick-rabbit-810.eu-west-1.convex.cloud')
- vi.stubEnv('CLOUDFLARE_ACCOUNT_ID','fixture');vi.stubEnv('CLOUDFLARE_API_TOKEN','fixture')
+ vi.stubEnv('OLLAMA_API_KEY','controlled-fixture');vi.stubEnv('AI_ALLOWANCE_ENFORCEMENT','true')
 })
 afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals()})
 async function fixture(prepaid=1000){
  const t=convexTest(schema,modules),owner=t.withIdentity({subject:'owner'}),other=t.withIdentity({subject:'other'})
  await t.run(c=>c.db.insert('billingAccounts',{ownerKey:'owner',mode:'test',prepaid,included:0,expiresAt:0,held:0,unresolved:0,frozen:false}))
- const network=vi.fn(async()=>Response.json({choices:[{message:{content:answer}}]}))
+ const network=vi.fn(async()=>Response.json(ollamaFixture({choices:[{message:{content:answer}}]})))
  vi.stubGlobal('fetch',network)
  return {t,owner,other,network}
 }
-it('retains an answered row and five unstarted cases when unknown usage blocks the next admission',async()=>{
+it('retains an answered row and eleven unstarted cases when unknown usage blocks the next admission',async()=>{
  const {t,owner,network}=await fixture()
  const args={requestKey:'partial-comparison-0001'},result=await owner.action(api.liveComparisons.run,args),report=JSON.parse(result)
  expect(report.status).toBe('partial')
@@ -35,7 +36,7 @@ it('retains an answered row and five unstarted cases when unknown usage blocks t
 it('records all cases as unstarted when initial accounting admission fails, without inference',async()=>{
  const {t,owner,network}=await fixture(0)
  const report=JSON.parse(await owner.action(api.liveComparisons.run,{requestKey:'unfunded-comparison-0001'}))
- expect(report.rows).toHaveLength(6)
+ expect(report.rows).toHaveLength(12)
  expect(report.rows.every((row:any)=>row.status==='not_run')).toBe(true)
  expect(network).not.toHaveBeenCalled()
  expect(await t.run(c=>c.db.query('providerInvocations').collect())).toEqual([])
@@ -43,7 +44,7 @@ it('records all cases as unstarted when initial accounting admission fails, with
 it('protects checkpoint ownership, append-only rows and pending request identity',async()=>{
  const {owner,other}=await fixture()
  const report=JSON.parse(await owner.action(api.liveComparisons.run,{requestKey:'source-progress-0001'}))
- const admitted=await owner.mutation(internal.runtimeReceipts.admit,{ownerKey:'owner',kind:'provider-comparison',requestKey:'checkpoint-fixture-0001',input:'{"version":"matched-provider-comparison-v3"}'})
+ const admitted=await owner.mutation(internal.runtimeReceipts.admit,{ownerKey:'owner',kind:'provider-comparison',requestKey:'checkpoint-fixture-0001',input:'{"version":"ollama-model-comparison-v1"}'})
  const snapshot={...report,rows:report.rows.slice(0,1),status:'in-progress'}
  await owner.mutation(internal.liveComparisons.checkpoint,{jobId:admitted.jobId,result:JSON.stringify(snapshot)})
  await expect(other.mutation(internal.liveComparisons.checkpoint,{jobId:admitted.jobId,result:JSON.stringify(snapshot)})).rejects.toThrow(/cannot be changed/)

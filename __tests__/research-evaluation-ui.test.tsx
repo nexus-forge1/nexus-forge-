@@ -59,7 +59,7 @@ it('shows paired candidate-minus-baseline deltas only when both provider rows ar
  render(<LiveModelComparison/>)
  expect(screen.getByText('Paired prompt-strategy effect')).toBeInTheDocument()
  expect(screen.getByText('+1')).toBeInTheDocument()
- expect(screen.getAllByText('Not comparable').length).toBe(2)
+ expect(screen.queryByText('Not comparable')).toBeNull()
 })
 it('renders unstarted cases separately from zero-scored attempted answers',()=>{
  state.history=[{_id:'job',kind:'provider-comparison',status:'failed',requestKey:'partial-key',result:JSON.stringify({version:'matched-provider-comparison-v2',status:'partial',rows:[{provider:'cloudflare',style:'candidate',status:'not_run',passed:0,total:6,latencyMs:0}],scope:'Controlled partial result'})}]

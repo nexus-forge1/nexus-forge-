@@ -11,7 +11,7 @@ describe('expanded product navigation',()=>{
  })
  it('keeps the original 16-page guide and core tour intact',()=>{
   expect(guidedWorkspaces).toHaveLength(16)
-  expect(primaryWorkspaces).toHaveLength(22)
+  expect(primaryWorkspaces).toHaveLength(29)
   for(const path of starterPaths)expect(guidedWorkspaces.some(p=>p.path===path)).toBe(false)
  })
  it('gives each functioning studio tool one real route and a forward dependency order',()=>{

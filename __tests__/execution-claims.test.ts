@@ -1,4 +1,5 @@
 // @vitest-environment edge-runtime
+import {ollamaFixture} from './helpers/ollama-fixture'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { convexTest } from 'convex-test'
 import { getFunctionName } from 'convex/server'
@@ -98,13 +99,13 @@ describe('durable mission execution claims', () => {
   })
   it('guards actual Council actions before writes and reuses their completed domain outcome', async () => {
     const { t, missionId, runId } = await fixture()
-    vi.stubEnv('GROQ_API_KEY', 'controlled-test-key')
+    vi.stubEnv('OLLAMA_API_KEY', 'controlled-test-key')
     vi.stubEnv('CEREBRAS_API_KEY', '')
     vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
     let entered!: () => void, release!: () => void
     const active = new Promise<void>(resolve => { entered = resolve })
     const gate = new Promise<void>(resolve => { release = resolve })
-    const response = () => new Response(JSON.stringify({ choices: [{ message: { content: 'Controlled Council finding and decision' } }] }), { status: 200 })
+    const response = () => new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: 'Controlled Council finding and decision' } }] })), { status: 200 })
     const fetchMock = vi.fn(async () => response())
     fetchMock.mockImplementationOnce(async () => { entered(); await gate; return response() })
     vi.stubGlobal('fetch', fetchMock)

@@ -1,3 +1,4 @@
+import {ollamaFixture} from './helpers/ollama-fixture'
 import { requiredBlueprintSections } from "../convex/blueprintCompleteness";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { convexTest } from "convex-test";
@@ -37,16 +38,16 @@ afterEach(() => {
 describe("Manifest provider-to-ledger persistence", () => {
   it("persists a complete compact response with three distinct strategies in one provider call", async () => {
     const t=convexTest(schema,modules),operator=t.withIdentity(identity("compact-blueprint-owner"));
-    vi.stubEnv("GROQ_API_KEY","test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY',"test-provider-key");
     const nl=String.fromCharCode(10),f=String.fromCharCode(96).repeat(3);
     const complete=requiredBlueprintSections.map(section=>"## "+section+nl+"A concrete proposed step with a measurable acceptance threshold.").join(nl+nl);
-    const fetchMock=vi.fn(async()=>new Response(JSON.stringify({choices:[{message:{content:complete+nl+f+"manifest-strategies"+nl+JSON.stringify(candidates)+nl+f}}],usage:{prompt_tokens:900,completion_tokens:1500,total_tokens:2400}}),{status:200,headers:{"content-type":"application/json"}}));
+    const fetchMock=vi.fn(async()=>new Response(JSON.stringify(ollamaFixture({choices:[{message:{content:complete+nl+f+"manifest-strategies"+nl+JSON.stringify(candidates)+nl+f}}],usage:{prompt_tokens:900,completion_tokens:1500,total_tokens:2400}})),{status:200,headers:{"content-type":"application/json"}}));
     vi.stubGlobal("fetch",fetchMock);
     const result=await operator.action(api.manifestIntelligence.synthesize,{intent:"Propose a bounded bakery planning checklist.",domain:"QA software",budget:4,horizon:"one day",constraints:"No external action.",acceptanceCriteria:"Keep all required sections and strategies."});
     expect(result).toMatchObject({blueprintComplete:true,strategyCount:3,missingSections:[]});
     expect(fetchMock).toHaveBeenCalledOnce();
     const request=JSON.parse((fetchMock.mock.calls[0] as any)[1].body);
-    expect(request.max_tokens).toBe(3000);expect(request.messages[0].content).not.toContain("[context truncated");
+    expect(request.options.num_predict).toBe(3000);expect(request.messages[0].content).not.toContain("[context truncated");
     expect(JSON.parse((await operator.query(api.manifestIntelligence.listBlueprints,{}))[0].value).sectionCheck).toMatchObject({version:"blueprint-sections-v2",complete:true});
   });
   it("grounds blueprint generation in bounded saved research without leaking another owner's records", async () => {
@@ -70,9 +71,9 @@ describe("Manifest provider-to-ledger persistence", () => {
         result: "PRIVATE FOREIGN FINDING", citations: ["https://private.example/source"], createdAt: 300,
       });
     });
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     const fetchMock = vi.fn(async () => new Response(
-      JSON.stringify({ choices: [{ message: { content: generated } }] }),
+      JSON.stringify(ollamaFixture({ choices: [{ message: { content: generated } }] })),
       { status: 200, headers: { "content-type": "application/json" } },
     ));
     vi.stubGlobal("fetch", fetchMock);
@@ -136,9 +137,9 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("attaches classified assumption evidence only to the owning strategy", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     vi.stubGlobal("fetch", vi.fn(async () => new Response(
-      JSON.stringify({ choices: [{ message: { content: generated } }] }),
+      JSON.stringify(ollamaFixture({ choices: [{ message: { content: generated } }] })),
       { status: 200, headers: { "content-type": "application/json" } },
     )));
     const operator = t.withIdentity(identity("assumption-evidence-owner"));
@@ -232,12 +233,12 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("persists the provider blueprint and structured strategies to the authenticated owner's private ledger", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     const fetchMock = vi.fn(async () => new Response(
-      JSON.stringify({
+      JSON.stringify(ollamaFixture({
         choices: [{ message: { content: generated } }],
         usage: { prompt_tokens: 120, completion_tokens: 340, total_tokens: 460, cost: 0.00042 },
-      }),
+      })),
       { status: 200, headers: { "content-type": "application/json" } },
     ));
     vi.stubGlobal("fetch", fetchMock);
@@ -267,8 +268,8 @@ describe("Manifest provider-to-ledger persistence", () => {
     expect(strategies.every(row => row.key.startsWith(`${result.blueprintKey}:strategy:`))).toBe(true);
     expect(usage).toHaveLength(1);
     expect(usage[0]).toMatchObject({
-      provider: "groq",
-      model: "openai/gpt-oss-20b",
+      provider: 'ollama-deepseek',
+      model: 'deepseek-v4.1-flash',
       promptTokens: 120,
       completionTokens: 340,
       totalTokens: 460,
@@ -298,14 +299,14 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("retries structured extraction and persists strategies when the first blueprint omits its block", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(
-        JSON.stringify({ choices: [{ message: { content: "## Manifest\\nA readable blueprint with three distinct strategy ideas." } }] }),
+        JSON.stringify(ollamaFixture({ choices: [{ message: { content: "## Manifest\\nA readable blueprint with three distinct strategy ideas." } }] })),
         { status: 200, headers: { "content-type": "application/json" } },
       ))
       .mockResolvedValueOnce(new Response(
-        JSON.stringify({ choices: [{ message: { content: JSON.stringify(candidates) } }] }),
+        JSON.stringify(ollamaFixture({ choices: [{ message: { content: JSON.stringify(candidates) } }] })),
         { status: 200, headers: { "content-type": "application/json" } },
       ));
     vi.stubGlobal("fetch", fetchMock);
@@ -330,14 +331,14 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("preserves a readable blueprint when the structured-only retry is invalid", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(
-        JSON.stringify({ choices: [{ message: { content: "## Manifest\\nA readable blueprint survives a failed structured retry." } }] }),
+        JSON.stringify(ollamaFixture({ choices: [{ message: { content: "## Manifest\\nA readable blueprint survives a failed structured retry." } }] })),
         { status: 200, headers: { "content-type": "application/json" } },
       ))
       .mockResolvedValueOnce(new Response(
-        JSON.stringify({ choices: [{ message: { content: "This is not a JSON strategy array." } }] }),
+        JSON.stringify(ollamaFixture({ choices: [{ message: { content: "This is not a JSON strategy array." } }] })),
         { status: 200, headers: { "content-type": "application/json" } },
       ));
     vi.stubGlobal("fetch", fetchMock);
@@ -359,9 +360,9 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("persists measured outcomes and prevents another operator from changing them", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     vi.stubGlobal("fetch", vi.fn(async () => new Response(
-      JSON.stringify({ choices: [{ message: { content: generated } }] }),
+      JSON.stringify(ollamaFixture({ choices: [{ message: { content: generated } }] })),
       { status: 200, headers: { "content-type": "application/json" } },
     )));
 
@@ -430,9 +431,9 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("rejects invalid measured costs and preserves the existing outcome", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     vi.stubGlobal("fetch", vi.fn(async () => new Response(
-      JSON.stringify({ choices: [{ message: { content: generated } }] }),
+      JSON.stringify(ollamaFixture({ choices: [{ message: { content: generated } }] })),
       { status: 200, headers: { "content-type": "application/json" } },
     )));
 
@@ -468,7 +469,7 @@ describe("Manifest provider-to-ledger persistence", () => {
 
   it("does not persist a blueprint or strategy records when every provider attempt fails", async () => {
     const t = convexTest(schema, modules);
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     vi.stubGlobal("fetch", vi.fn(async () => new Response(
       JSON.stringify({ error: { message: "provider temporarily unavailable" } }),
       { status: 503, headers: { "content-type": "application/json" } },
@@ -491,7 +492,7 @@ describe("Manifest provider-to-ledger persistence", () => {
     const t = convexTest(schema, modules);
     const base = {
       ownerKey: "usage-owner",
-      provider: "groq",
+      provider: 'ollama-deepseek',
       model: "test-model",
       totalTokens: 42,
       promptTokens: 30,
@@ -517,7 +518,7 @@ describe("Manifest provider-to-ledger persistence", () => {
     await t.mutation(internal.manifestIntelligence.recordProviderUsageInternal, base);
     const rows = await t.withIdentity(identity("usage-owner")).query(api.manifestIntelligence.listProviderUsage, {});
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ provider: "groq", model: "test-model", totalTokens: 42, reportedCostUsd: 0.001 });
+    expect(rows[0]).toMatchObject({ provider: 'ollama-deepseek', model: "test-model", totalTokens: 42, reportedCostUsd: 0.001 });
   });
 
   it("rejects non-finite budgets before invoking the provider or writing ledger records", async () => {

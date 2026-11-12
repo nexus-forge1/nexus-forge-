@@ -26,7 +26,7 @@ describe('feature page registry', () => {
       expect(allWorkspaces.some(page => page.path === path)).toBe(true)
       expect(primaryWorkspaces.some(page => page.path === path)).toBe(false)
     }
-    expect(primaryWorkspaces.length).toBe(22)
+    expect(primaryWorkspaces.length).toBe(29)
     expect(allWorkspaces.some(page => String(page.path) === '/multimodal')).toBe(false)
     expect(existsSync(resolve(process.cwd(), 'src/routes/multimodal.tsx'))).toBe(false)
   })

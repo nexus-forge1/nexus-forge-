@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { getFunctionName } from 'convex/server'
 import { CouncilPage } from '../src/routes/council'
 import { WorkspaceLayout } from '../src/components/workspace-layout'
 const mocks = vi.hoisted(() => ({ orchestrate: vi.fn(), remember: vi.fn(), signOut: vi.fn(), navigate: vi.fn() }))
@@ -10,13 +11,13 @@ vi.mock('@tanstack/react-router', () => ({
   useRouter: () => ({ navigate: mocks.navigate }),
 }))
 vi.mock('@convex-dev/auth/react', () => ({ useAuthActions: () => ({ signOut: mocks.signOut }) }))
-vi.mock('convex/react', () => ({ useAction: () => mocks.orchestrate, useMutation: () => mocks.remember, useQuery: () => [] }))
+vi.mock('convex/react', () => ({ useAction: () => mocks.orchestrate, useMutation: () => mocks.remember, useQuery: (ref:any) => getFunctionName(ref)==='scopeAFunctions:evaluateCouncilConsensus'?undefined:[] }))
 vi.mock('../src/components/auth-wrapper', () => ({ AuthWrapper: ({ children }: any) => children }))
 vi.mock('../src/components/workspace-guide', () => ({ WorkspaceGuide: () => null }))
 vi.mock('../src/hooks/use-active-mission', () => ({ useActiveMission: () => ({
   evidenceLoading: false, missionId: 'mission-test',
   mission: { title: 'Audit mission', mission: 'Verify the Council handoff', approved: true },
-  agents: [], councilComplete: false, hasResearch: false,
+  agents: [], research: [], artifacts: [], deliveries: [], measurements: [], councilComplete: false, hasResearch: false,
 }) }))
 beforeEach(() => {
   cleanup(); window.sessionStorage.clear(); vi.resetAllMocks()

@@ -1,4 +1,5 @@
 // @vitest-environment edge-runtime
+import {ollamaFixture} from './helpers/ollama-fixture'
 import {describe,it,expect,vi,beforeEach,afterEach} from 'vitest'
 import {convexTest} from 'convex-test'
 import schema from '../convex/schema'
@@ -10,10 +11,10 @@ const modules=import.meta.glob('../convex/**/*.ts')
 let fetchMock:ReturnType<typeof vi.fn>
 beforeEach(()=>{
  vi.stubEnv('CONVEX_CLOUD_URL','https://quick-rabbit-810.eu-west-1.convex.cloud');vi.stubEnv('VITE_STRIPE_MODE','test')
- vi.stubEnv('GROQ_API_KEY','controlled-not-real');vi.stubEnv('GROQ_MODEL','openai/gpt-oss-20b')
+ vi.stubEnv('OLLAMA_API_KEY','controlled-not-real');vi.stubEnv('OLLAMA_API_KEY', 'controlled-fixture-not-real')
  fetchMock=vi.fn(async(_url:unknown,init?:RequestInit)=>{
   const request=JSON.parse(String(init?.body)),prompt=JSON.parse(request.messages[0].content)
-  return new Response(JSON.stringify({model:request.model,choices:[{message:{content:JSON.stringify({status:'complete',outputKind:prompt.contract.outputKind,summary:'Controlled provider HTTP fixture, unverified planning only.',evidenceRefs:prompt.allowedRefs.slice(0,6)})}}],usage:{prompt_tokens:50,completion_tokens:20,total_tokens:70,cost:0}}),{status:200})
+  return new Response(JSON.stringify(ollamaFixture({model:request.model,choices:[{message:{content:JSON.stringify({status:'complete',outputKind:prompt.contract.outputKind,summary:'Controlled provider HTTP fixture, unverified planning only.',evidenceRefs:prompt.allowedRefs.slice(0,6)})}}],usage:{prompt_tokens:50,completion_tokens:20,total_tokens:70,cost:0}})),{status:200})
  });vi.stubGlobal('fetch',fetchMock)
 })
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();vi.useRealTimers()})
@@ -24,7 +25,7 @@ async function fixture(provider=false){
  let source:RuntimeSource,runId:Id<'missionGraphRuns'>|undefined,executionId:Id<'graphExecutions'>|undefined
  if(provider){
   await t.run(async c=>{await c.db.patch(project.missionId,{approved:true,status:'running'});await c.db.insert('portfolioDecisions',{missionId:project.missionId,priorityRank:1,action:'controlled-planning',decision:'approve',createdAt:Date.now()});await c.db.insert('billingAccounts',{ownerKey:String(users.owner),mode:'test',prepaid:2000,included:0,expiresAt:0,held:0,unresolved:0,frozen:false})})
-  executionId=await owner.mutation(api.graphExecutionData.create,{graphId,executionKey:'provider-source',provider:'groq',maxOutputTokens:256})
+  executionId=await owner.mutation(api.graphExecutionData.create,{graphId,executionKey:'provider-source',provider:'ollama-deepseek',maxOutputTokens:256})
   for(const node of nodes)await owner.action(api.graphExecution.runWave,{executionId,waveKey:node.key})
   source={kind:'provider',id:executionId!}
  }else{
@@ -143,7 +144,7 @@ describe('durable recorded planning runtime',()=>{
  it('audits controlled provider receipts and replays them without another HTTP request',async()=>{
   const f=await fixture(true),s=JSON.parse(f.preview.snapshot) as RuntimeSnapshot,calls=fetchMock.mock.calls.length
   expect(calls).toBe(3);expect(s.handoffs.every(h=>h.state==='accepted'&&h.provenance==='provider-receipt')).toBe(true);expect(s.missionContract).not.toBeNull()
-  vi.stubEnv('GROQ_MODEL','changed-after-run')
+  vi.stubEnv('OLLAMA_API_KEY', '')
   expect((JSON.parse((await f.owner.query(api.missionRuntime.preview,{source:f.source})).snapshot) as RuntimeSnapshot).handoffs.every(h=>h.state==='accepted')).toBe(true)
   const id=await f.start();for(let i=0;i<3;i++)await f.control(id)
   expect((await f.detail(id)).replay.status).toBe('complete');expect(fetchMock).toHaveBeenCalledTimes(calls)
@@ -156,7 +157,7 @@ describe('durable recorded planning runtime',()=>{
   expect(fetchMock).toHaveBeenCalledTimes(calls)
  })
  it('keeps an unstarted provider contract missing rather than labeling it completed evidence',async()=>{
-  const f=await fixture(),executionId=await f.owner.mutation(api.graphExecutionData.create,{graphId:f.graphId,executionKey:'unstarted',provider:'groq',maxOutputTokens:256}),source={kind:'provider' as const,id:executionId},p=await f.owner.query(api.missionRuntime.preview,{source}),s=JSON.parse(p.snapshot) as RuntimeSnapshot
+  const f=await fixture(),executionId=await f.owner.mutation(api.graphExecutionData.create,{graphId:f.graphId,executionKey:'unstarted',provider:'ollama-deepseek',maxOutputTokens:256}),source={kind:'provider' as const,id:executionId},p=await f.owner.query(api.missionRuntime.preview,{source}),s=JSON.parse(p.snapshot) as RuntimeSnapshot
   expect(s.sourceStatus).toBe('active');expect(s.handoffs.every(h=>h.state==='missing')).toBe(true)
   const checkpointId=await f.owner.mutation(api.missionRuntime.capture,{source,checkpointKey:'unstarted',expectedSourceDigest:p.sourceDigest}),id=await f.owner.mutation(api.missionRuntime.start,{checkpointId,replayKey:'missing',label:'Missing evidence',rationale:'No remote results should be invented here',overrides:[]})
   await f.control(id);expect((await f.detail(id)).replay.status).toBe('held');expect((await f.detail(id)).completed).toBe(0)
