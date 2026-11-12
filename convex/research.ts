@@ -153,15 +153,13 @@ export function isSafeResearchUrl(value: string): boolean {
 }
 
 function cleanHtml(html: string): string {
+  // Extract plain text; tolerate whitespace on end tags and truncated blocks.
+  // Decode entities once so nested encodings cannot be unescaped twice.
+  const entities: Record<string, string> = { nbsp: " ", amp: "&", quot: '"', "#39": "'" }
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<(script|style|noscript)\b[^>]*>[\s\S]*?(?:<\/\1\s*>|$)/gi, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
+    .replace(/&(nbsp|amp|quot|#39);/gi, (_, name: string) => entities[name.toLowerCase()])
     .replace(/\s+/g, " ")
     .trim()
 }
