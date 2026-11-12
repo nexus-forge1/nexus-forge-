@@ -4153,8 +4153,8 @@
     "convex/macaly.ts"
   ],
   "followup": {
-    "macalySourceHead": "7f34dcb3a158bf9c776306a8e05bd7a47644dd6d",
-    "checkedGithubHead": "a88c9b1bec26ad0823b736d712f858c33beaa3d5",
+    "macalySourceHead": "7743574b8af9036c537cf2bbd3aebff3a269c07a",
+    "checkedGithubHead": "61be229394bdc92d0dc40bc890c0e97309769b52",
     "selectedSourceFiles": 830,
     "mismatches": 0,
     "productionAudit": {
@@ -4166,7 +4166,16 @@
     },
     "typecheck": "passed",
     "productionBuild": "passed",
-    "scope": "Application, tests, scripts and build configuration; environment/platform files excluded. Operational Python helpers match no-dispatch main. Historical npm lock retained; pnpm lock and overrides authoritative.",
+    "releaseStatus": "blocked",
+    "latestCompletedCi": {
+      "head": "cc8c579048d75bac5ea40dbfff5a91c983c24f55",
+      "passedTests": 1208,
+      "failedTests": 98,
+      "failedFiles": 22,
+      "missingProfile": "subsequently restored",
+      "runUrl": "https://github.com/nexus-forge1/nexus-forge-/actions/runs/43163557417"
+    },
+    "security": "Four reported CodeQL patterns patched in candidate; independent re-verification pending; backend repairs not deployed.",
     "inventory": [
       {
         "path": "__tests__/active-mission-selection.test.tsx",
@@ -4370,7 +4379,7 @@
       },
       {
         "path": "__tests__/convex/live-comparisons.test.ts",
-        "sha": "c5bf8b9b695dc3871b7aca55ac3120b95e370470"
+        "sha": "e0bf8cb0b652e366dc39eb732f33598c72efba98"
       },
       {
         "path": "__tests__/convex/measured-outcome-replay.test.ts",
@@ -5642,7 +5651,7 @@
       },
       {
         "path": "convex/research.ts",
-        "sha": "471a358af25b7c5b077a58115da30bc6d7f770c1"
+        "sha": "c8abcc4c18b3f0577b7eecc55faa9607efdfd68e"
       },
       {
         "path": "convex/researchClaimModel.ts",
