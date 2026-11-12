@@ -4153,8 +4153,7 @@
     "convex/macaly.ts"
   ],
   "followup": {
-    "macalySourceHead": "753f5cd2352166deada72d2f7ef24342a00ea1e3",
-    "checkedGithubHead": "c066e132aada30d9a29f05f986f4bfc05fbaf212",
+    "macalySourceHead": "6f2f6b564c6ced5106927c5d6a9738fb53686a1a",
     "selectedSourceFiles": 831,
     "mismatches": 0,
     "validation": {
@@ -4926,7 +4925,7 @@
       },
       {
         "path": "__tests__/route-metadata.test.ts",
-        "sha": "950156e43de4ead5aab88e10151d3e4527a1a648"
+        "sha": "861e44e3b6971e38e568c8a75bf3881fe4c66ee8"
       },
       {
         "path": "__tests__/runtime-cost-measurements.test.ts",
@@ -7174,7 +7173,7 @@
       },
       {
         "path": "src/routes/business-dossier.tsx",
-        "sha": "c9e47ce802414e71de987382d97cbe44ec1fa752"
+        "sha": "54d10fb3e265a07cb92dbd9b312272c8e4ed0f5a"
       },
       {
         "path": "src/routes/business-readiness.tsx",
@@ -7218,7 +7217,7 @@
       },
       {
         "path": "src/routes/customer-ops.tsx",
-        "sha": "41b51715f0a78122ac1e5be6e28fe3dbf54566e6"
+        "sha": "a84669a1cce49e79518af7f99ba6883e09ce3dad"
       },
       {
         "path": "src/routes/database-studio.tsx",
@@ -7282,7 +7281,7 @@
       },
       {
         "path": "src/routes/export-exit.tsx",
-        "sha": "56038678aa63d1a931d8aa861e0dbf8b65364b58"
+        "sha": "e71e74f2dc0afae492df6db07d55a4295e304c21"
       },
       {
         "path": "src/routes/feature-builder.tsx",
@@ -7378,7 +7377,7 @@
       },
       {
         "path": "src/routes/preview-factory.tsx",
-        "sha": "39491d94352fd8198fb93f1ebb1580bdfa623d7c"
+        "sha": "f7e033574300c07dbe9e78be2381c916dfbdc6eb"
       },
       {
         "path": "src/routes/previews.tsx",
@@ -7422,7 +7421,7 @@
       },
       {
         "path": "src/routes/rollback-planner.tsx",
-        "sha": "6d6b3a1d87659cfd4439c6286ee244ae52daa75d"
+        "sha": "9bea025ed9da58913595c523bd048acb7058aefe"
       },
       {
         "path": "src/routes/routing.tsx",
@@ -7434,7 +7433,7 @@
       },
       {
         "path": "src/routes/secrets.tsx",
-        "sha": "24463a055e52ca5286ecf701b81d121744c539da"
+        "sha": "ce26f8e03c1ea4614e0c58d6e3bb22e466279833"
       },
       {
         "path": "src/routes/self-healing.tsx",
@@ -7500,6 +7499,12 @@
         "path": "__tests__/helpers/ollama-fixture.ts",
         "sha": "3056d3554caf8c57ff0f68d3c3a4e07adb267e64"
       }
-    ]
+    ],
+    "routeMetadataFollowup": {
+      "description": "Six dedicated pages select their own metadata rather than the home page; the route binding assertion covers all actual pages.",
+      "targetedTestsPassed": 3,
+      "typecheck": "passed",
+      "githubChecks": "Pending final follow-up head."
+    }
   }
 }

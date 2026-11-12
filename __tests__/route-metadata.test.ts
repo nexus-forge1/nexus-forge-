@@ -10,6 +10,8 @@ describe('production metadata and indexing boundaries', () => {
       const path = source.match(/createFileRoute\(['"]([^'"]+)['"]\)/)?.[1]
       expect(path).toBeDefined()
       expect(source).toContain('routeHead(')
+      const selectedMetadataPath = source.match(/routeHead\(['"]([^'"]+)['"]/)?.[1]
+      expect(selectedMetadataPath, file + ' must select its own route metadata').toBe(path)
       const head = routeHead(path as Exclude<keyof typeof metadata, 'default'>)
       expect(head.links).toEqual([{ rel: 'canonical', href: 'https://www.network-x-ai.com' + path }])
       expect(head.meta).toContainEqual({ property: 'og:url', content: 'https://www.network-x-ai.com' + path })
