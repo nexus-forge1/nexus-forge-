@@ -1,6 +1,8 @@
 {
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
+    /* Convex validator inference currently fails with parallel TypeScript 7 checkers. */
+    "checkers": 1,
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
