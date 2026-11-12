@@ -1,0 +1,22 @@
+import {useEffect,useState} from 'react'
+import {useMutation,useQuery} from 'convex/react'
+import {api} from '../../convex/_generated/api'
+import {ProjectPicker,useStudioProject,downloadJson} from './studio-shared'
+import {operatorError} from '../lib/operator-error'
+type Row={title:string;role:string;route:string;entity:string;acceptance:string}
+const blank=():Row=>({title:'',role:'Customer',route:'/dashboard',entity:'Task',acceptance:''})
+export function ProductSpecifications(){
+ const studio=useStudioProject(),versions=useQuery(api.studio.specifications,studio.projectId?{projectId:studio.projectId}:'skip'),compile=useMutation(api.studio.compileSpecification)
+ const [rows,setRows]=useState<Row[]>([blank()]),[expected,setExpected]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[receipt,setReceipt]=useState('')
+ useEffect(()=>{setRows([blank()]);setExpected(0);setReceipt('');setError('')},[studio.projectId])
+ function loadLatest(){const s=versions?.[0];setRows(s?s.requirements.map(({key,...r})=>r):[blank()]);setExpected(s?.revision??0);setReceipt('Loaded revision '+(s?.revision??0)+'. Edit it before saving a new version.')}
+ function patch(i:number,key:keyof Row,value:string){setRows(old=>old.map((r,j)=>j===i?{...r,[key]:value}:r))}
+ return <section className="dashboard-section"><div className="glass-card research-card"><h2>Product specification compiler</h2><ProjectPicker studio={studio}/><p>Compile explicit requirements into a versioned roles, routes, entities and acceptance trace. New revisions update the linked unapproved draft mission, so Council and Builder receive its acceptance criteria. Approved or running mission contracts stay frozen. This structured compiler does not infer missing requirements or generate application code.</p>{studio.project&&<p>Linked mission: {studio.project.title} · approval remains separate.</p>}
+ <button className="secondary-button" type="button" disabled={busy||versions===undefined} onClick={loadLatest}>Load latest saved revision</button>
+ <form onSubmit={async e=>{e.preventDefault();if(!studio.projectId)return;setBusy(true);setError('');try{await compile({projectId:studio.projectId,expectedRevision:expected,requirements:rows});setReceipt('Immutable specification saved. Load the latest revision before your next edit.')}catch(e){setError(operatorError(e,'Compilation failed. Your requirements are retained.'))}finally{setBusy(false)}}}>
+ <p>Editing from revision {expected}. Latest saved: {versions?.[0]?.revision??0}.</p>{rows.map((r,i)=><fieldset key={i} disabled={busy}><legend>Requirement {i+1}</legend>{(['title','role','route','entity','acceptance'] as const).map(key=><label key={key}>{key==='acceptance'?'Observable acceptance criterion':key}<input required maxLength={key==='acceptance'?1200:key==='title'?160:120} value={r[key]} onChange={e=>patch(i,key,e.target.value)}/></label>)}{rows.length>1&&<button type="button" className="ghost-button" onClick={()=>setRows(old=>old.filter((_,j)=>j!==i))}>Remove this unsaved requirement</button>}</fieldset>)}
+ <div className="hero-actions"><button type="button" className="secondary-button" disabled={busy||rows.length>=30} onClick={()=>setRows(old=>[...old,blank()])}>Add requirement</button><button className="primary-button" disabled={busy||!studio.projectId||versions===undefined}>Compile immutable specification</button></div></form>
+ {error&&<p role="alert">{error}</p>}{receipt&&<p role="status">{receipt}</p>}</div>
+ {versions?.map(s=><article key={s._id} className="glass-card research-card"><h3>Revision {s.revision}</h3><p>Roles: {s.roles.join(', ')}</p><button className="secondary-button" onClick={()=>downloadJson('nexus-specification-v'+s.revision+'.json',{project:studio.project?.title,specification:s,implementationStatus:'planned',trace:s.requirements.map(r=>({requirement:r.key,route:r.route,entity:r.entity,proposedFiles:['src/routes'+(r.route==='/'?'/index':r.route)+'.tsx','convex/'+r.entity.toLowerCase().replace(/[^a-z0-9]/g,'')+'.ts'],acceptance:r.acceptance,verification:'not run'}))})}>Export specification and planned implementation trace</button>
+ <div style={{overflowX:'auto'}}><table><thead><tr><th>Requirement</th><th>Role</th><th>Route / entity</th><th>Acceptance</th></tr></thead><tbody>{s.requirements.map(r=><tr key={r.key}><td>{r.title}</td><td>{r.role}</td><td>{r.route} · {r.entity}</td><td>{r.acceptance}</td></tr>)}</tbody></table></div></article>)}</section>
+}

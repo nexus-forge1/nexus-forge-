@@ -7,7 +7,7 @@ import { DeliveryPage } from '../src/routes/delivery'
 vi.mock('@tanstack/react-router', () => ({ createFileRoute: () => (options: unknown) => options, Link: ({ to, children }: any) => <a href={to}>{children}</a> }))
 vi.mock('../src/components/workspace-layout', () => ({ WorkspaceLayout: ({ children }: any) => <main>{children}</main> }))
 vi.mock('../src/hooks/use-active-mission', () => ({ useActiveMission: () => ({ evidenceLoading: true, missionId: 'selected-mission', mission: undefined, agents: [], research: [], artifacts: [], deliveries: [] }) }))
-vi.mock('convex/react', () => ({ useAction: () => vi.fn(), useMutation: () => vi.fn() }))
+vi.mock('convex/react', () => ({ useAction: () => vi.fn(), useMutation: () => vi.fn(), useQuery: () => undefined }))
 describe('mission workspace loading', () => {
   it.each([CouncilPage, EvidencePage, ArtifactsPage, DeliveryPage])('does not show false prerequisites or action controls while evidence loads', Page => {
     render(<Page />)

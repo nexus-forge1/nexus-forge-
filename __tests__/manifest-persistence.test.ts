@@ -1,3 +1,4 @@
+import { requiredBlueprintSections } from "../convex/blueprintCompleteness";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "../convex/schema";
@@ -34,6 +35,68 @@ afterEach(() => {
 });
 
 describe("Manifest provider-to-ledger persistence", () => {
+  it("persists a complete compact response with three distinct strategies in one provider call", async () => {
+    const t=convexTest(schema,modules),operator=t.withIdentity(identity("compact-blueprint-owner"));
+    vi.stubEnv("GROQ_API_KEY","test-provider-key");
+    const nl=String.fromCharCode(10),f=String.fromCharCode(96).repeat(3);
+    const complete=requiredBlueprintSections.map(section=>"## "+section+nl+"A concrete proposed step with a measurable acceptance threshold.").join(nl+nl);
+    const fetchMock=vi.fn(async()=>new Response(JSON.stringify({choices:[{message:{content:complete+nl+f+"manifest-strategies"+nl+JSON.stringify(candidates)+nl+f}}],usage:{prompt_tokens:900,completion_tokens:1500,total_tokens:2400}}),{status:200,headers:{"content-type":"application/json"}}));
+    vi.stubGlobal("fetch",fetchMock);
+    const result=await operator.action(api.manifestIntelligence.synthesize,{intent:"Propose a bounded bakery planning checklist.",domain:"QA software",budget:4,horizon:"one day",constraints:"No external action.",acceptanceCriteria:"Keep all required sections and strategies."});
+    expect(result).toMatchObject({blueprintComplete:true,strategyCount:3,missingSections:[]});
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request=JSON.parse((fetchMock.mock.calls[0] as any)[1].body);
+    expect(request.max_tokens).toBe(3000);expect(request.messages[0].content).not.toContain("[context truncated");
+    expect(JSON.parse((await operator.query(api.manifestIntelligence.listBlueprints,{}))[0].value).sectionCheck).toMatchObject({version:"blueprint-sections-v2",complete:true});
+  });
+  it("grounds blueprint generation in bounded saved research without leaking another owner's records", async () => {
+    const t = convexTest(schema, modules), operator = t.withIdentity(identity("manifest-context-owner"));
+    await t.run(async ctx => {
+      const ownedMission = await ctx.db.insert("missions", {
+        title: "Owned market research", mission: "Evaluate a real demand hypothesis", autonomy: "guided",
+        budget: 0, status: "draft", completion: 0, approved: false, ownerKey: "manifest-context-owner",
+      });
+      const foreignMission = await ctx.db.insert("missions", {
+        title: "Private other-owner research", mission: "Private data", autonomy: "guided",
+        budget: 0, status: "draft", completion: 0, approved: false, ownerKey: "other-owner",
+      });
+      await ctx.db.insert("research", {
+        missionId: ownedMission, query: "Check verified customer demand",
+        result: "A saved source finding says interviews showed mixed demand; sample and geography are limited.",
+        citations: ["https://example.com/demand-study"], createdAt: 200,
+      });
+      await ctx.db.insert("research", {
+        missionId: foreignMission, query: "Private query must not leak",
+        result: "PRIVATE FOREIGN FINDING", citations: ["https://private.example/source"], createdAt: 300,
+      });
+    });
+    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    const fetchMock = vi.fn(async () => new Response(
+      JSON.stringify({ choices: [{ message: { content: generated } }] }),
+      { status: 200, headers: { "content-type": "application/json" } },
+    ));
+    vi.stubGlobal("fetch", fetchMock);
+    await operator.action(api.manifestIntelligence.synthesize, {
+      intent: "Create a measurable product experiment using relevant research evidence.",
+      domain: "AI product / venture", budget: 5, horizon: "14 days",
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const prompt = JSON.parse((fetchMock.mock.calls[0] as any)[1].body).messages[0].content as string;
+    expect(prompt).toContain("OWNER-SAVED RESEARCH CONTEXT");
+    expect(prompt).toContain("Check verified customer demand");
+    expect(prompt).toContain("A saved source finding says interviews showed mixed demand");
+    expect(prompt).toContain("https://example.com/demand-study");
+    expect(prompt).not.toContain("PRIVATE FOREIGN FINDING");
+    expect(prompt).not.toContain("Private query must not leak");
+  });
+
+  it("rejects oversized context before inference or ledger writes", async () => {
+    const t=convexTest(schema,modules),operator=t.withIdentity(identity("oversize-blueprint-owner")),fetchMock=vi.fn();
+    vi.stubGlobal("fetch",fetchMock);
+    await expect(operator.action(api.manifestIntelligence.synthesize,{intent:"i".repeat(3000),domain:"QA",budget:4,horizon:"one day",constraints:"c".repeat(2000),acceptanceCriteria:"a".repeat(2000)})).rejects.toThrow(/no inference was started/);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(await operator.query(api.manifestIntelligence.listBlueprints,{})).toEqual([]);
+  });
   it("shows only owned mission research with saved HTTPS citations in Manifest context", async () => {
     const t = convexTest(schema, modules);
     const ids = await t.run(async (ctx) => {
@@ -189,7 +252,8 @@ describe("Manifest provider-to-ledger persistence", () => {
       acceptanceCriteria: "Save a readable blueprint and three structured candidates.",
     });
 
-    expect(result).toMatchObject({ saved: true, strategyCount: 3, strategyBlockValid: true });
+    expect(result).toMatchObject({ saved: true, strategyCount: 3, strategyBlockValid: true, blueprintComplete: false });
+    expect(result.missingSections).toContain("Next action");
     expect(result.blueprint).toContain("A bounded proposal");
     expect(result.blueprintKey).toMatch(/^manifest:/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -416,7 +480,7 @@ describe("Manifest provider-to-ledger persistence", () => {
       domain: "AI product / venture",
       budget: 25,
       horizon: "14 days",
-    })).rejects.toThrow(/failed \(503, retryable\)/i);
+    })).rejects.toThrow(/Automatic fallback stopped/i);
 
     expect(await operator.query(api.manifestIntelligence.listBlueprints, {})).toEqual([]);
     expect(await operator.query(api.manifestIntelligence.listStrategies, {})).toEqual([]);

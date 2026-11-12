@@ -21,6 +21,14 @@ function mockGitHub(data: ReturnType<typeof metadata>) {
 }
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs() })
 describe('benchmark provenance boundaries', () => {
+  it('rejects oversized metadata without recording a benchmark receipt',async()=>{
+    const t=convexTest(schema,modules),owner=t.withIdentity(identity('owner-a'))
+    const network=vi.fn().mockResolvedValue(new Response('x'.repeat(512*1024+1)))
+    vi.stubGlobal('fetch',network)
+    await expect(owner.action(api.benchmarks.verifyRun,{runUrl})).rejects.toThrow(/exceeds limit/)
+    expect(network).toHaveBeenCalledTimes(1)
+    expect(await owner.query(api.benchmarks.history,{})).toEqual([])
+  })
   it('accepts only a canonical project run URL', () => {
     expect(parseBenchmarkRunUrl(runUrl + '/')).toEqual({ runId, runUrl })
     for (const value of [runUrl.replace('https:', 'http:'), runUrl.replace('github.com', 'attacker.example'), runUrl.replace('nexus-forge1/nexus-forge-', 'nexus-forge1/no-dispatch'), runUrl + '?override=1', runUrl + '/job/1', 'https://github.com/']) expect(() => parseBenchmarkRunUrl(value)).toThrow()

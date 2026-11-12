@@ -1,4 +1,32 @@
 {
+  "/visual-builder": {
+    "title": "Visual Builder — NEXUS FORGE",
+    "description": "Edit supported task components with responsive previews and exact source revision history."
+  },
+  "/database-studio": {
+    "title": "Database & Migration Studio — NEXUS FORGE",
+    "description": "Generate additive Convex schema drafts with owner-scope and Testing-first migration gates."
+  },
+  "/browser-qa": {
+    "title": "Real Browser QA & Repair — NEXUS FORGE",
+    "description": "Generate evidence-gated browser acceptance plans; execution remains separate from planning."
+  },
+  "/integration-contracts": {
+    "title": "Integration Contract Builder — NEXUS FORGE",
+    "description": "Validate integration auth, scope, timeout, retries, idempotency and revocation contracts."
+  },
+  "/feature-builder": {
+    "title": "Full-Stack Feature Builder — NEXUS FORGE",
+    "description": "Generate source-bound private task features with UI, API, ownership, data and tests."
+  },
+  "/imports": {
+    "title": "Existing-App Import — NEXUS FORGE",
+    "description": "Assess exact public repository baselines and retain reviewed modernization plans."
+  },
+  "/portfolio-decisions": {
+    "title": "Portfolio Decision Engine — NEXUS FORGE",
+    "description": "Review evidence, venture risks and proposed resources in private strategic decisions."
+  },
   "/": {
     "title": "NEXUS FORGE — Governed Intelligence OS",
     "description": "A governed AI workspace for research, creation, verification and measured outcomes."
@@ -51,6 +79,10 @@
     "title": "Launch Readiness — NEXUS FORGE",
     "description": "Run auditable production readiness checks and inspect the evidence behind every result."
   },
+  "/release-evidence": {
+    "title": "Release Evidence Center — NEXUS FORGE",
+    "description": "Track operational release gates, evidence references, owners and explicit hold reasons."
+  },
   "/incidents": {
     "title": "Incident Center — NEXUS FORGE",
     "description": "Review blocked runs, diagnosis, bounded recovery, and operational lessons."
@@ -62,6 +94,10 @@
   "/roadmap": {
     "title": "Master Roadmap — NEXUS FORGE",
     "description": "Verified build progress, current priorities and queued route parity work."
+  },
+  "/feature-register": {
+    "title": "Master Feature Register — NEXUS FORGE",
+    "description": "Trace the 82 requested catalog entries to routes, implementation status, acceptance criteria and missing verification evidence."
   },
   "default": {
     "title": "NEXUS FORGE",
@@ -93,5 +129,164 @@
   "/generality": {
     "title": "Generality Research — NEXUS FORGE",
     "description": "Measure bounded transfer across preregistered training and held-out task domains."
-  }
+  },
+  "/billing": {
+    "title": "Billing and Usage — NEXUS FORGE",
+    "description": "Review your subscription, prepaid usage credits and private payment receipts in NEXUS FORGE."
+  },
+  "/checkout": {
+    "title": "Secure Checkout — NEXUS FORGE",
+    "description": "Complete your selected NEXUS FORGE subscription or prepaid credit purchase through secure checkout."
+  },
+  "/pricing": {
+    "title": "Plans and Usage Pricing — NEXUS FORGE",
+    "description": "Compare NEXUS FORGE paid subscriptions and pay-per-use credits, with published allowances and token-based usage rates."
+  },
+  "/templates": {
+    "title": "Mission Templates | NEXUS FORGE",
+    "description": "Private NEXUS FORGE mission templates tools with scoped controls and recorded evidence."
+  },
+  "/knowledge": {
+    "title": "Document Knowledge Hub | NEXUS FORGE",
+    "description": "Private NEXUS FORGE document knowledge hub tools with scoped controls and recorded evidence."
+  },
+  "/notifications": {
+    "title": "Notification Center | NEXUS FORGE",
+    "description": "Private NEXUS FORGE notification center tools with scoped controls and recorded evidence."
+  },
+  "/connections": {
+    "title": "Integration Center | NEXUS FORGE",
+    "description": "Private NEXUS FORGE integration center tools with scoped controls and recorded evidence."
+  },
+  "/integration-options": {
+    "title": "Free-First Integration Options | NEXUS FORGE",
+    "description": "Compare official external integration sources, free-tier options, roadmap milestones and release blockers."
+  },
+  "/client-delivery": {
+    "title": "Client Delivery Portal | NEXUS FORGE",
+    "description": "Private NEXUS FORGE client delivery portal tools with scoped controls and recorded evidence."
+  },
+  "/changes": {
+    "title": "Change Review | NEXUS FORGE",
+    "description": "Private NEXUS FORGE change review tools with scoped controls and recorded evidence."
+  },
+  "/specifications": {
+    "title": "Product Specifications | NEXUS FORGE",
+    "description": "Private NEXUS FORGE product specifications tools with scoped controls and recorded evidence."
+  },
+  "/economics": {
+    "title": "Unit Economics | NEXUS FORGE",
+    "description": "Private NEXUS FORGE unit economics tools with scoped controls and recorded evidence."
+  },
+  "/expansion": {
+    "title": "Expansion Checklist | NEXUS FORGE",
+    "description": "Private NEXUS FORGE expansion checklist tools with scoped controls and recorded evidence."
+  },
+  "/evaluations": {
+    "title": "Evaluation Lab | NEXUS FORGE",
+    "description": "Freeze task baselines, grade supplied answers and review exact configuration results with explicit evidence limits."
+  },
+  "/evidence-graph": {
+    "title": "Evidence Graph | NEXUS FORGE",
+    "description": "Connect exact sources, scoped assumptions and decisions with versioned provenance and explicit uncertainty."
+  },
+  "/evolution": {
+    "title": "Controlled Evolution | NEXUS FORGE",
+    "description": "Review protected skill contracts, exact evidence and bounded private rehearsal pilots with retained rollback."
+  },
+  "/skills": {
+    "title": "Skill Foundry | NEXUS FORGE",
+    "description": "Package private planning workflows with frozen contracts, supplied acceptance checks and governed rehearsal handoffs."
+  },
+  "/replay": {
+    "title": "Durable Runtime & Replay Lab | NEXUS FORGE",
+    "description": "Checkpoint stored planning evidence and diagnose bounded offline replay branches without repeating external actions."
+  },
+  "/memory-governance": {
+    "title": "Governed Memory | NEXUS FORGE",
+    "description": "Review memory scope, contradictions, quarantine, review dates and retained retirement history."
+  },
+  "/routing": {
+    "title": "Outcome-Aware Routing | NEXUS FORGE",
+    "description": "Review matched provider handoff receipts, frozen routing constraints and auditable recommendations or HOLD."
+  },
+  "/mission-graphs": {
+    "title": "Adaptive Mission Graphs | NEXUS FORGE",
+    "description": "Freeze typed specialist workflows, rehearse dependency waves and review bounded replanning."
+  },
+  "/experiments": {
+    "title": "Experiment Designer | NEXUS FORGE",
+    "description": "Preregister comparison methods, guardrails and measurement windows; retain negative and inconclusive outcomes."
+  },
+  "/demand": {
+    "title": "Demand Validation — NEXUS FORGE",
+    "description": "Record customer hypotheses with evidence references and explicit go/no-go decisions."
+  },
+  "/monetization": {
+    "title": "Monetization Studio — NEXUS FORGE",
+    "description": "Define billable quotes with prices, entitlements, holds, settlement and refunds."
+  },
+  "/customer-operations": {
+    "title": "Customer Operations — NEXUS FORGE",
+    "description": "Track customer lifecycle stages and a product-linked issue log with resolution."
+  },
+  "/growth": {
+    "title": "Launch & Growth — NEXUS FORGE",
+    "description": "Audience, offer and channel contracts with reviewed publishing and measurements."
+  },
+  "/business-readiness": {
+    "title": "Business Readiness — NEXUS FORGE",
+    "description": "Evidence-linked payments, operations, economics, privacy and ownership dossier."
+  },
+  "/deployment-planner": {
+    "title": "Deployment Planner — NEXUS FORGE",
+    "description": "Runtime capability matrices with regions, adapters and verified target evidence."
+  },
+  "/previews": {
+    "title": "Preview Factory — NEXUS FORGE",
+    "description": "Isolated branch previews with owner, expiry, budget and cleanup receipts."
+  },
+  "/environments": {
+    "title": "Environments & Secrets — NEXUS FORGE",
+    "description": "Revisioned variable manifests with server/browser classification and managed references."
+  },
+  "/releases": {
+    "title": "Release Pipeline — NEXUS FORGE",
+    "description": "Exact-commit releases with environment checks, explicit approval and live verification."
+  },
+  "/recovery": {
+    "title": "Rollback & Recovery — NEXUS FORGE",
+    "description": "Known-good versions, data compatibility checks and measured recovery drills."
+  },
+  "/diagnostics": {
+    "title": "Production Diagnostics — NEXUS FORGE",
+    "description": "Correlate failures, reproduce, propose bounded repair and verify in preview."
+  },
+  "/ownership": {
+    "title": "Ownership & Export — NEXUS FORGE",
+    "description": "Secret-free code, schema, config, test and document export with resource ownership."
+  },
+  "/comparative-validation": {
+    "title": "Comparative Validation — NEXUS FORGE",
+    "description": "Compare candidate benchmarks, tune criterion weights, inspect pairwise outcomes and export governed validation decisions."
+  },
+  "/novelty": {
+    "title": "Competitive Validation & Novelty — NEXUS FORGE",
+    "description": "Compare capability claims with cited prior art and evaluate competitive moat assumptions."
+  },
+  "/generality": {
+    "title": "Generality & Alignment Research — NEXUS FORGE",
+    "description": "Evaluate multi-domain transfer with held-out trial protocols and explicit recursive improvement containment bounds."
+  },
+  "/payment-readiness": {
+    "title": "Payment Activation Readiness — NEXUS FORGE",
+    "description": "Readiness-only payment boundary with explicit missing gates and a permanent release lock."
+  },
+  "/super-builder": { "title": "Super-Intelligence App Builder — NEXUS FORGE", "description": "Shape reviewed intent into a staged TanStack and Convex build contract." },
+  "/self-healing": { "title": "Self-Healing Platform Engine — NEXUS FORGE", "description": "Correlate diagnostic references with bounded repair proposals, rollback gates and sandbox verification states." },
+  "/agent-swarm": { "title": "Dynamic Agent Swarm Foundry — NEXUS FORGE", "description": "Plan specialist agent roles, capability assignments and bottleneck-driven orchestration." },
+  "/agent-watchdog": { "title": "Autonomous Agent Watchdog — NEXUS FORGE", "description": "Inspect agent pulse thresholds, dead-man failover policy and task rerouting decisions." },
+  "/arbitrage-router": { "title": "Multi-Model Arbitrage Router — NEXUS FORGE", "description": "Compare estimated model costs and latency under transparent routing thresholds." },
+  "/event-scrubber": { "title": "Interactive Event Scrubber — NEXUS FORGE", "description": "Step through supplied mission states and inspect historical text diffs without replaying side effects." },
+  "/audit-export": { "title": "Governed Compliance Packager — NEXUS FORGE", "description": "Assemble a reviewable audit dossier with a local SHA-256 integrity digest and JSON export." }
 }

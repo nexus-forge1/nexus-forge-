@@ -1,4 +1,5 @@
 import { v } from 'convex/values'
+import {boundedText} from './boundedResponse'
 import type { Id } from './_generated/dataModel'
 import { action, internalMutation, query } from './_generated/server'
 import { internal } from './_generated/api'
@@ -40,7 +41,7 @@ export const verifyRun = action({
     const read = async (url: string) => {
       const response = await fetch(url, { headers, redirect: 'error', signal: AbortSignal.timeout(15000) })
       if (!response.ok) throw new Error('GitHub CI evidence lookup failed (HTTP ' + response.status + '). Check access or rate limits and retry.')
-      return response.json()
+      return JSON.parse(await boundedText(response,512*1024))
     }
     const run = await read(base)
     if (!Number.isInteger(run.run_attempt) || run.run_attempt < 1) throw new Error('GitHub did not return a valid run attempt.')

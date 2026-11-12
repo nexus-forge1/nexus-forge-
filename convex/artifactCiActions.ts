@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto'
 import { Buffer } from 'node:buffer'
 import { v } from 'convex/values'
+import {boundedText} from './boundedResponse'
 import { action } from './_generated/server'
 import { internal } from './_generated/api'
 import { artifactCiRepository, artifactCiWorkflow, artifactCiCheckName, exactRunId, verifyExactCiReport } from './artifactCiProvenance'
@@ -15,7 +16,7 @@ function client(write: boolean) {
     if (allowed.includes(response.status)) return { status: response.status }
     if (!response.ok) throw new Error('GitHub artifact CI request failed (HTTP ' + response.status + '). Review repository access and retry.')
     if (response.status === 204) return null
-    return response.json()
+    return JSON.parse(await boundedText(response,1024*1024))
   }
 }
 export const publish = action({
@@ -23,9 +24,11 @@ export const publish = action({
   handler: async (ctx, args): Promise<{ workflowUrl: string }> => {
     const operatorId = await ctx.runQuery(internal.permissions.currentOperator, {})
     if (!operatorId) throw new Error('Authenticated operator session required')
-    const row = await ctx.runQuery(internal.artifactCi.context, { testRunId: args.testRunId, operatorId, currentRequired: true })
+    const row = await ctx.runQuery(internal.artifactCi.context, { testRunId: args.testRunId, operatorId, currentRequired: true }) as any
     validateBrowserPlan(row.criteria, row.plan)
-    const bundle = JSON.stringify({ version: 'artifact-ci-v1', testRunId: row._id, artifactId: row.artifactId, missionSnapshot: row.missionSnapshot, artifactSnapshot: row.artifactSnapshot, criteria: row.criteria, plan: row.plan })
+    const draftContent = JSON.stringify({ testRunId: row._id, missionSnapshot: row.missionSnapshot, artifactSnapshot: row.artifactSnapshot, criteria: row.criteria, plan: row.plan })
+    const draftBinding = { kind: 'artifact-ci-snapshot', draftKey: 'artifact-ci-' + createHash('sha256').update(row._id).digest('hex').slice(0, 16), revision: 1, contentDigest: createHash('sha256').update(draftContent).digest('hex') }
+    const bundle = JSON.stringify({ version: 'artifact-ci-v1', draftBinding, draftContent, testRunId: row._id, artifactId: row.artifactId, missionSnapshot: row.missionSnapshot, artifactSnapshot: row.artifactSnapshot, criteria: row.criteria, plan: row.plan })
     if (Buffer.byteLength(bundle) > 200000) throw new Error('This CI snapshot exceeds the 200 KB limit.')
     const snapshotSha = createHash('sha256').update(bundle).digest('hex')
     const branch = 'nexus-forge-checks/' + row._id, bundlePath = 'nexus-forge-checks/' + row._id + '/bundle.json'
@@ -50,7 +53,7 @@ export const publish = action({
     }
     const head = await gh('/git/ref/heads/' + state.branch)
     if (head.object.sha !== state.commitSha || state.snapshotSha !== snapshotSha) throw new Error('Published CI branch or snapshot changed. Do not dispatch this record.')
-    await gh('/actions/workflows/nexus-forge-artifact-checks.yml/dispatches', 'POST', { ref: state.branch, inputs: { snapshot_path: state.bundlePath, snapshot_sha: state.snapshotSha } })
+    await gh('/actions/workflows/nexus-forge-artifact-checks.yml/dispatches', 'POST', { ref: state.branch, inputs: { snapshot_path: state.bundlePath, snapshot_sha: state.snapshotSha, draft_key: draftBinding.draftKey, draft_revision: String(draftBinding.revision), draft_digest: draftBinding.contentDigest, draft_kind: draftBinding.kind } })
     await ctx.runMutation(internal.artifactCi.published, { testRunId: row._id, state: { ...state, dispatchedAt: Date.now() } })
     return { workflowUrl }
   },
@@ -60,7 +63,7 @@ export const importRun = action({
   handler: async (ctx, args): Promise<null> => {
     const operatorId = await ctx.runQuery(internal.permissions.currentOperator, {})
     if (!operatorId) throw new Error('Authenticated operator session required')
-    const row = await ctx.runQuery(internal.artifactCi.context, { testRunId: args.testRunId, operatorId, currentRequired: false })
+    const row = await ctx.runQuery(internal.artifactCi.context, { testRunId: args.testRunId, operatorId, currentRequired: false }) as any
     if (!row.ci?.dispatchedAt) throw new Error('Publish and dispatch this saved snapshot first.')
     const runId = exactRunId(args.runUrl.trim()), gh = client(false)
     const run = await gh('/actions/runs/' + runId)

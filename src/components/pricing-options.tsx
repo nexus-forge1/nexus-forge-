@@ -3,6 +3,33 @@ import { useQuery } from 'convex/react'
 import { tokenRates } from '../../convex/billingRates'
 import { api } from '../../convex/_generated/api'
 
+const pricingFaqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': [
+    {
+      '@type': 'Question',
+      'name': 'Is there a free plan or a free trial?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'No. NEXUS FORGE has no free plan and no free trial. Monthly subscriptions include usage credit, and prepaid usage credit purchases require no subscription. All prices are in USD.' },
+    },
+    {
+      '@type': 'Question',
+      'name': 'How is AI usage charged?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'Each model inference step reserves $1 of available usage credit. The final charge is twice the provider-reported dollar cost, or twice the published standard token-price calculation when no dollar cost is returned, rounded up to the nearest cent and capped at $1 per inference step. Unused reserved credit is returned.' },
+    },
+    {
+      '@type': 'Question',
+      'name': 'Are there automatic overage charges?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'No. There are no automatic overage charges, and AI execution pauses when available credit is insufficient.' },
+    },
+    {
+      '@type': 'Question',
+      'name': 'What happens to unused subscription credit?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'Monthly subscriptions renew until canceled. Included credit expires at the end of its billing period and does not become prepaid credit.' },
+    },
+  ],
+}
+
 export function PricingOptions() {
  const catalog=useQuery(api.billing.catalog,{})
  return <section className="workspace pricing-page" aria-label="Paid plans">
@@ -23,5 +50,6 @@ export function PricingOptions() {
   <p>There are no automatic overage charges. AI pauses when credit is insufficient. Hosting, domains and separately billed external services are excluded. Existing governance and deployment approval requirements still apply.</p>
   <p>Subscriptions currently fund the purchasing operator's workspace. Shared team-seat allocation and enterprise contracts require separate setup; no enterprise SLA, unlimited usage or shared-seat entitlement is sold by this checkout.</p>
   <div className="hero-actions"><Link to="/billing" className="secondary-button">Account balance & billing →</Link><Link to="/" className="ghost-button">Return to NEXUS FORGE →</Link></div>
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }} />
  </section>
 }

@@ -1,4 +1,4 @@
-export const productionOrigin = 'https://bphntw8kdojl9qvuifywyjtk.macaly.app'
+export const productionOrigin = 'https://www.network-x-ai.com'
 export const probeP95LimitMs = 5000
 export function inspectPublicShell(status: number, contentType: string, html: string) {
   if (status !== 200) return 'Expected HTTP 200'

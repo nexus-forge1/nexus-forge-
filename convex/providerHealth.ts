@@ -3,14 +3,10 @@ import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { requireOperator } from "./permissions";
 import { getAuthUserId } from "@convex-dev/auth/server";
-
-const configs = [
-  { name: "cloudflare", label: "Cloudflare Workers AI", url: "https://api.cloudflare.com/client/v4/accounts", key: "CLOUDFLARE_API_TOKEN", model: "@cf/meta/llama-3.1-8b-instruct-fp8-fast" },
-  { name: "groq", label: "Groq", url: "https://api.groq.com/openai/v1", key: "GROQ_API_KEY", model: "openai/gpt-oss-20b" },
-  { name: "cerebras", label: "Cerebras", url: "https://api.cerebras.ai/v1", key: "CEREBRAS_API_KEY", model: "gpt-oss-120b" },
-  { name: "openrouter", label: "OpenRouter (free-model fallback chain)", url: "https://openrouter.ai/api/v1", key: "OPENROUTER_API_KEY", model: "openai/gpt-oss-120b:free" },
-] as const;
-
+import { getProviderRoutingPlan, callOllamaModel } from "./aiProvider";
+import { OLLAMA_MODELS } from "./ollamaModels";
+import { aiAllowanceEnforced } from "./aiAllowance";
+export const providerHealthConfigs = OLLAMA_MODELS;
 const providerResult = v.object({
   name: v.string(),
   label: v.string(),
@@ -20,7 +16,7 @@ const providerResult = v.object({
   detail: v.string(),
 });
 
-export const recordBatch: any = (internalMutation as any)({
+export const recordBatch = internalMutation({
   args: { checkedAt: v.number(), operatorId: v.string(), results: v.array(providerResult) },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -31,7 +27,7 @@ export const recordBatch: any = (internalMutation as any)({
   },
 });
 
-export const history: any = (query as any)({
+export const history = query({
   args: {},
   returns: v.array(v.object({
     _id: v.id("providerHealthChecks"),
@@ -50,119 +46,50 @@ export const history: any = (query as any)({
   },
 });
 
-export const check: any = (action as any)({
+export const routingPlan = query({
   args: {},
-  returns: v.array(v.object({
-    name: v.string(),
-    label: v.string(),
-    configured: v.boolean(),
-    status: v.union(v.literal("healthy"), v.literal("degraded"), v.literal("offline"), v.literal("unconfigured")),
-    latencyMs: v.number(),
-    detail: v.string(),
-  })),
-  handler: async (ctx) => {
-    const operatorId = await requireOperator(ctx);
-    await ctx.runMutation((internal as any).billingDiagnostics.authorize, { ownerKey: operatorId });
-    const results: Array<{
-      name: string;
-      label: string;
-      configured: boolean;
-      status: "healthy" | "degraded" | "offline" | "unconfigured";
-      latencyMs: number;
-      detail: string;
-    }> = [];
+  returns: v.object({ roles: v.array(v.object({ role: v.string(), primary: v.string(), model: v.string(), failoverOrder: v.array(v.string()) })), fallbackOrder: v.array(v.string()) }),
+  handler: async () => getProviderRoutingPlan(),
+});
 
-    // A public /models catalog may respond even when a key is invalid.
-    // Exercise the authenticated chat-completions endpoint with a tiny prompt
-    // so health reflects actual inference readiness, not just reachability.
-    for (const provider of configs) {
-      const rawKey = process.env[provider.key]?.trim();
-      const key = rawKey?.replace(/^["\']|["\']$/g, "").trim();
-      if (!key || (provider.name === "cloudflare" && !process.env.CLOUDFLARE_ACCOUNT_ID?.trim())) {
-        results.push({ name: provider.name, label: provider.label, configured: false, status: "unconfigured", latencyMs: 0, detail: provider.name === "cloudflare" && !process.env.CLOUDFLARE_ACCOUNT_ID?.trim() ? "Cloudflare account ID is not configured." : "API key is not configured." });
-        continue;
-      }
 
-      const started = Date.now();
-      try {
-        const model = process.env[`${provider.name.toUpperCase()}_MODEL`]?.trim() || process.env[`${provider.key}_MODEL`]?.trim() || provider.model;
-        const openRouterModels = provider.name === "openrouter"
-          ? [model, process.env.OPENROUTER_SECONDARY_MODEL?.trim() || "meta-llama/llama-3.3-70b-instruct:free", "openrouter/free"]
-              .filter((candidate, index, all) => Boolean(candidate) && all.indexOf(candidate) === index)
-          : undefined;
-        const endpoint = provider.name === "cloudflare"
-          ? `${provider.url}/${process.env.CLOUDFLARE_ACCOUNT_ID?.trim()}/ai/v1/chat/completions`
-          : `${provider.url}/chat/completions`;
-        const response = await fetch(endpoint, {
-          method: "POST",
-          signal: AbortSignal.timeout(25000),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${key}`,
-            ...(provider.name === "openrouter" ? { "HTTP-Referer": "https://bphntw8kdojl9qvuifywyjtk.macaly.app", "X-Title": "NEXUS FORGE" } : {}),
-          },
-          body: JSON.stringify({
-            ...(openRouterModels ? { models: openRouterModels } : { model }),
-            messages: [{ role: "user", content: "Reply with the single word OK." }],
-            // Reasoning-capable models can spend most of a tiny token budget on
-            // internal reasoning and return no completion text. Use a realistic
-            // smoke-test budget so healthy Groq/Cerebras endpoints are not falsely degraded.
-            max_tokens: 512,
-            temperature: 0,
-          }),
-        });
-        const latencyMs = Date.now() - started;
-        const body = await response.text();
-
-        if (response.ok) {
-          let usable = false;
-          let diagnostic = "Endpoint responded, but returned no usable completion text.";
-          try {
-            const parsed = JSON.parse(body);
-            const choice = parsed?.choices?.[0];
-            const message = choice?.message;
-            usable = typeof message?.content === "string" && message.content.trim().length > 0;
-            if (!usable) {
-              const topKeys = parsed && typeof parsed === "object" ? Object.keys(parsed).slice(0, 8).join(",") : typeof parsed;
-              const choiceKeys = choice && typeof choice === "object" ? Object.keys(choice).slice(0, 8).join(",") : "none";
-              const messageKeys = message && typeof message === "object" ? Object.keys(message).slice(0, 8).join(",") : "none";
-              diagnostic = `No text content; top-level keys: ${topKeys}; choice keys: ${choiceKeys}; message keys: ${messageKeys}.`;
-            }
-          } catch {
-            diagnostic = "Endpoint returned HTTP success but its body was not valid JSON.";
-          }
-          results.push({
-            name: provider.name,
-            label: provider.label,
-            configured: true,
-            status: usable ? "healthy" : "degraded",
-            latencyMs,
-            detail: usable ? "Authenticated chat completion succeeded." : diagnostic,
-          });
-        } else {
-          const retryable = response.status === 408 || response.status === 409 || response.status === 425 || response.status === 429 || response.status >= 500;
-          const detail = body.slice(0, 180).replace(/\s+/g, " ").trim();
-          results.push({
-            name: provider.name,
-            label: provider.label,
-            configured: true,
-            status: retryable ? "degraded" : "offline",
-            latencyMs,
-            detail: `${response.status}: ${detail || "Provider rejected the completion request."}`,
-          });
-        }
-      } catch (error) {
-        results.push({
-          name: provider.name,
-          label: provider.label,
-          configured: true,
-          status: "offline",
-          latencyMs: Date.now() - started,
-          detail: error instanceof Error ? error.message.slice(0, 180) : String(error).slice(0, 180),
-        });
-      }
-    }
-    await ctx.runMutation((internal as any).providerHealth.recordBatch, { checkedAt: Date.now(), operatorId, results });
-    return results;
-  },
+export const connection = query({
+ args: {}, returns: v.object({ configured: v.boolean(), allowanceEnforced: v.boolean() }),
+ handler: async () => ({ configured: Boolean(process.env.OLLAMA_API_KEY?.trim()), allowanceEnforced: aiAllowanceEnforced() }),
+});
+export const check = action({
+ args: {}, returns: v.array(providerResult),
+ handler: async ctx => {
+  const operatorId = await requireOperator(ctx);
+  await ctx.runMutation((internal as any).billingDiagnostics.authorize, { ownerKey: operatorId });
+  const results: Array<{name:string;label:string;configured:boolean;status:'healthy'|'degraded'|'offline'|'unconfigured';latencyMs:number;detail:string}> = [];
+  let accountRejected = false;
+  for (const provider of OLLAMA_MODELS) {
+   const label = 'Ollama Cloud · ' + provider.label + ' (' + provider.model + ')';
+   if (!process.env.OLLAMA_API_KEY?.trim()) {
+    results.push({name:provider.name,label,configured:false,status:'unconfigured',latencyMs:0,detail:'Set OLLAMA_API_KEY in the server environment.'}); continue;
+   }
+   if (accountRejected) {
+    results.push({name:provider.name,label,configured:true,status:'degraded',latencyMs:0,detail:'Not tested: account authentication or quota failed earlier in this batch.'}); continue;
+   }
+   const started = Date.now();
+   let invocationId, observedReports = 0;
+   try {
+    invocationId = await ctx.runMutation(internal.providerUsage.begin, {ownerKey:operatorId,stage:'ollama-health-'+provider.name,role:'research'});
+    await callOllamaModel(provider.name, 'Reply with the single word OK.', 512, async usage => {
+     observedReports++;
+     await ctx.runMutation(internal.manifestIntelligence.recordProviderUsageInternal, {ownerKey:operatorId,...usage,invocationId:invocationId!,reportOrdinal:observedReports});
+    });
+    await ctx.runMutation(internal.providerUsage.finish,{invocationId,outcome:'succeeded',observedReports});
+    results.push({name:provider.name,label,configured:true,status:'healthy',latencyMs:Date.now()-started,detail:'Authenticated Ollama Cloud inference succeeded.'});
+   } catch(error) {
+    if(invocationId)try{await ctx.runMutation(internal.providerUsage.finish,{invocationId,outcome:'failed',observedReports})}catch{/* Retain pending receipt for review. */}
+    const status = (error as {status?:number})?.status;
+    accountRejected = status === 401 || status === 403 || status === 429;
+    results.push({name:provider.name,label,configured:true,status:'degraded',latencyMs:Date.now()-started,detail:status ? 'Ollama rejected inference (HTTP '+status+').' : 'Inference or accounting could not be confirmed; inspect the invocation before repeating.'});
+   }
+  }
+  await ctx.runMutation((internal as any).providerHealth.recordBatch,{checkedAt:Date.now(),operatorId,results});
+  return results;
+ },
 });

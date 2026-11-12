@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAction, useQuery } from 'convex/react'
 import { useState } from 'react'
@@ -9,10 +10,7 @@ import metadata from '../metadata.json'
 
 export const Route = createFileRoute('/readiness')({
   component: ReadinessChecker,
-  head: () => ({
-    title: metadata['/readiness']?.title ?? metadata.default?.title,
-    meta: [{ name: 'description', content: metadata['/readiness']?.description ?? metadata.default?.description }],
-  }),
+  head: () => routeHead("/readiness"),
 })
 
 type RunSummary = { _id: Id<'readinessRuns'>; siteUrl: string; label: string; status: 'pass' | 'fail'; passedCount: number; failedCount: number; totalCount: number; ranAt: number }

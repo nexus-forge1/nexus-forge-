@@ -2,6 +2,7 @@ import { action, internalAction, internalMutation, mutation, query } from "./_ge
 import { v } from "convex/values"
 import { internal } from "./_generated/api"
 import { requireOperator } from "./permissions"
+import { fetchResearchPageViaGateway } from "./research"
 
 type CheckSpec = { key: string; name: string; criterion: string; severity: "required" | "warning" }
 type CheckResult = CheckSpec & { status: "pass" | "fail"; detail: string; evidence: string }
@@ -17,6 +18,7 @@ const CHECKS: CheckSpec[] = [
 
 export function normalizeUrl(siteUrl: string): string {
   let normalized = siteUrl.trim()
+  if (normalized.length > 2048) throw new Error('Deployment URL must be at most 2048 characters')
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(normalized) && !/^https?:\/\//i.test(normalized)) throw new Error("Only http and https URLs are supported")
   if (!/^https?:\/\//i.test(normalized)) normalized = `https://${normalized}`
   let parsed: URL
@@ -40,21 +42,12 @@ export function normalizeUrl(siteUrl: string): string {
 
 async function probe(url: string): Promise<{ ok: boolean; status: number; headers: string; bodySnippet: string; error?: string; finalUrl?: string }> {
   try {
-    let currentUrl = normalizeUrl(url)
-    let response: Response | undefined
-    // Validate every redirect target before issuing the next request; never let fetch auto-follow into a private network.
-    for (let hop = 0; hop <= 5; hop++) {
-      response = await fetch(currentUrl, { redirect: "manual", signal: AbortSignal.timeout(10000) })
-      if (![301, 302, 303, 307, 308].includes(response.status)) break
-      const location = response.headers.get("location")
-      if (!location) break
-      if (hop === 5) throw new Error("Redirect limit exceeded")
-      currentUrl = normalizeUrl(new URL(location, currentUrl).toString())
-    }
-    if (!response) throw new Error("No response received")
-    const headers = JSON.stringify(Object.fromEntries(response.headers.entries()))
-    const body = await response.text().catch(() => "")
-    return { ok: response.ok, status: response.status, headers, bodySnippet: body.slice(0, 5000), finalUrl: currentUrl }
+    const target = normalizeUrl(url)
+    // The gateway resolves and pins public addresses and validates every redirect.
+    // HTTP input remains reportable as a failed HTTPS check, without fetching it.
+    const page = await fetchResearchPageViaGateway(target)
+    return { ok: page.status >= 200 && page.status < 300, status: page.status,
+      headers: JSON.stringify({"content-type":page.contentType}), bodySnippet: page.body.slice(0,5000), finalUrl: page.finalUrl }
   } catch (error) {
     return { ok: false, status: 0, headers: "{}", bodySnippet: "", error: error instanceof Error ? error.message : String(error), finalUrl: url }
   }
@@ -63,7 +56,7 @@ async function probe(url: string): Promise<{ ok: boolean; status: number; header
 async function runChecks(url: string): Promise<CheckResult[]> {
   const first = await probe(url)
   const finalUrl = first.finalUrl ?? url
-  const second = finalUrl !== url ? await probe(finalUrl) : first
+  const second = first
   const html = second.bodySnippet
   const lower = html.toLowerCase()
   return CHECKS.map(spec => {
@@ -110,6 +103,7 @@ export const run: any = (action as any)({
   returns: v.object({ runId: v.id("readinessRuns"), status: v.union(v.literal("pass"), v.literal("fail")), passedCount: v.number(), failedCount: v.number(), totalCount: v.number() }),
   handler: async (ctx: any, args: any) => {
     const operatorId = await requireOperator(ctx)
+    if (args.label?.trim().length > 160) throw new Error('Readiness label must be at most 160 characters')
     const siteUrl = normalizeUrl(args.siteUrl)
     const results = await runChecks(siteUrl)
     const passedCount = results.filter(r => r.status === "pass").length

@@ -1,3 +1,4 @@
+import { haveDistinctStrategyIdentities } from './strategyDiversity';
 export type ManifestStrategyCandidate = { name: string; mechanism: string; prerequisites: string; timeToEvidence: string; expectedValue: string; reversibility: string; failureMode: string; unverifiedAssumptions: string; };
 export type ManifestStrategyExtraction = { blueprint: string; strategies: ManifestStrategyCandidate[]; foundBlock: boolean; validJson: boolean; };
 const fields = ["name", "mechanism", "prerequisites", "timeToEvidence", "expectedValue", "reversibility", "failureMode", "unverifiedAssumptions"] as const;
@@ -26,5 +27,6 @@ export function extractManifestStrategies(generated: string): ManifestStrategyEx
     }
     strategies.push(Object.fromEntries(fields.map((field) => [field, (record[field] as string).trim().slice(0, 1000)])) as unknown as ManifestStrategyCandidate);
   }
+  if (!haveDistinctStrategyIdentities(strategies)) return { blueprint: match ? generated.replace(match[0], "").trim() : "", strategies: [], foundBlock: true, validJson: false };
   return { blueprint: match ? generated.replace(match[0], "").trim() : "", strategies, foundBlock: true, validJson: true };
 }

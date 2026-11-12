@@ -1,16 +1,19 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { MissionControl } from '../components/mission-control'
 import { WorkspaceLoading } from '../components/workspace-loading'
 import { WorkspaceLayout } from '../components/workspace-layout'
+import { GuidedWorkflowGate } from '../components/guided-workflow-gate'
+import { PreExecutionSafetyModal } from '../components/pre-execution-safety-modal'
 import { useMissionGuide } from '../lib/use-mission-guide'
 import { guidedWorkspaces } from '../lib/workspaces'
 
-export const Route = createFileRoute('/workflow')({ component: WorkflowPage })
+export const Route = createFileRoute('/workflow')({ head: () => routeHead("/workflow"), component: WorkflowPage })
 
 export function WorkflowPage() {
   const { missionId, mission, stages, nextStage, completed, evidenceLoading } = useMissionGuide()
   if (evidenceLoading) return <WorkspaceLoading title="Guided Workflow & Feature Guide" />
-  return <WorkspaceLayout title="Guided Workflow & Feature Guide" eyebrow="OPERATOR HANDBOOK / START HERE">
+  return <WorkspaceLayout title="Guided Workflow & Feature Guide" eyebrow="OPERATOR HANDBOOK / START HERE"><PreExecutionSafetyModal/>
     <section className="workspace">
       <div className="hero-grid">
         <div className="hero-copy">
@@ -79,5 +82,6 @@ export function WorkflowPage() {
         {missionId ? <MissionControl missionId={missionId} /> : <p>Select a mission to load execution, incident, and outcome details.</p>}
       </div>
     </section>
+    <GuidedWorkflowGate/>
   </WorkspaceLayout>
 }

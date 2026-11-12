@@ -1,3 +1,4 @@
+import {admitEvidence} from './evidenceAdmission'
 import { v } from 'convex/values'
 import { internalMutation, query } from './_generated/server'
 import { requireOperator, requireOwnedMission } from './permissions'
@@ -9,6 +10,7 @@ export const begin = internalMutation({
   handler: async (ctx, args) => {
     const mission = await ctx.db.get(args.missionId)
     if (!mission) throw new Error('Mission not found')
+    await admitEvidence(ctx.db.query('platformTaskRuns').withIndex('by_mission',q=>q.eq('missionId',args.missionId)),'Mission task')
     return await ctx.db.insert('platformTaskRuns', { ...args, ownerKey: mission.ownerKey, status: 'pending', startedAt: Date.now() })
   },
 })
@@ -57,7 +59,7 @@ export async function recordDeliveryTask(ctx: any, delivery: any, success: boole
 
 const summaryRow = v.object({
   kind: taskKind, successes: v.number(), failures: v.number(), pending: v.number(),
-  successRate: v.union(v.number(), v.null()), meanSeconds: v.union(v.number(), v.null()), timedCount: v.number(),
+  successRate: v.union(v.number(), v.null()), failureRate: v.union(v.number(), v.null()), meanSeconds: v.union(v.number(), v.null()), medianSeconds: v.union(v.number(), v.null()), p95Seconds: v.union(v.number(), v.null()), oldestPendingSeconds: v.union(v.number(), v.null()), timedCount: v.number(),
 })
 export const summary = query({
   args: { missionId: v.optional(v.id('missions')) },
@@ -74,9 +76,16 @@ export const summary = query({
       const successes = group.filter(r => r.status === 'success').length
       const failures = group.filter(r => r.status === 'failed').length
       const timed = group.filter(r => r.finishedAt !== undefined && r.status !== 'pending')
-      return { kind, successes, failures, pending: group.filter(r => r.status === 'pending').length,
-        successRate: successes + failures ? successes / (successes + failures) * 100 : null,
-        meanSeconds: timed.length ? timed.reduce((total, r) => total + (r.finishedAt! - r.startedAt) / 1000, 0) / timed.length : null,
+      const durations = timed.map(r => Math.max(0, r.finishedAt! - r.startedAt) / 1000).sort((a, b) => a - b)
+      const pendingRows = group.filter(r => r.status === 'pending')
+      const terminal = successes + failures
+      return { kind, successes, failures, pending: pendingRows.length,
+        successRate: terminal ? successes / terminal * 100 : null,
+        failureRate: terminal ? failures / terminal * 100 : null,
+        meanSeconds: durations.length ? durations.reduce((total, seconds) => total + seconds, 0) / durations.length : null,
+        medianSeconds: durations.length ? durations[Math.ceil(durations.length * 0.5) - 1] : null,
+        p95Seconds: durations.length ? durations[Math.ceil(durations.length * 0.95) - 1] : null,
+        oldestPendingSeconds: pendingRows.length ? Math.max(...pendingRows.map(r => Math.max(0, Date.now() - r.startedAt) / 1000)) : null,
         timedCount: timed.length }
     })
     return { rows, sampled: sample.length, truncated: records.length > 100 }

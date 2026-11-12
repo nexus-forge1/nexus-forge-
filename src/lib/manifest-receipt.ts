@@ -1,3 +1,4 @@
+import { haveDistinctStrategyIdentities } from '../../convex/strategyDiversity'
 const requiredStrategyFields = ['name', 'mechanism', 'prerequisites', 'timeToEvidence', 'expectedValue', 'reversibility', 'failureMode', 'unverifiedAssumptions'] as const
 
 export function hasCompleteStrategyShape(value: string): boolean {
@@ -16,5 +17,8 @@ export function getReceiptStrategyRows<T extends StrategyReceiptRow>(rows: T[], 
 }
 
 export function getCompleteReceiptStrategies<T extends StrategyReceiptRow>(rows: T[], blueprintKey: string): T[] {
-  return getReceiptStrategyRows(rows, blueprintKey).filter(row => hasCompleteStrategyShape(row.value))
+  const matched = getReceiptStrategyRows(rows, blueprintKey)
+  if (new Set(matched.map(row => row.key)).size !== matched.length) return []
+  const complete = matched.filter(row => hasCompleteStrategyShape(row.value))
+  return haveDistinctStrategyIdentities(complete.map(row => JSON.parse(row.value))) ? complete : []
 }

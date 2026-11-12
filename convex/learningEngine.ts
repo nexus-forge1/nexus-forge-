@@ -1,3 +1,4 @@
+import {admitEvidence,boundEvidence} from './evidenceAdmission'
 import type { MutationCtx } from "./_generated/server"
 import type { Id } from "./_generated/dataModel"
 import { evaluateProductOutcome } from "./productOutcomeModel"
@@ -30,7 +31,7 @@ export const listExperiments = query({
     const ownerKey = await getAuthUserId(ctx);
     if (!ownerKey) return [];
     const rows = await ctx.db.query("memories")
-      .withIndex("by_owner", q => q.eq("ownerKey", ownerKey))
+      .withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "learning-experiment"))
       .order("desc")
       .take(100);
     return rows.filter(row => row.category === "learning-experiment").slice(0, 12)
@@ -61,6 +62,8 @@ export const recordExperiment = mutation({
   handler: async (ctx, args) => {
     const ownerKey = await getAuthUserId(ctx);
     if (!ownerKey) throw new Error("Authenticated operator session required.");
+    boundEvidence(args,'Learning experiment',32768);
+    await admitEvidence(ctx.db.query("memories").withIndex("by_owner_category",q=>q.eq("ownerKey",ownerKey).eq("category","learning-experiment")),'Learning experiment');
     const name = args.name.trim().slice(0, 120);
     const hypothesis = args.hypothesis.trim().slice(0, 1200);
     let linkedManifestStrategy: { id: string; name: string } | null = null;
@@ -164,8 +167,9 @@ export const recordReuseComparison = mutation({
     const benefit = direction === "higher" ? delta : -delta
     const outcome = Math.abs(benefit) < 0.000001 ? "unchanged" : benefit > 0 ? "improved" : "regressed"
     const key = "strategy-reuse:" + lesson._id + ":" + baseline._id + ":" + candidate._id
-    const existing = await ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "strategy-reuse-comparison")).filter(q => q.eq(q.field("key"), key)).first()
+    const existing = await ctx.db.query("memories").withIndex("by_owner_category_key", q => q.eq("ownerKey", ownerKey).eq("category", "strategy-reuse-comparison").eq("key",key)).first()
     if (existing) return existing._id
+    await admitEvidence(ctx.db.query("memories").withIndex("by_owner_category",q=>q.eq("ownerKey",ownerKey).eq("category","strategy-reuse-comparison")),'Strategy reuse comparison')
     const record = { version: "strategy-reuse-v1", strategyId: strategy._id, strategyKey: strategy.key, lessonId: lesson._id, lesson: reviewed.lesson.slice(0, 1600), applicability: reviewed.applicability.slice(0, 1000), sourceReceiptId: link._id, handoffAt: link._creationTime, missionId: mission._id, baseline: snapshot(baseline, baselineMission.title), candidate: snapshot(candidate, mission.title), direction, delta, outcome, applied: true, notes: args.notes.trim(), recordedAt: Date.now(), evidenceStatus: candidate.metric === "actual runtime cost" ? "operator-recorded spend; operator-attested application and comparability" : "recorded delivery-readiness measurements; operator-attested application and comparability", limitation: "Observed association only. No causal proof, automatic promotion or business-outcome certification." }
     return ctx.db.insert("memories", { ownerKey, missionId: mission._id, category: "strategy-reuse-comparison", key, value: JSON.stringify(record), confidence: 0.5, source: "lesson-handoff-measurement-comparison" })
   },
@@ -183,7 +187,7 @@ async function loadReuseProvenance(ctx: MutationCtx, missionId: Id<"missions">, 
     const strategyId = ctx.db.normalizeId("memories", reviewed.manifestStrategyId)
     const strategy = strategyId ? await ctx.db.get(strategyId) : null
     if (!strategy || strategy.ownerKey !== ownerKey || strategy.category !== "manifest-strategy") throw new ConvexError("Linked Manifest strategy not found in your private workspace.")
-    const link = await ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "mission-source")).filter(q => q.and(q.eq(q.field("missionId"), mission._id), q.eq(q.field("key"), "source:" + lesson._id), q.eq(q.field("source"), "mission-source-link"))).first()
+    const link = await ctx.db.query("memories").withIndex("by_owner_mission_category", q => q.eq("ownerKey",ownerKey).eq("missionId",mission._id).eq("category","mission-source")).filter(q=>q.and(q.eq(q.field("key"),"source:"+lesson._id),q.eq(q.field("source"),"mission-source-link"))).first()
     if (!link) throw new ConvexError("This mission was not created from the selected reviewed lesson.")
     let linkedId: unknown
     try { linkedId = JSON.parse(link.value).sourceMemoryId } catch { throw new ConvexError("Mission source receipt is malformed.") }
@@ -210,8 +214,9 @@ export const recordProductReuseComparison = mutation({
     const benefit = candidateScore.direction === "higher" ? delta : -delta
     const outcome = Math.abs(benefit) < 0.000001 ? "unchanged" : benefit > 0 ? "improved" : "regressed"
     const key = "strategy-reuse-product:" + lesson._id + ":" + baseline._id + ":" + candidate._id
-    const existing = await ctx.db.query("memories").withIndex("by_owner_category", q => q.eq("ownerKey", ownerKey).eq("category", "strategy-reuse-comparison")).filter(q => q.eq(q.field("key"), key)).first()
+    const existing = await ctx.db.query("memories").withIndex("by_owner_category_key", q => q.eq("ownerKey", ownerKey).eq("category", "strategy-reuse-comparison").eq("key",key)).first()
     if (existing) return existing._id
+    await admitEvidence(ctx.db.query("memories").withIndex("by_owner_category",q=>q.eq("ownerKey",ownerKey).eq("category","strategy-reuse-comparison")),'Strategy reuse comparison')
     const record = { version: "strategy-reuse-product-v1", strategyId: strategy._id, strategyKey: strategy.key, lessonId: lesson._id, lesson: reviewed.lesson.slice(0, 1600), applicability: reviewed.applicability.slice(0, 1000), sourceReceiptId: link._id, handoffAt: link._creationTime, missionId: mission._id, baseline: snapshot(baseline, baselineMission.title, baselineScore.actual), candidate: snapshot(candidate, mission.title, candidateScore.actual), direction: candidateScore.direction, delta, outcome, applied: true, notes: args.notes.trim(), recordedAt: Date.now(), evidenceStatus: baseline.provenance + " / " + candidate.provenance + " product observations; operator-attested application and comparable conditions", limitation: "Observed association only; matching fields do not prove comparable populations, causal effectiveness, independent revenue verification or strategy promotion." }
     return ctx.db.insert("memories", { ownerKey, missionId: mission._id, category: "strategy-reuse-comparison", key, value: JSON.stringify(record), confidence: 0.5, source: "lesson-handoff-product-comparison" })
   },

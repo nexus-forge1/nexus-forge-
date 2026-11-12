@@ -1,20 +1,23 @@
+import { routeHead } from '../lib/route-metadata'
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useAction,useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { WorkspaceLayout } from '../components/workspace-layout'
 import { PricingOptions } from '../components/pricing-options'
-export const Route=createFileRoute('/billing')({component:Billing})
+export const Route=createFileRoute('/billing')({ head: () => routeHead("/billing"),component:Billing})
 function Account(){
+ const connection=useQuery(api.providerHealth.connection,{})
  const mine=useQuery(api.billing.mine,{}),portal=useAction(api.payments.portal),[error,setError]=useState(''),[busy,setBusy]=useState(false)
  const money=(n:number)=>'$'+(n/100).toFixed(2)
  return <section className="workspace"><div className="glass-card research-card"><h2>Your billing account</h2>
+ {connection&&!connection.allowanceEnforced&&<p role="status">AI allowance is temporarily paused. New Ollama Cloud requests use the operator’s provider account directly; app usage credits and $1 step reservations are not required. Previous balances and reservations remain recorded.</p>}
  {!mine?<p role="status">Loading balance…</p>:<>
  <p>Mode: <strong>{mine.mode==='live'?'Real payments':mine.mode==='test'?'Test payments · no real charges':'Payments awaiting activation'}</strong></p>
  <p>Prepaid: {money(mine.account?.prepaid??0)} · Available monthly credit: {money(mine.account?.included??0)} · Reserved: {money(mine.account?.held??0)}</p>
  <p>Plan: {mine.account?.plan??'No subscription'} · Status: {mine.account?.subscriptionStatus??'No paid subscription'}</p>
  {(mine.account?.cancelAtPeriodEnd||!!mine.account?.cancelAt)&&<p role="status">Cancellation scheduled. Your subscription ends {new Date(mine.account.cancelAt||mine.account.expiresAt).toLocaleDateString()}.</p>}
- {!!mine.account?.unresolved&&<p role="alert">Usage cost requires billing review. New AI execution is paused; reserved funds have not been finalized as charges.</p>}
+ {!!mine.account?.unresolved&&<p role="alert">Usage cost requires billing review. Reserved funds have not been finalized as charges. This historical review does not block new Ollama requests while the AI allowance is paused.</p>}
  {mine.account?.frozen&&<p role="alert">Billing is frozen pending refund review.</p>}
  <button className="secondary-button" disabled={busy||!mine.receipts.length} onClick={async()=>{
   setBusy(true);setError('')

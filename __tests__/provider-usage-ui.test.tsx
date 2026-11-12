@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ProviderUsageLedger } from '../src/components/provider-usage-ledger'
-const mocks = vi.hoisted(() => ({ results: [] as any[], status: 'LoadingFirstPage', loadMore: vi.fn(), query: vi.fn(), missionId: 'mission-one' as string | undefined }))
-vi.mock('convex/react', () => ({ usePaginatedQuery: (ref: any, args: any) => { mocks.query(args); return { results: mocks.results, status: mocks.status, loadMore: mocks.loadMore } } }))
+const mocks = vi.hoisted(() => ({ results: [] as any[], status: 'LoadingFirstPage', loadMore: vi.fn(), query: vi.fn(), summaryQuery: vi.fn(), summary: undefined as any, missionId: 'mission-one' as string | undefined }))
+vi.mock('convex/react', () => ({ usePaginatedQuery: (ref: any, args: any) => { mocks.query(args); return { results: mocks.results, status: mocks.status, loadMore: mocks.loadMore } }, useQuery: (ref: any, args: any) => { mocks.summaryQuery(args); return mocks.summary } }))
 vi.mock('../src/hooks/use-active-mission', () => ({ useActiveMission: () => ({ missionId: mocks.missionId }) }))
-beforeEach(() => { cleanup(); mocks.results = []; mocks.status = 'LoadingFirstPage'; mocks.missionId = 'mission-one'; vi.clearAllMocks() })
+beforeEach(() => { cleanup(); mocks.results = []; mocks.status = 'LoadingFirstPage'; mocks.summary = undefined; mocks.missionId = 'mission-one'; vi.clearAllMocks() })
 describe('provider invocation history UI', () => {
   it('distinguishes loading, missing history and unknown historical usage', () => {
     const view = render(<ProviderUsageLedger />)

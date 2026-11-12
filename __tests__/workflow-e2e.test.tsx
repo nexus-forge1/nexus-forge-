@@ -9,7 +9,7 @@ const { activeMission } = vi.hoisted(() => ({
     mission: {
       title: "QA test mission",
       mission: "Create and verify a small demo artifact",
-      status: "complete",
+      status: "running",
       approved: true,
       budget: 0,
     },
