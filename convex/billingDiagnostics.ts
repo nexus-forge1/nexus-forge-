@@ -1,8 +1,10 @@
+import { aiAllowanceEnforced } from './aiAllowance'
 import { v } from 'convex/values'
 import { internalMutation } from './_generated/server'
 import { accountFor } from './billing'
 import { executionMode } from './billingUsage'
 export const authorize=internalMutation({args:{ownerKey:v.string()},returns:v.null(),handler:async(ctx,a)=>{
+ if(!aiAllowanceEnforced())return null
  const mode=executionMode();if(!mode)return null
  const account=await accountFor(ctx,a.ownerKey,mode),now=Date.now(),day=Math.floor(now/86400000)
  if(!account||account.frozen||account.unresolved>0||(account.expiresAt>now?account.included:0)+account.prepaid<100)throw new Error('Funded paid account required for provider diagnostics. Open Billing.')

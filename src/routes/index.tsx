@@ -1,11 +1,13 @@
+import { routeHead } from '../lib/route-metadata'
 import { expansionPages } from '../components/expansion-guide'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { WorkspaceLayout } from '../components/workspace-layout'
+import { HomeLandingSeo } from '../components/home-landing'
 import { useMissionGuide } from '../lib/use-mission-guide'
 import { derivePageState } from '../lib/page-progress'
 import { guidedWorkspaces } from '../lib/workspaces'
 
-export const Route = createFileRoute('/')({ component: OverviewPage })
+export const Route = createFileRoute('/')({ head: () => routeHead("/"), component: OverviewPage })
 
 export function OverviewPage() {
   const { missionId, mission, agents, research, artifacts, deliveries, councilComplete, sourceLinks = [], nextStage, recovery, evidenceLoading, stages: missionStages } = useMissionGuide()
@@ -36,6 +38,7 @@ export function OverviewPage() {
   const recorded = stages.filter(stage => stage.done).length
   const progress = Math.round(recorded / stages.length * 100)
   const status = nextStage?.note ?? 'All mission checkpoints have recorded evidence. Continue to Learning Engine to compare results; page inventory coverage is tracked separately.'
+  // The landing is the server-rendered, crawler-visible state; the sign-in form and workspace replace it after the client resolves the session.
   return <WorkspaceLayout title="Mission Overview" eyebrow="NEXUS FORGE / CONTROL TOWER">
     <section className="workspace">
       {!evidenceLoading && <section className="glass-card research-card" aria-labelledby="getting-started-title" data-testid="account-mission-handoff">

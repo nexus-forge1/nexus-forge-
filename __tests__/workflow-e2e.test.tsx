@@ -9,7 +9,7 @@ const { activeMission } = vi.hoisted(() => ({
     mission: {
       title: "QA test mission",
       mission: "Create and verify a small demo artifact",
-      status: "complete",
+      status: "running",
       approved: true,
       budget: 0,
     },
@@ -105,3 +105,5 @@ describe("isolated end-to-end workflow journey", () => {
     expect(screen.getByRole("link", { name: /Continue mission sequence/ })).toHaveAttribute("href", "/delivery");
   });
 });
+
+vi.mock('convex/react',()=>({useQuery:()=>undefined,useMutation:()=>vi.fn(),useConvexAuth:()=>({isAuthenticated:true,isLoading:false})}))

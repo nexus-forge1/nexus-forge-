@@ -1,0 +1,27 @@
+import { useMemo, useState } from 'react'
+import { useAction, useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+
+type Asset={key:string;kind:string;digest:string;exportable:boolean}
+type FileSpec={path:string;content:string;language:string}
+const assetsDefault:Asset[]=[{key:'source-code',kind:'repository',digest:'source-manifest-digest-001',exportable:true},{key:'schema-export',kind:'schema',digest:'schema-manifest-digest-001',exportable:true},{key:'secret-values',kind:'credentials',digest:'excluded-sensitive-assets',exportable:false}]
+const filesDefault:FileSpec[]=[{path:'README.md',content:'Repository handoff manifest. Replace with approved source content before export.',language:'markdown'}]
+export function AssetManifestExitPortal(){
+ const [manifestKey,setManifestKey]=useState('nexus-exit-manifest-001');const [assetsText,setAssetsText]=useState(JSON.stringify(assetsDefault,null,2));const [filesText,setFilesText]=useState(JSON.stringify(filesDefault,null,2))
+ const [excludeSensitive,setExcludeSensitive]=useState(true);const [requestKey,setRequestKey]=useState('request-exit-001');const [approverKey,setApproverKey]=useState('');const [decision,setDecision]=useState<'approved'|'rejected'>('rejected')
+ const [manifestDigest,setManifestDigest]=useState('');const [bundleDigest,setBundleDigest]=useState('');const [assets,setAssets]=useState<Asset[]>(assetsDefault)
+ const [busy,setBusy]=useState(false);const [notice,setNotice]=useState('')
+ const parsedAssets=useMemo<Asset[]>(()=>{try{const x=JSON.parse(assetsText);return Array.isArray(x)?x.filter(v=>v&&typeof v.key==='string'&&typeof v.kind==='string'&&typeof v.digest==='string'&&typeof v.exportable==='boolean'):[]}catch{return []}},[assetsText])
+ const files=useMemo<FileSpec[]>(()=>{try{const x=JSON.parse(filesText);return Array.isArray(x)?x.filter(v=>v&&typeof v.path==='string'&&typeof v.content==='string'&&typeof v.language==='string'):[]}catch{return []}},[filesText])
+ const compile=useAction(api.scopeDFunctionsBatchTwo.compileComprehensiveAssetManifest)
+ const bundle=useAction(api.scopeDFunctionsBatchTwo.generateDetachedRepositoryBundle)
+ const signoff=useMutation(api.scopeDFunctionsBatchTwo.recordPermanentExitSignoff)
+ const run=async(task:()=>Promise<unknown>,label:string)=>{setBusy(true);setNotice('');try{setNotice(label+': '+JSON.stringify(await task()))}catch(e){setNotice(e instanceof Error?e.message:'Operation failed')}finally{setBusy(false)}}
+ const makeManifest=()=>void run(async()=>{const result=await compile({manifestKey,assets:parsedAssets});setAssets(parsedAssets);setManifestDigest(result.manifestDigest);return result},'Asset manifest')
+ const makeBundle=()=>void run(async()=>{if(!manifestDigest)throw new Error('Compile the asset manifest first');const result=await bundle({files,manifestDigest,excludeSensitive});setBundleDigest(result.bundleDigest);return result},'Detached repository bundle')
+ const saveSignoff=()=>void run(()=>signoff({requestKey,manifestKey,approverKey,decision,assets,bundleDigest}),'Permanent exit sign-off')
+ return <section className="dashboard-section" aria-labelledby="d36-title"><div className="glass-card research-card"><p className="section-kicker">SCOPE D · D36</p><h2 id="d36-title">Asset manifest and permanent exit portal</h2><p>Compiles manifest and bundle evidence for review. It does not download repository files, transfer ownership, expose secrets, or delete resources.</p>
+ <label>Manifest key<input value={manifestKey} onChange={e=>setManifestKey(e.target.value)}/></label><label>Assets (JSON array of key/kind/digest/exportable objects)<textarea rows={6} value={assetsText} onChange={e=>setAssetsText(e.target.value)}/></label><button className="primary-button" disabled={busy||!manifestKey.trim()||!parsedAssets.length} onClick={makeManifest}>Compile comprehensive asset manifest</button>{manifestDigest&&<p>Manifest digest: <code>{manifestDigest}</code></p>}
+ <label>Bundle files (JSON array of path/content/language objects)<textarea rows={5} value={filesText} onChange={e=>setFilesText(e.target.value)}/></label><label><input type="checkbox" checked={excludeSensitive} onChange={e=>setExcludeSensitive(e.target.checked)}/> Exclude sensitive paths and private-key material</label><button className="primary-button" disabled={busy||!manifestDigest||!files.length} onClick={makeBundle}>Generate detached repository bundle</button>{bundleDigest&&<p>Bundle digest: <code>{bundleDigest}</code></p>}
+ <h3>Permanent exit sign-off</h3><label>Request key<input value={requestKey} onChange={e=>setRequestKey(e.target.value)}/></label><label>Approver key<input value={approverKey} onChange={e=>setApproverKey(e.target.value)}/></label><label>Decision<select value={decision} onChange={e=>setDecision(e.target.value as typeof decision)}><option value="rejected">Reject / hold</option><option value="approved">Approve</option></select></label><p>Approval is rejected by the backend if any asset is marked non-exportable.</p><button className="primary-button" disabled={busy||!requestKey.trim()||!manifestKey.trim()||!approverKey.trim()||!manifestDigest||!bundleDigest||!assets.length} onClick={saveSignoff}>Record permanent exit sign-off</button>{notice&&<p role="status" aria-live="polite">{notice}</p>}</div></section>
+}

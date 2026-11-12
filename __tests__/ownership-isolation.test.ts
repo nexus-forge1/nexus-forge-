@@ -14,26 +14,16 @@ function identity(subject: string) {
   };
 }
 
-async function seedMission(t: ReturnType<typeof convexTest>, ownerKey = "owner-a") {
+async function seedMission(t: ReturnType<typeof convexTest>, ownerKey = "owner-a", approved = false) {
   return t.run(async (ctx) => ctx.db.insert("missions", {
-    title: "Ownership isolation regression",
+    title: "Isolation regression",
     mission: "Confirm mission data remains private to its owner",
     autonomy: "guided",
     budget: 0,
     status: "draft",
     completion: 0,
-    approved: false,
+    approved,
     ownerKey,
-  }));
-}
-
-async function seedResearch(t: ReturnType<typeof convexTest>, missionId: any) {
-  return t.run(async (ctx) => ctx.db.insert("research", {
-    missionId,
-    query: "private research query",
-    result: "private research result",
-    citations: ["https://example.com/source"],
-    createdAt: 1,
   }));
 }
 
@@ -60,8 +50,20 @@ describe("public mission access isolation", () => {
   it("rejects a different operator reading a mission by ID", async () => {
     const t = convexTest(schema, modules);
     const missionId = await seedMission(t);
-    await expect(t.withIdentity(identity("owner-b")).query(api.missions.getById, { id: missionId }))
-      .rejects.toThrow(/not found or access denied/i);
+    await expect(
+      t.withIdentity(identity("owner-b")).query(api.missions.getById, { id: missionId }),
+    ).rejects.toThrow(/not found or access denied/i);
+  });
+
+  it("rejects a different operator orchestrating another owner's approved mission", async () => {
+    const t = convexTest(schema, modules);
+    const missionId = await seedMission(t, "owner-a", true);
+    await expect(
+      t.withIdentity(identity("owner-b")).action(api.forge.orchestrate, {
+        missionId,
+        mission: "attacker-supplied replacement mission text",
+      }),
+    ).rejects.toThrow(/not found or access denied/i);
   });
 
   it("rejects anonymous access to the legacy mission-run lookup", async () => {
@@ -73,22 +75,33 @@ describe("public mission access isolation", () => {
   it("rejects a different operator reading the legacy mission-run lookup", async () => {
     const t = convexTest(schema, modules);
     const missionId = await seedMission(t);
-    await expect(t.withIdentity(identity("owner-b")).query(api.missionRunner.get, { missionId }))
-      .rejects.toThrow(/not found or access denied/i);
+    await expect(
+      t.withIdentity(identity("owner-b")).query(api.missionRunner.get, { missionId }),
+    ).rejects.toThrow(/not found or access denied/i);
   });
 
   it("rejects a different operator ticking another owner's run", async () => {
     const t = convexTest(schema, modules);
     const missionId = await seedMission(t, "owner-a");
     const runId = await seedRun(t, missionId);
-    await expect(t.withIdentity(identity("owner-b")).action(api.missionRunner.tick, { runId }))
-      .rejects.toThrow(/not found or access denied/i);
+    await expect(
+      t.withIdentity(identity("owner-b")).action(api.missionRunner.tick, { runId }),
+    ).rejects.toThrow(/not found or access denied/i);
   });
 
   it("ignores a client-supplied owner filter when listing missions", async () => {
     const t = convexTest(schema, modules);
-    await seedMission(t, "owner-a");
-    await seedMission(t, "owner-b");
+    await seedMission(t);
+    await t.run(async (ctx) => ctx.db.insert("missions", {
+      title: "Owner B mission",
+      mission: "Must remain isolated",
+      autonomy: "guided",
+      budget: 0,
+      status: "draft",
+      completion: 0,
+      approved: false,
+      ownerKey: "owner-b",
+    }));
     const page = await t.withIdentity(identity("owner-b")).query(api.missions.list, {
       ownerKey: "owner-a",
       paginationOpts: { numItems: 10, cursor: null },
@@ -108,77 +121,43 @@ describe("public mission access isolation", () => {
     const mission = await t.run(async (ctx) => ctx.db.get(missionId as Id<"missions">));
     expect(mission?.ownerKey).toBe("owner-b");
   });
-  it("rejects anonymous research history reads", async () => {
+
+  it("rejects anonymous memory reads", async () => {
     const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await seedResearch(t, missionId);
-    await expect(t.query(api.research.list, { missionId })).rejects.toThrow();
+    await expect(t.query(api.memory.list, { paginationOpts: { numItems: 10, cursor: null } })).rejects.toThrow(/authenticated operator/i);
   });
 
-  it("rejects cross-owner research history reads", async () => {
+  it("ignores a spoofed owner key when saving memory", async () => {
     const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await seedResearch(t, missionId);
-    await expect(t.withIdentity(identity("owner-b")).query(api.research.list, { missionId }))
-      .rejects.toThrow(/not found or access denied/i);
-  });
-
-  it("rejects cross-owner research searches before calling the provider", async () => {
-    const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await expect(t.withIdentity(identity("owner-b")).action(api.research.search, {
+    const missionId = await seedMission(t, "owner-b");
+    const memoryId = await t.withIdentity(identity("owner-b")).mutation(api.memory.remember, {
+      ownerKey: "owner-a",
       missionId,
-      query: "private mission research",
-      deepResearch: false,
-    })).rejects.toThrow(/not found or access denied/i);
+      category: "lesson",
+      key: "owner-spoof-regression",
+      value: "Owner must come from the session or owned mission",
+      confidence: 0.9,
+      source: "ownership regression test",
+    });
+    const memory = await t.run(async (ctx) => ctx.db.get(memoryId as Id<"memories">));
+    expect(memory?.ownerKey).toBe("owner-b");
   });
 
-  it("rejects synthesis when the supplied owner differs from the authenticated mission owner", async () => {
+  it("rejects another operator listing a mission's artifacts", async () => {
     const t = convexTest(schema, modules);
     const missionId = await seedMission(t, "owner-a");
-    await expect(t.withIdentity(identity("owner-b")).action(api.research.synthesize, {
-      missionId,
-      ownerKey: "owner-b",
-    })).rejects.toThrow(/not found or access denied/i);
+    await expect(t.withIdentity(identity("owner-b")).query(api.artifacts.list, { missionId })).rejects.toThrow(/not found or access denied/i);
   });
 
-  it("rejects anonymous audit history reads", async () => {
+  it("rejects another operator listing a mission's verification history", async () => {
     const t = convexTest(schema, modules);
     const missionId = await seedMission(t, "owner-a");
-    await t.run(async (ctx) => ctx.db.insert("auditEvents", {
-      missionId, eventType: "mission:test", source: "test", message: "private audit event", createdAt: 1,
-    }));
-    await expect(t.query(api.audit.list, { missionId })).rejects.toThrow();
+    await expect(t.withIdentity(identity("owner-b")).query(api.verification.list, { missionId })).rejects.toThrow(/not found or access denied/i);
   });
 
-  it("rejects cross-owner audit history reads", async () => {
+  it("rejects anonymous portfolio analytics", async () => {
     const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await t.run(async (ctx) => ctx.db.insert("auditEvents", {
-      missionId, eventType: "mission:test", source: "test", message: "private audit event", createdAt: 1,
-    }));
-    await expect(t.withIdentity(identity("owner-b")).query(api.audit.list, { missionId }))
-      .rejects.toThrow(/not found or access denied/i);
-  });
-
-  it("rejects anonymous incident history reads", async () => {
-    const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await t.run(async (ctx) => ctx.db.insert("incidents", {
-      missionId, kind: "test", stage: "test", message: "private incident", attempts: 1,
-      status: "open", createdAt: 1,
-    }));
-    await expect(t.query(api.incidents.list, { missionId })).rejects.toThrow();
-  });
-
-  it("rejects cross-owner incident history reads", async () => {
-    const t = convexTest(schema, modules);
-    const missionId = await seedMission(t, "owner-a");
-    await t.run(async (ctx) => ctx.db.insert("incidents", {
-      missionId, kind: "test", stage: "test", message: "private incident", attempts: 1,
-      status: "open", createdAt: 1,
-    }));
-    await expect(t.withIdentity(identity("owner-b")).query(api.incidents.list, { missionId }))
-      .rejects.toThrow(/not found or access denied/i);
+    await expect(t.query(api.portfolio.decisionSnapshot, {})).rejects.toThrow(/authenticated operator/i);
+    await expect(t.query(api.portfolio.learningSnapshot, {})).rejects.toThrow(/authenticated operator/i);
   });
 });

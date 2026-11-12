@@ -501,7 +501,7 @@ export const recordComplianceDossierSeal = mutation({
 export const generateComplianceExportBundle = action({
   args: { missionKey: v.string(), dossierKey: v.string(), manifest: v.string(), provenanceJson: v.string() },
   returns: v.object({ bundleJson: v.string(), bundleDigest: v.string(), fileName: v.string(), evidenceDigest: v.string() }),
-  handler: async (ctx, a) => {
+  handler: async (ctx, a): Promise<{ bundleJson: string; bundleDigest: string; fileName: string; evidenceDigest: string }> => {
     const ownerKey = await requireOperator(ctx), missionKey = key(a.missionKey, 'Mission key'), dossierKey = key(a.dossierKey, 'Dossier key'), manifest = parseObject(text(a.manifest, 'Compliance manifest', 100000), 'Compliance manifest'), provenance = parseObject(text(a.provenanceJson, 'Provenance', 20000), 'Provenance')
     const seals = await ctx.runQuery(internal.scopeEFunctions._getComplianceExportContext, { missionKey, dossierKey })
     if (seals.ownerKey !== ownerKey) throw new ConvexError('Compliance export context is not available')

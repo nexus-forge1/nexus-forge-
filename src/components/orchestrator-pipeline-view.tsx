@@ -1,0 +1,10 @@
+import { useState } from 'react'
+import { useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import { useMissionGuide } from '../lib/use-mission-guide'
+import { ScopeAPanel, ScopeAResult, ScopeASubmit } from './scope-a-ui-kit'
+
+export function OrchestratorPipelineView(){const {missionId}=useMissionGuide(),compile=useMutation(api.scopeAFunctions.compileIntentContract)
+ const [requestKey,setRequestKey]=useState('intent-'+Date.now().toString(36)),[intent,setIntent]=useState('Deliver the next approved mission milestone with retained evidence.'),[roles,setRoles]=useState('operator,reviewer'),[requirements,setRequirements]=useState('[{"key":"evidence","description":"Retain evidence for the outcome","acceptance":"Evidence reference and result are saved"}]'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState('')
+ async function submit(e:React.FormEvent){e.preventDefault();if(!missionId)return;setBusy(true);setError('');setResult('');try{const parsed=JSON.parse(requirements) as {key:string;description:string;acceptance:string}[];const out=await compile({missionId,requestKey,intent,roles:roles.split(',').map(x=>x.trim()).filter(Boolean),requirements:parsed});setResult('Intent contract compiled · '+JSON.stringify(out))}catch(x){setError(x instanceof Error?x.message:'Contract compilation failed')}finally{setBusy(false)}}
+ return <ScopeAPanel title="Orchestrator pipeline" eyebrow="A8 · INTENT CONTRACT"><form onSubmit={submit}><label className="scope-a-field">Intent<textarea value={intent} onChange={e=>setIntent(e.target.value)} required/></label><label className="scope-a-field">Roles (comma-separated)<input value={roles} onChange={e=>setRoles(e.target.value)} required/></label><label className="scope-a-field">Requirements JSON<textarea value={requirements} onChange={e=>setRequirements(e.target.value)} required/></label><label className="scope-a-field">Request key<input value={requestKey} onChange={e=>setRequestKey(e.target.value)} required/></label><ScopeASubmit busy={busy} label="Compile intent contract"/></form><ScopeAResult value={result} error={error}/></ScopeAPanel>}

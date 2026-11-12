@@ -30,7 +30,7 @@ export const list = query({
   returns: v.array(v.object({ sourceMemoryId: v.id('memories'), path: v.string(), key: v.string() })),
   handler: async (ctx, args) => {
     const mission = await requireOwnedMission(ctx, args.missionId)
-    const links = await ctx.db.query('memories').withIndex('by_owner', q => q.eq('ownerKey', mission.ownerKey)).filter(q => q.and(q.eq(q.field('missionId'), args.missionId), q.eq(q.field('category'), 'mission-source'))).take(20)
+    const links = await ctx.db.query('memories').withIndex('by_owner_mission_category', q => q.eq('ownerKey', mission.ownerKey).eq('missionId', args.missionId).eq('category', 'mission-source')).take(20)
     const result: { sourceMemoryId: typeof links[number]['_id']; path: string; key: string }[] = []
     for (const link of links) {
       try {

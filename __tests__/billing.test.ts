@@ -20,6 +20,38 @@ async function fixture(){
  return {t,owner,other,missionId,buy,begin}
 }
 describe('paid subscriptions and prepaid usage',()=>{
+ it('blocks a zero mission cap before any wallet or invocation write survives',async()=>{
+  const {t,owner,buy,begin,missionId}=await fixture();await buy()
+  await t.run(c=>c.db.patch(missionId,{budget:0}))
+  await expect(begin()).rejects.toThrow(/Mission spend cap/)
+  expect((await owner.query(api.billing.mine,{})).account).toMatchObject({prepaid:1000,held:0})
+  expect(await t.run(c=>c.db.query('providerInvocations').collect())).toHaveLength(0)
+ })
+ it('serializes concurrent authorizations against the mission cap',async()=>{
+  const {t,owner,buy,begin,missionId}=await fixture();await buy()
+  await t.run(c=>c.db.patch(missionId,{budget:1}))
+  const results=await Promise.allSettled([begin(),begin()])
+  expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1)
+  expect(results.filter(r=>r.status==='rejected')).toHaveLength(1)
+  expect((await owner.query(api.billing.mine,{})).account).toMatchObject({prepaid:900,held:100})
+ })
+ it('counts settled charges instead of released authorizations',async()=>{
+  const {t,owner,buy,begin,missionId}=await fixture();await buy()
+  await t.run(c=>c.db.patch(missionId,{budget:1.01}))
+  const first=await begin()
+  await t.run(c=>c.db.patch(first,{reports:[{ordinal:1,provider:'groq',model:'openai/gpt-oss-20b',promptTokens:1000,completionTokens:1000,capturedAt:Date.now()}]}))
+  await t.mutation(internal.providerUsage.finish,{invocationId:first,outcome:'succeeded',observedReports:1})
+  await begin()
+  await expect(begin()).rejects.toThrow(/Mission spend cap/)
+  expect((await owner.query(api.billing.mine,{})).account).toMatchObject({prepaid:899,held:100})
+ })
+ it('fails closed when historical mission usage lacks billing evidence',async()=>{
+  const {t,owner,buy,begin}=await fixture();await buy()
+  const first=await begin()
+  await t.run(async c=>{const hold=await c.db.query('billingHolds').withIndex('by_invocation_mode',q=>q.eq('invocationId',first).eq('mode','test')).unique();await c.db.delete(hold!._id)})
+  await expect(begin()).rejects.toThrow(/without billing evidence/)
+  expect((await owner.query(api.billing.mine,{})).account).toMatchObject({prepaid:900,held:100})
+ })
  it('retains a scheduled cancellation without removing the paid current-period allowance',async()=>{
   const {t,owner,buy}=await fixture(),intent=await buy('core','paid-core')
   await t.mutation(internal.billing.subscriptionState,{intentId:intent.id,mode:'test',customerId:'customer-one',subscriptionId:'subscription-one',status:'active',cancelAtPeriodEnd:true})

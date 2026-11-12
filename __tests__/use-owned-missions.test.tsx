@@ -22,13 +22,16 @@ describe("useOwnedMissions", () => {
 
   it("skips protected mission history until the operator is authenticated", () => {
     renderHook(() => useOwnedMissions("local-workspace", 20))
+
     expect(authState.useQuery).toHaveBeenCalledWith(api.missions.list, "skip")
   })
 
   it("queries the requested page after authentication resolves", () => {
     authState.isAuthenticated = true
     authState.useQuery.mockReturnValue({ page: [] })
+
     renderHook(() => useOwnedMissions("local-workspace", 50))
+
     expect(authState.useQuery).toHaveBeenCalledWith(api.missions.list, {
       ownerKey: "local-workspace",
       paginationOpts: { numItems: 50, cursor: null },

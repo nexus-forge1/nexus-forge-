@@ -25,7 +25,7 @@ export function ProductionReleaseReadiness() {
         </tr>)}</tbody>
       </table>
       </div>
-      <p>Next: complete supported private archive transfer, verify the next timer-triggered backup and reconcile actual provider invoices. Customer payment activation is excluded from this work.</p>
+      <p>Next: verify the next timer-triggered backup, assess retention and recovery targets, validate representative workloads and reconcile actual provider invoices. Customer payment activation is excluded from this work.</p>
     </div>
     <p>Retain accepted Research, Manifest and LocalBoost evidence. Authentication and approval setup are not repeated as a release checklist exercise. Deferred roadmap expansions are not launch prerequisites for this scoped release.</p>
   </section>

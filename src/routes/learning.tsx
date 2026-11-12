@@ -1,3 +1,7 @@
+import {operatorError} from '../lib/operator-error'
+import {LearningEffectivenessReview} from '../components/learning-effectiveness-review'
+import { VerifiedLearningPromoter } from '../components/verified-learning-promoter'
+import { routeHead } from '../lib/route-metadata'
 import {RuntimeWorkbench} from '../components/runtime-workbench'
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -8,7 +12,7 @@ import { WorkspaceLayout } from "../components/workspace-layout";
 import { deriveManifestOutcomeSignals } from "../lib/manifest-outcome-signals";
 import { deriveStrategyComparisonSignals } from "../lib/strategy-comparison-signals";
 
-export const Route = createFileRoute("/learning")({ component: LearningEnginePage });
+export const Route = createFileRoute("/learning")({ head: () => routeHead("/learning"), component: LearningEnginePage });
 
 type MetricDraft = {
   key: string;
@@ -89,7 +93,7 @@ function LearningEnginePage() {
       setLessonApplicability("");
       setLessonEvidence("");
     } catch (e) {
-      setLessonMessage(e instanceof Error ? e.message : "Could not save the reviewed lesson.");
+      setLessonMessage(operatorError(e,"Lesson save did not confirm. Review saved lessons before trying again."));
     } finally {
       setLessonBusy(false);
     }
@@ -97,6 +101,15 @@ function LearningEnginePage() {
 
   const updateMetric = (index: number, field: keyof MetricDraft, value: string | number) => {
     setMetrics(current => current.map((metric, i) => i === index ? { ...metric, [field]: value } : metric));
+  };
+
+  const draftHeuristicFromOutcome = () => {
+    if (!receipt) return;
+    const measured = metrics.filter(metric => metric.evidence.trim().length >= 8);
+    setLessonText(`Outcome-derived heuristic from “${name}”: ${receipt.rationale} Observed comparison: ${measured.map(metric => `${metric.label} ${metric.baseline} → ${metric.candidate} ${metric.unit}`).join('; ') || 'measurement references still required'}.`);
+    setLessonApplicability(`Hypothesis: ${hypothesis.slice(0, 500)} Applicability must be confirmed against the linked Manifest strategy and comparable measurement conditions.`);
+    setLessonEvidence(measured.map(metric => `${metric.label}: ${metric.evidence.trim()}`).join("\n"));
+    setLessonMessage(measured.length >= 2 ? 'Outcome extraction drafted from saved comparison and metric references. Review and edit the heuristic; two references and a Manifest strategy are required before saving.' : 'Outcome extraction drafted, but this comparison has fewer than two usable metric references. Add two evidence references before saving.');
   };
 
   const submit = async () => {
@@ -122,7 +135,7 @@ function LearningEnginePage() {
   };
 
   const history = (savedRows ?? []) as SavedExperiment[];
-  return <WorkspaceLayout title="Verified Learning Engine" eyebrow="STAGE 04 / MEASURE → COMPARE → REVIEW">
+  return <WorkspaceLayout title="Verified Learning Engine" eyebrow="STAGE 04 / MEASURE → COMPARE → REVIEW"><VerifiedLearningPromoter/>
     <section className="workspace">
       <div className="hero-grid">
         <div className="hero-copy">
@@ -176,7 +189,7 @@ function LearningEnginePage() {
         <textarea id="learning-notes" rows={3} maxLength={2000} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Sample size, test conditions, known limitations, or unresolved questions" />
         <button className="primary-button" disabled={busy} onClick={() => void submit()}>{busy ? "Recording experiment…" : "Record comparison ↗"}</button>
         {error && <p className="warning" role="alert">{error}</p>}
-        {receipt && <div className="glass-card research-card" role="status"><div className="panel-title"><span>COMPARISON RECEIPT</span><span className="live-pill">{receipt.decision.toUpperCase()}</span></div><p>{receipt.rationale}</p><p>Improved: {receipt.improved} · Regressed: {receipt.regressed} · Unchanged: {receipt.unchanged}</p><strong>Saved to private learning memory. No strategy was promoted.</strong></div>}
+        {receipt && <div className="glass-card research-card" role="status"><div className="panel-title"><span>COMPARISON RECEIPT</span><span className="live-pill">{receipt.decision.toUpperCase()}</span></div><p>{receipt.rationale}</p><p>Improved: {receipt.improved} · Regressed: {receipt.regressed} · Unchanged: {receipt.unchanged}</p><strong>Saved to private learning memory. No strategy was promoted.</strong><div className="hero-actions"><button type="button" className="secondary-button" onClick={draftHeuristicFromOutcome}>Extract candidate heuristic from this outcome</button></div><p className="muted-copy">Extraction creates an editable draft only. It does not promote a strategy or treat operator-entered measurements as independently verified.</p></div>}
       </div>
 
       <div className="glass-card research-card">
@@ -217,6 +230,7 @@ function LearningEnginePage() {
         <p className="muted-copy">These are deterministic summaries of operator-entered observations, not independent verification, statistical significance, or causal proof. Human review remains required before reuse.</p>
       </div>
 
+      <LearningEffectivenessReview/>
       <RuntimeWorkbench area="learning"/><StrategyReuseOutcomes />
       <div className="glass-card research-card" id="reviewed-learning-memory">
         <div className="panel-title"><span>REUSABLE LEARNING MEMORY</span><span className="live-pill">OPERATOR REVIEW REQUIRED</span></div>
@@ -236,7 +250,7 @@ function LearningEnginePage() {
         <textarea id="reviewed-lesson-applicability" rows={2} maxLength={1000} value={lessonApplicability} onChange={e => setLessonApplicability(e.target.value)} placeholder="Scope, prerequisites, and situations where this lesson may not apply" />
         <label htmlFor="reviewed-lesson-evidence">EVIDENCE REFERENCES · ONE PER LINE · AT LEAST TWO</label>
         <textarea id="reviewed-lesson-evidence" rows={3} value={lessonEvidence} onChange={e => setLessonEvidence(e.target.value)} placeholder="Run ID, report, artifact, or source reference&#10;Second independent/comparable reference" />
-        <div className="hero-actions"><button className="primary-button" type="button" disabled={lessonBusy} onClick={saveReviewedLesson}>{lessonBusy ? "Saving lesson…" : "Save reviewed lesson"}</button></div>
+        <div className="hero-actions"><button className="primary-button" type="button" disabled={lessonBusy} onClick={saveReviewedLesson}>{lessonBusy ? "Saving lesson…" : "Validate and promote to reviewed knowledge"}</button></div>
         {lessonMessage && <p className="muted-copy" role="status">{lessonMessage}</p>}
         {savedLesson && <div className="hero-actions"><Link className="primary-button" to="/mission" onClick={handoffSavedLesson}>Create mission from saved lesson →</Link></div>}
         {manifestRows?.length === 0 && <p>No strategy is available for this lesson yet. <Link to="/manifest">Open Manifest Intelligence to create or review a strategy →</Link></p>}

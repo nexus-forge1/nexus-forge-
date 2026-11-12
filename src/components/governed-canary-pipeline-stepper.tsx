@@ -1,0 +1,23 @@
+import { useState } from 'react'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+
+export function GovernedCanaryPipelineStepper(){
+ const [allocation,setAllocation]=useState(5);const [minPercent,setMinPercent]=useState(1);const [maxPercent,setMaxPercent]=useState(20)
+ const [errorRate,setErrorRate]=useState(0);const [maxErrorRate,setMaxErrorRate]=useState(0.02);const [latency,setLatency]=useState(250);const [maxLatency,setMaxLatency]=useState(500)
+ const [requestKey,setRequestKey]=useState('request-release-001');const [releaseKey,setReleaseKey]=useState('release-review-001');const [approverKey,setApproverKey]=useState('');const [approved,setApproved]=useState(false)
+ const [operation,setOperation]=useState<'promote'|'rollback'>('promote');const [lock,setLock]=useState(true);const [reason,setReason]=useState('Rollback lock remains enabled until independent release verification.')
+ const [busy,setBusy]=useState(false);const [notice,setNotice]=useState('')
+ const threshold=useQuery(api.scopeDFunctionsBatchTwo.evaluateCanaryAllocationThreshold,{allocationPercent:allocation,minPercent,maxPercent,errorRate,maxErrorRate,latencyP95Ms:latency,maxLatencyP95Ms:maxLatency})
+ const approve=useMutation(api.scopeDFunctionsBatchTwo.recordPromotionGateApproval)
+ const enforce=useMutation(api.scopeDFunctionsBatchTwo.enforceReleaseRollbackLock)
+ const run=async(task:()=>Promise<unknown>,label:string)=>{setBusy(true);setNotice('');try{setNotice(label+': '+JSON.stringify(await task()))}catch(e){setNotice(e instanceof Error?e.message:'Operation failed')}finally{setBusy(false)}}
+ const num=(v:string,min=0,max=1e9)=>Math.min(max,Math.max(min,Number(v)||0))
+ return <section className="dashboard-section" aria-labelledby="d33-title"><div className="glass-card research-card"><p className="section-kicker">SCOPE D · D33</p><h2 id="d33-title">Governed canary pipeline</h2><p>Governance and rollback-lock records only. No release, deployment, promotion, or rollback is executed.</p>
+ <div className="field-grid">{[['Canary allocation %',allocation,setAllocation,0,100],['Minimum allocation %',minPercent,setMinPercent,0,100],['Maximum allocation %',maxPercent,setMaxPercent,0,100],['Observed error rate',errorRate,setErrorRate,0,1],['Maximum error rate',maxErrorRate,setMaxErrorRate,0,1],['P95 latency ms',latency,setLatency,0,1e9],['Maximum P95 latency ms',maxLatency,setMaxLatency,0,1e9]].map(([label,value,setter,min,max])=><label key={String(label)}>{String(label)}<input type="number" min={Number(min)} max={Number(max)} step={Number(max)===1?0.001:1} value={Number(value)} onChange={e=>(setter as (v:number)=>void)(num(e.target.value,Number(min),Number(max)))}/></label>)}</div>
+ <p role="status">{threshold===undefined?'Evaluating canary thresholds…':threshold.eligible?'Thresholds satisfied':threshold.blockers.join('; ')}</p>
+ <label>Request key<input value={requestKey} onChange={e=>setRequestKey(e.target.value)}/></label><label>Release key<input value={releaseKey} onChange={e=>setReleaseKey(e.target.value)}/></label><label>Approver key<input value={approverKey} onChange={e=>setApproverKey(e.target.value)}/></label><label><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/> Record promotion gate approval (governance only)</label>
+ <button className="primary-button" disabled={busy||!requestKey.trim()||!releaseKey.trim()||!approverKey.trim()} onClick={()=>void run(()=>approve({requestKey,releaseKey,canaryPercent:allocation,errorThreshold:maxErrorRate,latencyThresholdMs:Math.max(1,maxLatency),approverKey,approved:approved&&Boolean(threshold?.eligible)}),'Promotion gate')}>Record promotion gate decision</button>
+ <label>Operation to evaluate<select value={operation} onChange={e=>setOperation(e.target.value as typeof operation)}><option value="promote">Promote</option><option value="rollback">Rollback</option></select></label><label><input type="checkbox" checked={lock} onChange={e=>setLock(e.target.checked)}/> Keep rollback lock engaged</label><label>Lock rationale<textarea rows={2} value={reason} onChange={e=>setReason(e.target.value)}/></label>
+ <button className="primary-button" disabled={busy||!releaseKey.trim()||!reason.trim()} onClick={()=>void run(()=>enforce({releaseKey,operation,lock,reason}),'Release lock')}>Apply governance lock decision</button>{notice&&<p role="status" aria-live="polite">{notice}</p>}</div></section>
+}

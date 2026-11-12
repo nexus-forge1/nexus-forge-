@@ -10,29 +10,85 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgentSwarmRouteImport } from './routes/agent-swarm'
+import { Route as AgentWatchdogRouteImport } from './routes/agent-watchdog'
+import { Route as ArbitrageRouterRouteImport } from './routes/arbitrage-router'
 import { Route as ArtifactsRouteImport } from './routes/artifacts'
+import { Route as AuditExportRouteImport } from './routes/audit-export'
 import { Route as BillingRouteImport } from './routes/billing'
+import { Route as BrowserQaRouteImport } from './routes/browser-qa'
+import { Route as BusinessDossierRouteImport } from './routes/business-dossier'
+import { Route as BusinessReadinessRouteImport } from './routes/business-readiness'
 import { Route as CapabilitiesRouteImport } from './routes/capabilities'
+import { Route as ChangesRouteImport } from './routes/changes'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ClientDeliveryRouteImport } from './routes/client-delivery'
+import { Route as ComparativeValidationRouteImport } from './routes/comparative-validation'
 import { Route as ComparisonsRouteImport } from './routes/comparisons'
+import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as CouncilRouteImport } from './routes/council'
+import { Route as CustomerOperationsRouteImport } from './routes/customer-operations'
+import { Route as CustomerOpsRouteImport } from './routes/customer-ops'
+import { Route as DatabaseStudioRouteImport } from './routes/database-studio'
 import { Route as DeliveryRouteImport } from './routes/delivery'
+import { Route as DemandRouteImport } from './routes/demand'
+import { Route as DeploymentPlannerRouteImport } from './routes/deployment-planner'
 import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DiagnosticsRouteImport } from './routes/diagnostics'
+import { Route as EconomicsRouteImport } from './routes/economics'
+import { Route as EnvironmentsRouteImport } from './routes/environments'
+import { Route as EvaluationsRouteImport } from './routes/evaluations'
+import { Route as EventScrubberRouteImport } from './routes/event-scrubber'
 import { Route as EvidenceRouteImport } from './routes/evidence'
+import { Route as EvidenceGraphRouteImport } from './routes/evidence-graph'
+import { Route as EvolutionRouteImport } from './routes/evolution'
+import { Route as ExpansionRouteImport } from './routes/expansion'
+import { Route as ExperimentsRouteImport } from './routes/experiments'
+import { Route as ExportExitRouteImport } from './routes/export-exit'
+import { Route as FeatureBuilderRouteImport } from './routes/feature-builder'
+import { Route as FeatureRegisterRouteImport } from './routes/feature-register'
 import { Route as GeneralityRouteImport } from './routes/generality'
+import { Route as GrowthRouteImport } from './routes/growth'
+import { Route as ImportsRouteImport } from './routes/imports'
 import { Route as IncidentsRouteImport } from './routes/incidents'
+import { Route as IntegrationContractsRouteImport } from './routes/integration-contracts'
+import { Route as IntegrationOptionsRouteImport } from './routes/integration-options'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as LearningRouteImport } from './routes/learning'
 import { Route as ManifestRouteImport } from './routes/manifest'
+import { Route as MemoryGovernanceRouteImport } from './routes/memory-governance'
 import { Route as MissionRouteImport } from './routes/mission'
+import { Route as MissionGraphsRouteImport } from './routes/mission-graphs'
+import { Route as MonetizationRouteImport } from './routes/monetization'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as NoveltyRouteImport } from './routes/novelty'
 import { Route as OrchestratorRouteImport } from './routes/orchestrator'
+import { Route as OwnershipRouteImport } from './routes/ownership'
+import { Route as PaymentReadinessRouteImport } from './routes/payment-readiness'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PortfolioDecisionsRouteImport } from './routes/portfolio-decisions'
+import { Route as PreviewFactoryRouteImport } from './routes/preview-factory'
+import { Route as PreviewsRouteImport } from './routes/previews'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as ReadinessRouteImport } from './routes/readiness'
+import { Route as RecoveryRouteImport } from './routes/recovery'
+import { Route as ReleaseEvidenceRouteImport } from './routes/release-evidence'
+import { Route as ReleasesRouteImport } from './routes/releases'
+import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as ResilienceRouteImport } from './routes/resilience'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as RollbackPlannerRouteImport } from './routes/rollback-planner'
+import { Route as RoutingRouteImport } from './routes/routing'
 import { Route as ScienceRouteImport } from './routes/science'
+import { Route as SecretsRouteImport } from './routes/secrets'
+import { Route as SelfHealingRouteImport } from './routes/self-healing'
+import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as SpecificationsRouteImport } from './routes/specifications'
+import { Route as SuperBuilderRouteImport } from './routes/super-builder'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as VisualBuilderRouteImport } from './routes/visual-builder'
 import { Route as WorkflowRouteImport } from './routes/workflow'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,9 +96,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentSwarmRoute = AgentSwarmRouteImport.update({
+  id: '/agent-swarm',
+  path: '/agent-swarm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentWatchdogRoute = AgentWatchdogRouteImport.update({
+  id: '/agent-watchdog',
+  path: '/agent-watchdog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArbitrageRouterRoute = ArbitrageRouterRouteImport.update({
+  id: '/arbitrage-router',
+  path: '/arbitrage-router',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArtifactsRoute = ArtifactsRouteImport.update({
   id: '/artifacts',
   path: '/artifacts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditExportRoute = AuditExportRouteImport.update({
+  id: '/audit-export',
+  path: '/audit-export',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BillingRoute = BillingRouteImport.update({
@@ -50,9 +126,29 @@ const BillingRoute = BillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrowserQaRoute = BrowserQaRouteImport.update({
+  id: '/browser-qa',
+  path: '/browser-qa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessDossierRoute = BusinessDossierRouteImport.update({
+  id: '/business-dossier',
+  path: '/business-dossier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessReadinessRoute = BusinessReadinessRouteImport.update({
+  id: '/business-readiness',
+  path: '/business-readiness',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CapabilitiesRoute = CapabilitiesRouteImport.update({
   id: '/capabilities',
   path: '/capabilities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangesRoute = ChangesRouteImport.update({
+  id: '/changes',
+  path: '/changes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -60,9 +156,24 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientDeliveryRoute = ClientDeliveryRouteImport.update({
+  id: '/client-delivery',
+  path: '/client-delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComparativeValidationRoute = ComparativeValidationRouteImport.update({
+  id: '/comparative-validation',
+  path: '/comparative-validation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComparisonsRoute = ComparisonsRouteImport.update({
   id: '/comparisons',
   path: '/comparisons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectionsRoute = ConnectionsRouteImport.update({
+  id: '/connections',
+  path: '/connections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CouncilRoute = CouncilRouteImport.update({
@@ -70,9 +181,34 @@ const CouncilRoute = CouncilRouteImport.update({
   path: '/council',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomerOperationsRoute = CustomerOperationsRouteImport.update({
+  id: '/customer-operations',
+  path: '/customer-operations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerOpsRoute = CustomerOpsRouteImport.update({
+  id: '/customer-ops',
+  path: '/customer-ops',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabaseStudioRoute = DatabaseStudioRouteImport.update({
+  id: '/database-studio',
+  path: '/database-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeliveryRoute = DeliveryRouteImport.update({
   id: '/delivery',
   path: '/delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemandRoute = DemandRouteImport.update({
+  id: '/demand',
+  path: '/demand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeploymentPlannerRoute = DeploymentPlannerRouteImport.update({
+  id: '/deployment-planner',
+  path: '/deployment-planner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevelopersRoute = DevelopersRouteImport.update({
@@ -80,9 +216,69 @@ const DevelopersRoute = DevelopersRouteImport.update({
   path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticsRoute = DiagnosticsRouteImport.update({
+  id: '/diagnostics',
+  path: '/diagnostics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EconomicsRoute = EconomicsRouteImport.update({
+  id: '/economics',
+  path: '/economics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnvironmentsRoute = EnvironmentsRouteImport.update({
+  id: '/environments',
+  path: '/environments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationsRoute = EvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventScrubberRoute = EventScrubberRouteImport.update({
+  id: '/event-scrubber',
+  path: '/event-scrubber',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EvidenceRoute = EvidenceRouteImport.update({
   id: '/evidence',
   path: '/evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvidenceGraphRoute = EvidenceGraphRouteImport.update({
+  id: '/evidence-graph',
+  path: '/evidence-graph',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvolutionRoute = EvolutionRouteImport.update({
+  id: '/evolution',
+  path: '/evolution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpansionRoute = ExpansionRouteImport.update({
+  id: '/expansion',
+  path: '/expansion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExperimentsRoute = ExperimentsRouteImport.update({
+  id: '/experiments',
+  path: '/experiments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportExitRoute = ExportExitRouteImport.update({
+  id: '/export-exit',
+  path: '/export-exit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeatureBuilderRoute = FeatureBuilderRouteImport.update({
+  id: '/feature-builder',
+  path: '/feature-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeatureRegisterRoute = FeatureRegisterRouteImport.update({
+  id: '/feature-register',
+  path: '/feature-register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GeneralityRoute = GeneralityRouteImport.update({
@@ -90,9 +286,34 @@ const GeneralityRoute = GeneralityRouteImport.update({
   path: '/generality',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrowthRoute = GrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportsRoute = ImportsRouteImport.update({
+  id: '/imports',
+  path: '/imports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IncidentsRoute = IncidentsRouteImport.update({
   id: '/incidents',
   path: '/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationContractsRoute = IntegrationContractsRouteImport.update({
+  id: '/integration-contracts',
+  path: '/integration-contracts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationOptionsRoute = IntegrationOptionsRouteImport.update({
+  id: '/integration-options',
+  path: '/integration-options',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearningRoute = LearningRouteImport.update({
@@ -105,9 +326,34 @@ const ManifestRoute = ManifestRouteImport.update({
   path: '/manifest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MemoryGovernanceRoute = MemoryGovernanceRouteImport.update({
+  id: '/memory-governance',
+  path: '/memory-governance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MissionRoute = MissionRouteImport.update({
   id: '/mission',
   path: '/mission',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissionGraphsRoute = MissionGraphsRouteImport.update({
+  id: '/mission-graphs',
+  path: '/mission-graphs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonetizationRoute = MonetizationRouteImport.update({
+  id: '/monetization',
+  path: '/monetization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoveltyRoute = NoveltyRouteImport.update({
+  id: '/novelty',
+  path: '/novelty',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrchestratorRoute = OrchestratorRouteImport.update({
@@ -115,9 +361,34 @@ const OrchestratorRoute = OrchestratorRouteImport.update({
   path: '/orchestrator',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnershipRoute = OwnershipRouteImport.update({
+  id: '/ownership',
+  path: '/ownership',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentReadinessRoute = PaymentReadinessRouteImport.update({
+  id: '/payment-readiness',
+  path: '/payment-readiness',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioDecisionsRoute = PortfolioDecisionsRouteImport.update({
+  id: '/portfolio-decisions',
+  path: '/portfolio-decisions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewFactoryRoute = PreviewFactoryRouteImport.update({
+  id: '/preview-factory',
+  path: '/preview-factory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewsRoute = PreviewsRouteImport.update({
+  id: '/previews',
+  path: '/previews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -135,6 +406,26 @@ const ReadinessRoute = ReadinessRouteImport.update({
   path: '/readiness',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecoveryRoute = RecoveryRouteImport.update({
+  id: '/recovery',
+  path: '/recovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReleaseEvidenceRoute = ReleaseEvidenceRouteImport.update({
+  id: '/release-evidence',
+  path: '/release-evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReleasesRoute = ReleasesRouteImport.update({
+  id: '/releases',
+  path: '/releases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReplayRoute = ReplayRouteImport.update({
+  id: '/replay',
+  path: '/replay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResilienceRoute = ResilienceRouteImport.update({
   id: '/resilience',
   path: '/resilience',
@@ -145,14 +436,59 @@ const RoadmapRoute = RoadmapRouteImport.update({
   path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RollbackPlannerRoute = RollbackPlannerRouteImport.update({
+  id: '/rollback-planner',
+  path: '/rollback-planner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutingRoute = RoutingRouteImport.update({
+  id: '/routing',
+  path: '/routing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScienceRoute = ScienceRouteImport.update({
   id: '/science',
   path: '/science',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecretsRoute = SecretsRouteImport.update({
+  id: '/secrets',
+  path: '/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SelfHealingRoute = SelfHealingRouteImport.update({
+  id: '/self-healing',
+  path: '/self-healing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpecificationsRoute = SpecificationsRouteImport.update({
+  id: '/specifications',
+  path: '/specifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperBuilderRoute = SuperBuilderRouteImport.update({
+  id: '/super-builder',
+  path: '/super-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisualBuilderRoute = VisualBuilderRouteImport.update({
+  id: '/visual-builder',
+  path: '/visual-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkflowRoute = WorkflowRouteImport.update({
@@ -163,195 +499,587 @@ const WorkflowRoute = WorkflowRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent-swarm': typeof AgentSwarmRoute
+  '/agent-watchdog': typeof AgentWatchdogRoute
+  '/arbitrage-router': typeof ArbitrageRouterRoute
   '/artifacts': typeof ArtifactsRoute
+  '/audit-export': typeof AuditExportRoute
   '/billing': typeof BillingRoute
+  '/browser-qa': typeof BrowserQaRoute
+  '/business-dossier': typeof BusinessDossierRoute
+  '/business-readiness': typeof BusinessReadinessRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
+  '/comparative-validation': typeof ComparativeValidationRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
+  '/customer-operations': typeof CustomerOperationsRoute
+  '/customer-ops': typeof CustomerOpsRoute
+  '/database-studio': typeof DatabaseStudioRoute
   '/delivery': typeof DeliveryRoute
+  '/demand': typeof DemandRoute
+  '/deployment-planner': typeof DeploymentPlannerRoute
   '/developers': typeof DevelopersRoute
+  '/diagnostics': typeof DiagnosticsRoute
+  '/economics': typeof EconomicsRoute
+  '/environments': typeof EnvironmentsRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/event-scrubber': typeof EventScrubberRoute
   '/evidence': typeof EvidenceRoute
+  '/evidence-graph': typeof EvidenceGraphRoute
+  '/evolution': typeof EvolutionRoute
+  '/expansion': typeof ExpansionRoute
+  '/experiments': typeof ExperimentsRoute
+  '/export-exit': typeof ExportExitRoute
+  '/feature-builder': typeof FeatureBuilderRoute
+  '/feature-register': typeof FeatureRegisterRoute
   '/generality': typeof GeneralityRoute
+  '/growth': typeof GrowthRoute
+  '/imports': typeof ImportsRoute
   '/incidents': typeof IncidentsRoute
+  '/integration-contracts': typeof IntegrationContractsRoute
+  '/integration-options': typeof IntegrationOptionsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
+  '/memory-governance': typeof MemoryGovernanceRoute
   '/mission': typeof MissionRoute
+  '/mission-graphs': typeof MissionGraphsRoute
+  '/monetization': typeof MonetizationRoute
+  '/notifications': typeof NotificationsRoute
+  '/novelty': typeof NoveltyRoute
   '/orchestrator': typeof OrchestratorRoute
+  '/ownership': typeof OwnershipRoute
+  '/payment-readiness': typeof PaymentReadinessRoute
   '/portfolio': typeof PortfolioRoute
+  '/portfolio-decisions': typeof PortfolioDecisionsRoute
+  '/preview-factory': typeof PreviewFactoryRoute
+  '/previews': typeof PreviewsRoute
   '/pricing': typeof PricingRoute
   '/providers': typeof ProvidersRoute
   '/readiness': typeof ReadinessRoute
+  '/recovery': typeof RecoveryRoute
+  '/release-evidence': typeof ReleaseEvidenceRoute
+  '/releases': typeof ReleasesRoute
+  '/replay': typeof ReplayRoute
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
+  '/rollback-planner': typeof RollbackPlannerRoute
+  '/routing': typeof RoutingRoute
   '/science': typeof ScienceRoute
+  '/secrets': typeof SecretsRoute
+  '/self-healing': typeof SelfHealingRoute
+  '/skills': typeof SkillsRoute
+  '/specifications': typeof SpecificationsRoute
+  '/super-builder': typeof SuperBuilderRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
+  '/visual-builder': typeof VisualBuilderRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent-swarm': typeof AgentSwarmRoute
+  '/agent-watchdog': typeof AgentWatchdogRoute
+  '/arbitrage-router': typeof ArbitrageRouterRoute
   '/artifacts': typeof ArtifactsRoute
+  '/audit-export': typeof AuditExportRoute
   '/billing': typeof BillingRoute
+  '/browser-qa': typeof BrowserQaRoute
+  '/business-dossier': typeof BusinessDossierRoute
+  '/business-readiness': typeof BusinessReadinessRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
+  '/comparative-validation': typeof ComparativeValidationRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
+  '/customer-operations': typeof CustomerOperationsRoute
+  '/customer-ops': typeof CustomerOpsRoute
+  '/database-studio': typeof DatabaseStudioRoute
   '/delivery': typeof DeliveryRoute
+  '/demand': typeof DemandRoute
+  '/deployment-planner': typeof DeploymentPlannerRoute
   '/developers': typeof DevelopersRoute
+  '/diagnostics': typeof DiagnosticsRoute
+  '/economics': typeof EconomicsRoute
+  '/environments': typeof EnvironmentsRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/event-scrubber': typeof EventScrubberRoute
   '/evidence': typeof EvidenceRoute
+  '/evidence-graph': typeof EvidenceGraphRoute
+  '/evolution': typeof EvolutionRoute
+  '/expansion': typeof ExpansionRoute
+  '/experiments': typeof ExperimentsRoute
+  '/export-exit': typeof ExportExitRoute
+  '/feature-builder': typeof FeatureBuilderRoute
+  '/feature-register': typeof FeatureRegisterRoute
   '/generality': typeof GeneralityRoute
+  '/growth': typeof GrowthRoute
+  '/imports': typeof ImportsRoute
   '/incidents': typeof IncidentsRoute
+  '/integration-contracts': typeof IntegrationContractsRoute
+  '/integration-options': typeof IntegrationOptionsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
+  '/memory-governance': typeof MemoryGovernanceRoute
   '/mission': typeof MissionRoute
+  '/mission-graphs': typeof MissionGraphsRoute
+  '/monetization': typeof MonetizationRoute
+  '/notifications': typeof NotificationsRoute
+  '/novelty': typeof NoveltyRoute
   '/orchestrator': typeof OrchestratorRoute
+  '/ownership': typeof OwnershipRoute
+  '/payment-readiness': typeof PaymentReadinessRoute
   '/portfolio': typeof PortfolioRoute
+  '/portfolio-decisions': typeof PortfolioDecisionsRoute
+  '/preview-factory': typeof PreviewFactoryRoute
+  '/previews': typeof PreviewsRoute
   '/pricing': typeof PricingRoute
   '/providers': typeof ProvidersRoute
   '/readiness': typeof ReadinessRoute
+  '/recovery': typeof RecoveryRoute
+  '/release-evidence': typeof ReleaseEvidenceRoute
+  '/releases': typeof ReleasesRoute
+  '/replay': typeof ReplayRoute
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
+  '/rollback-planner': typeof RollbackPlannerRoute
+  '/routing': typeof RoutingRoute
   '/science': typeof ScienceRoute
+  '/secrets': typeof SecretsRoute
+  '/self-healing': typeof SelfHealingRoute
+  '/skills': typeof SkillsRoute
+  '/specifications': typeof SpecificationsRoute
+  '/super-builder': typeof SuperBuilderRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
+  '/visual-builder': typeof VisualBuilderRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent-swarm': typeof AgentSwarmRoute
+  '/agent-watchdog': typeof AgentWatchdogRoute
+  '/arbitrage-router': typeof ArbitrageRouterRoute
   '/artifacts': typeof ArtifactsRoute
+  '/audit-export': typeof AuditExportRoute
   '/billing': typeof BillingRoute
+  '/browser-qa': typeof BrowserQaRoute
+  '/business-dossier': typeof BusinessDossierRoute
+  '/business-readiness': typeof BusinessReadinessRoute
   '/capabilities': typeof CapabilitiesRoute
+  '/changes': typeof ChangesRoute
   '/checkout': typeof CheckoutRoute
+  '/client-delivery': typeof ClientDeliveryRoute
+  '/comparative-validation': typeof ComparativeValidationRoute
   '/comparisons': typeof ComparisonsRoute
+  '/connections': typeof ConnectionsRoute
   '/council': typeof CouncilRoute
+  '/customer-operations': typeof CustomerOperationsRoute
+  '/customer-ops': typeof CustomerOpsRoute
+  '/database-studio': typeof DatabaseStudioRoute
   '/delivery': typeof DeliveryRoute
+  '/demand': typeof DemandRoute
+  '/deployment-planner': typeof DeploymentPlannerRoute
   '/developers': typeof DevelopersRoute
+  '/diagnostics': typeof DiagnosticsRoute
+  '/economics': typeof EconomicsRoute
+  '/environments': typeof EnvironmentsRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/event-scrubber': typeof EventScrubberRoute
   '/evidence': typeof EvidenceRoute
+  '/evidence-graph': typeof EvidenceGraphRoute
+  '/evolution': typeof EvolutionRoute
+  '/expansion': typeof ExpansionRoute
+  '/experiments': typeof ExperimentsRoute
+  '/export-exit': typeof ExportExitRoute
+  '/feature-builder': typeof FeatureBuilderRoute
+  '/feature-register': typeof FeatureRegisterRoute
   '/generality': typeof GeneralityRoute
+  '/growth': typeof GrowthRoute
+  '/imports': typeof ImportsRoute
   '/incidents': typeof IncidentsRoute
+  '/integration-contracts': typeof IntegrationContractsRoute
+  '/integration-options': typeof IntegrationOptionsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/learning': typeof LearningRoute
   '/manifest': typeof ManifestRoute
+  '/memory-governance': typeof MemoryGovernanceRoute
   '/mission': typeof MissionRoute
+  '/mission-graphs': typeof MissionGraphsRoute
+  '/monetization': typeof MonetizationRoute
+  '/notifications': typeof NotificationsRoute
+  '/novelty': typeof NoveltyRoute
   '/orchestrator': typeof OrchestratorRoute
+  '/ownership': typeof OwnershipRoute
+  '/payment-readiness': typeof PaymentReadinessRoute
   '/portfolio': typeof PortfolioRoute
+  '/portfolio-decisions': typeof PortfolioDecisionsRoute
+  '/preview-factory': typeof PreviewFactoryRoute
+  '/previews': typeof PreviewsRoute
   '/pricing': typeof PricingRoute
   '/providers': typeof ProvidersRoute
   '/readiness': typeof ReadinessRoute
+  '/recovery': typeof RecoveryRoute
+  '/release-evidence': typeof ReleaseEvidenceRoute
+  '/releases': typeof ReleasesRoute
+  '/replay': typeof ReplayRoute
   '/resilience': typeof ResilienceRoute
   '/roadmap': typeof RoadmapRoute
+  '/rollback-planner': typeof RollbackPlannerRoute
+  '/routing': typeof RoutingRoute
   '/science': typeof ScienceRoute
+  '/secrets': typeof SecretsRoute
+  '/self-healing': typeof SelfHealingRoute
+  '/skills': typeof SkillsRoute
+  '/specifications': typeof SpecificationsRoute
+  '/super-builder': typeof SuperBuilderRoute
   '/teams': typeof TeamsRoute
+  '/templates': typeof TemplatesRoute
+  '/visual-builder': typeof VisualBuilderRoute
   '/workflow': typeof WorkflowRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent-swarm'
+    | '/agent-watchdog'
+    | '/arbitrage-router'
     | '/artifacts'
+    | '/audit-export'
     | '/billing'
+    | '/browser-qa'
+    | '/business-dossier'
+    | '/business-readiness'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
+    | '/comparative-validation'
     | '/comparisons'
+    | '/connections'
     | '/council'
+    | '/customer-operations'
+    | '/customer-ops'
+    | '/database-studio'
     | '/delivery'
+    | '/demand'
+    | '/deployment-planner'
     | '/developers'
+    | '/diagnostics'
+    | '/economics'
+    | '/environments'
+    | '/evaluations'
+    | '/event-scrubber'
     | '/evidence'
+    | '/evidence-graph'
+    | '/evolution'
+    | '/expansion'
+    | '/experiments'
+    | '/export-exit'
+    | '/feature-builder'
+    | '/feature-register'
     | '/generality'
+    | '/growth'
+    | '/imports'
     | '/incidents'
+    | '/integration-contracts'
+    | '/integration-options'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
+    | '/memory-governance'
     | '/mission'
+    | '/mission-graphs'
+    | '/monetization'
+    | '/notifications'
+    | '/novelty'
     | '/orchestrator'
+    | '/ownership'
+    | '/payment-readiness'
     | '/portfolio'
+    | '/portfolio-decisions'
+    | '/preview-factory'
+    | '/previews'
     | '/pricing'
     | '/providers'
     | '/readiness'
+    | '/recovery'
+    | '/release-evidence'
+    | '/releases'
+    | '/replay'
     | '/resilience'
     | '/roadmap'
+    | '/rollback-planner'
+    | '/routing'
     | '/science'
+    | '/secrets'
+    | '/self-healing'
+    | '/skills'
+    | '/specifications'
+    | '/super-builder'
     | '/teams'
+    | '/templates'
+    | '/visual-builder'
     | '/workflow'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agent-swarm'
+    | '/agent-watchdog'
+    | '/arbitrage-router'
     | '/artifacts'
+    | '/audit-export'
     | '/billing'
+    | '/browser-qa'
+    | '/business-dossier'
+    | '/business-readiness'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
+    | '/comparative-validation'
     | '/comparisons'
+    | '/connections'
     | '/council'
+    | '/customer-operations'
+    | '/customer-ops'
+    | '/database-studio'
     | '/delivery'
+    | '/demand'
+    | '/deployment-planner'
     | '/developers'
+    | '/diagnostics'
+    | '/economics'
+    | '/environments'
+    | '/evaluations'
+    | '/event-scrubber'
     | '/evidence'
+    | '/evidence-graph'
+    | '/evolution'
+    | '/expansion'
+    | '/experiments'
+    | '/export-exit'
+    | '/feature-builder'
+    | '/feature-register'
     | '/generality'
+    | '/growth'
+    | '/imports'
     | '/incidents'
+    | '/integration-contracts'
+    | '/integration-options'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
+    | '/memory-governance'
     | '/mission'
+    | '/mission-graphs'
+    | '/monetization'
+    | '/notifications'
+    | '/novelty'
     | '/orchestrator'
+    | '/ownership'
+    | '/payment-readiness'
     | '/portfolio'
+    | '/portfolio-decisions'
+    | '/preview-factory'
+    | '/previews'
     | '/pricing'
     | '/providers'
     | '/readiness'
+    | '/recovery'
+    | '/release-evidence'
+    | '/releases'
+    | '/replay'
     | '/resilience'
     | '/roadmap'
+    | '/rollback-planner'
+    | '/routing'
     | '/science'
+    | '/secrets'
+    | '/self-healing'
+    | '/skills'
+    | '/specifications'
+    | '/super-builder'
     | '/teams'
+    | '/templates'
+    | '/visual-builder'
     | '/workflow'
   id:
     | '__root__'
     | '/'
+    | '/agent-swarm'
+    | '/agent-watchdog'
+    | '/arbitrage-router'
     | '/artifacts'
+    | '/audit-export'
     | '/billing'
+    | '/browser-qa'
+    | '/business-dossier'
+    | '/business-readiness'
     | '/capabilities'
+    | '/changes'
     | '/checkout'
+    | '/client-delivery'
+    | '/comparative-validation'
     | '/comparisons'
+    | '/connections'
     | '/council'
+    | '/customer-operations'
+    | '/customer-ops'
+    | '/database-studio'
     | '/delivery'
+    | '/demand'
+    | '/deployment-planner'
     | '/developers'
+    | '/diagnostics'
+    | '/economics'
+    | '/environments'
+    | '/evaluations'
+    | '/event-scrubber'
     | '/evidence'
+    | '/evidence-graph'
+    | '/evolution'
+    | '/expansion'
+    | '/experiments'
+    | '/export-exit'
+    | '/feature-builder'
+    | '/feature-register'
     | '/generality'
+    | '/growth'
+    | '/imports'
     | '/incidents'
+    | '/integration-contracts'
+    | '/integration-options'
+    | '/knowledge'
     | '/learning'
     | '/manifest'
+    | '/memory-governance'
     | '/mission'
+    | '/mission-graphs'
+    | '/monetization'
+    | '/notifications'
+    | '/novelty'
     | '/orchestrator'
+    | '/ownership'
+    | '/payment-readiness'
     | '/portfolio'
+    | '/portfolio-decisions'
+    | '/preview-factory'
+    | '/previews'
     | '/pricing'
     | '/providers'
     | '/readiness'
+    | '/recovery'
+    | '/release-evidence'
+    | '/releases'
+    | '/replay'
     | '/resilience'
     | '/roadmap'
+    | '/rollback-planner'
+    | '/routing'
     | '/science'
+    | '/secrets'
+    | '/self-healing'
+    | '/skills'
+    | '/specifications'
+    | '/super-builder'
     | '/teams'
+    | '/templates'
+    | '/visual-builder'
     | '/workflow'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentSwarmRoute: typeof AgentSwarmRoute
+  AgentWatchdogRoute: typeof AgentWatchdogRoute
+  ArbitrageRouterRoute: typeof ArbitrageRouterRoute
   ArtifactsRoute: typeof ArtifactsRoute
+  AuditExportRoute: typeof AuditExportRoute
   BillingRoute: typeof BillingRoute
+  BrowserQaRoute: typeof BrowserQaRoute
+  BusinessDossierRoute: typeof BusinessDossierRoute
+  BusinessReadinessRoute: typeof BusinessReadinessRoute
   CapabilitiesRoute: typeof CapabilitiesRoute
+  ChangesRoute: typeof ChangesRoute
   CheckoutRoute: typeof CheckoutRoute
+  ClientDeliveryRoute: typeof ClientDeliveryRoute
+  ComparativeValidationRoute: typeof ComparativeValidationRoute
   ComparisonsRoute: typeof ComparisonsRoute
+  ConnectionsRoute: typeof ConnectionsRoute
   CouncilRoute: typeof CouncilRoute
+  CustomerOperationsRoute: typeof CustomerOperationsRoute
+  CustomerOpsRoute: typeof CustomerOpsRoute
+  DatabaseStudioRoute: typeof DatabaseStudioRoute
   DeliveryRoute: typeof DeliveryRoute
+  DemandRoute: typeof DemandRoute
+  DeploymentPlannerRoute: typeof DeploymentPlannerRoute
   DevelopersRoute: typeof DevelopersRoute
+  DiagnosticsRoute: typeof DiagnosticsRoute
+  EconomicsRoute: typeof EconomicsRoute
+  EnvironmentsRoute: typeof EnvironmentsRoute
+  EvaluationsRoute: typeof EvaluationsRoute
+  EventScrubberRoute: typeof EventScrubberRoute
   EvidenceRoute: typeof EvidenceRoute
+  EvidenceGraphRoute: typeof EvidenceGraphRoute
+  EvolutionRoute: typeof EvolutionRoute
+  ExpansionRoute: typeof ExpansionRoute
+  ExperimentsRoute: typeof ExperimentsRoute
+  ExportExitRoute: typeof ExportExitRoute
+  FeatureBuilderRoute: typeof FeatureBuilderRoute
+  FeatureRegisterRoute: typeof FeatureRegisterRoute
   GeneralityRoute: typeof GeneralityRoute
+  GrowthRoute: typeof GrowthRoute
+  ImportsRoute: typeof ImportsRoute
   IncidentsRoute: typeof IncidentsRoute
+  IntegrationContractsRoute: typeof IntegrationContractsRoute
+  IntegrationOptionsRoute: typeof IntegrationOptionsRoute
+  KnowledgeRoute: typeof KnowledgeRoute
   LearningRoute: typeof LearningRoute
   ManifestRoute: typeof ManifestRoute
+  MemoryGovernanceRoute: typeof MemoryGovernanceRoute
   MissionRoute: typeof MissionRoute
+  MissionGraphsRoute: typeof MissionGraphsRoute
+  MonetizationRoute: typeof MonetizationRoute
+  NotificationsRoute: typeof NotificationsRoute
+  NoveltyRoute: typeof NoveltyRoute
   OrchestratorRoute: typeof OrchestratorRoute
+  OwnershipRoute: typeof OwnershipRoute
+  PaymentReadinessRoute: typeof PaymentReadinessRoute
   PortfolioRoute: typeof PortfolioRoute
+  PortfolioDecisionsRoute: typeof PortfolioDecisionsRoute
+  PreviewFactoryRoute: typeof PreviewFactoryRoute
+  PreviewsRoute: typeof PreviewsRoute
   PricingRoute: typeof PricingRoute
   ProvidersRoute: typeof ProvidersRoute
   ReadinessRoute: typeof ReadinessRoute
+  RecoveryRoute: typeof RecoveryRoute
+  ReleaseEvidenceRoute: typeof ReleaseEvidenceRoute
+  ReleasesRoute: typeof ReleasesRoute
+  ReplayRoute: typeof ReplayRoute
   ResilienceRoute: typeof ResilienceRoute
   RoadmapRoute: typeof RoadmapRoute
+  RollbackPlannerRoute: typeof RollbackPlannerRoute
+  RoutingRoute: typeof RoutingRoute
   ScienceRoute: typeof ScienceRoute
+  SecretsRoute: typeof SecretsRoute
+  SelfHealingRoute: typeof SelfHealingRoute
+  SkillsRoute: typeof SkillsRoute
+  SpecificationsRoute: typeof SpecificationsRoute
+  SuperBuilderRoute: typeof SuperBuilderRoute
   TeamsRoute: typeof TeamsRoute
+  TemplatesRoute: typeof TemplatesRoute
+  VisualBuilderRoute: typeof VisualBuilderRoute
   WorkflowRoute: typeof WorkflowRoute
 }
 
@@ -364,11 +1092,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent-swarm': {
+      id: '/agent-swarm'
+      path: '/agent-swarm'
+      fullPath: '/agent-swarm'
+      preLoaderRoute: typeof AgentSwarmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent-watchdog': {
+      id: '/agent-watchdog'
+      path: '/agent-watchdog'
+      fullPath: '/agent-watchdog'
+      preLoaderRoute: typeof AgentWatchdogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arbitrage-router': {
+      id: '/arbitrage-router'
+      path: '/arbitrage-router'
+      fullPath: '/arbitrage-router'
+      preLoaderRoute: typeof ArbitrageRouterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/artifacts': {
       id: '/artifacts'
       path: '/artifacts'
       fullPath: '/artifacts'
       preLoaderRoute: typeof ArtifactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-export': {
+      id: '/audit-export'
+      path: '/audit-export'
+      fullPath: '/audit-export'
+      preLoaderRoute: typeof AuditExportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/billing': {
@@ -378,11 +1134,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/browser-qa': {
+      id: '/browser-qa'
+      path: '/browser-qa'
+      fullPath: '/browser-qa'
+      preLoaderRoute: typeof BrowserQaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-dossier': {
+      id: '/business-dossier'
+      path: '/business-dossier'
+      fullPath: '/business-dossier'
+      preLoaderRoute: typeof BusinessDossierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-readiness': {
+      id: '/business-readiness'
+      path: '/business-readiness'
+      fullPath: '/business-readiness'
+      preLoaderRoute: typeof BusinessReadinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/capabilities': {
       id: '/capabilities'
       path: '/capabilities'
       fullPath: '/capabilities'
       preLoaderRoute: typeof CapabilitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changes': {
+      id: '/changes'
+      path: '/changes'
+      fullPath: '/changes'
+      preLoaderRoute: typeof ChangesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -392,11 +1176,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/client-delivery': {
+      id: '/client-delivery'
+      path: '/client-delivery'
+      fullPath: '/client-delivery'
+      preLoaderRoute: typeof ClientDeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparative-validation': {
+      id: '/comparative-validation'
+      path: '/comparative-validation'
+      fullPath: '/comparative-validation'
+      preLoaderRoute: typeof ComparativeValidationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comparisons': {
       id: '/comparisons'
       path: '/comparisons'
       fullPath: '/comparisons'
       preLoaderRoute: typeof ComparisonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connections': {
+      id: '/connections'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof ConnectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/council': {
@@ -406,11 +1211,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CouncilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customer-operations': {
+      id: '/customer-operations'
+      path: '/customer-operations'
+      fullPath: '/customer-operations'
+      preLoaderRoute: typeof CustomerOperationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-ops': {
+      id: '/customer-ops'
+      path: '/customer-ops'
+      fullPath: '/customer-ops'
+      preLoaderRoute: typeof CustomerOpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/database-studio': {
+      id: '/database-studio'
+      path: '/database-studio'
+      fullPath: '/database-studio'
+      preLoaderRoute: typeof DatabaseStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/delivery': {
       id: '/delivery'
       path: '/delivery'
       fullPath: '/delivery'
       preLoaderRoute: typeof DeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demand': {
+      id: '/demand'
+      path: '/demand'
+      fullPath: '/demand'
+      preLoaderRoute: typeof DemandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deployment-planner': {
+      id: '/deployment-planner'
+      path: '/deployment-planner'
+      fullPath: '/deployment-planner'
+      preLoaderRoute: typeof DeploymentPlannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developers': {
@@ -420,11 +1260,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostics': {
+      id: '/diagnostics'
+      path: '/diagnostics'
+      fullPath: '/diagnostics'
+      preLoaderRoute: typeof DiagnosticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/economics': {
+      id: '/economics'
+      path: '/economics'
+      fullPath: '/economics'
+      preLoaderRoute: typeof EconomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/environments': {
+      id: '/environments'
+      path: '/environments'
+      fullPath: '/environments'
+      preLoaderRoute: typeof EnvironmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluations': {
+      id: '/evaluations'
+      path: '/evaluations'
+      fullPath: '/evaluations'
+      preLoaderRoute: typeof EvaluationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event-scrubber': {
+      id: '/event-scrubber'
+      path: '/event-scrubber'
+      fullPath: '/event-scrubber'
+      preLoaderRoute: typeof EventScrubberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/evidence': {
       id: '/evidence'
       path: '/evidence'
       fullPath: '/evidence'
       preLoaderRoute: typeof EvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evidence-graph': {
+      id: '/evidence-graph'
+      path: '/evidence-graph'
+      fullPath: '/evidence-graph'
+      preLoaderRoute: typeof EvidenceGraphRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evolution': {
+      id: '/evolution'
+      path: '/evolution'
+      fullPath: '/evolution'
+      preLoaderRoute: typeof EvolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expansion': {
+      id: '/expansion'
+      path: '/expansion'
+      fullPath: '/expansion'
+      preLoaderRoute: typeof ExpansionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experiments': {
+      id: '/experiments'
+      path: '/experiments'
+      fullPath: '/experiments'
+      preLoaderRoute: typeof ExperimentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export-exit': {
+      id: '/export-exit'
+      path: '/export-exit'
+      fullPath: '/export-exit'
+      preLoaderRoute: typeof ExportExitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feature-builder': {
+      id: '/feature-builder'
+      path: '/feature-builder'
+      fullPath: '/feature-builder'
+      preLoaderRoute: typeof FeatureBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feature-register': {
+      id: '/feature-register'
+      path: '/feature-register'
+      fullPath: '/feature-register'
+      preLoaderRoute: typeof FeatureRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/generality': {
@@ -434,11 +1358,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GeneralityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/growth': {
+      id: '/growth'
+      path: '/growth'
+      fullPath: '/growth'
+      preLoaderRoute: typeof GrowthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imports': {
+      id: '/imports'
+      path: '/imports'
+      fullPath: '/imports'
+      preLoaderRoute: typeof ImportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/incidents': {
       id: '/incidents'
       path: '/incidents'
       fullPath: '/incidents'
       preLoaderRoute: typeof IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integration-contracts': {
+      id: '/integration-contracts'
+      path: '/integration-contracts'
+      fullPath: '/integration-contracts'
+      preLoaderRoute: typeof IntegrationContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integration-options': {
+      id: '/integration-options'
+      path: '/integration-options'
+      fullPath: '/integration-options'
+      preLoaderRoute: typeof IntegrationOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learning': {
@@ -455,11 +1414,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManifestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/memory-governance': {
+      id: '/memory-governance'
+      path: '/memory-governance'
+      fullPath: '/memory-governance'
+      preLoaderRoute: typeof MemoryGovernanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mission': {
       id: '/mission'
       path: '/mission'
       fullPath: '/mission'
       preLoaderRoute: typeof MissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mission-graphs': {
+      id: '/mission-graphs'
+      path: '/mission-graphs'
+      fullPath: '/mission-graphs'
+      preLoaderRoute: typeof MissionGraphsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monetization': {
+      id: '/monetization'
+      path: '/monetization'
+      fullPath: '/monetization'
+      preLoaderRoute: typeof MonetizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/novelty': {
+      id: '/novelty'
+      path: '/novelty'
+      fullPath: '/novelty'
+      preLoaderRoute: typeof NoveltyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orchestrator': {
@@ -469,11 +1463,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrchestratorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ownership': {
+      id: '/ownership'
+      path: '/ownership'
+      fullPath: '/ownership'
+      preLoaderRoute: typeof OwnershipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-readiness': {
+      id: '/payment-readiness'
+      path: '/payment-readiness'
+      fullPath: '/payment-readiness'
+      preLoaderRoute: typeof PaymentReadinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portfolio': {
       id: '/portfolio'
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-decisions': {
+      id: '/portfolio-decisions'
+      path: '/portfolio-decisions'
+      fullPath: '/portfolio-decisions'
+      preLoaderRoute: typeof PortfolioDecisionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview-factory': {
+      id: '/preview-factory'
+      path: '/preview-factory'
+      fullPath: '/preview-factory'
+      preLoaderRoute: typeof PreviewFactoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/previews': {
+      id: '/previews'
+      path: '/previews'
+      fullPath: '/previews'
+      preLoaderRoute: typeof PreviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -497,6 +1526,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadinessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recovery': {
+      id: '/recovery'
+      path: '/recovery'
+      fullPath: '/recovery'
+      preLoaderRoute: typeof RecoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/release-evidence': {
+      id: '/release-evidence'
+      path: '/release-evidence'
+      fullPath: '/release-evidence'
+      preLoaderRoute: typeof ReleaseEvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/releases': {
+      id: '/releases'
+      path: '/releases'
+      fullPath: '/releases'
+      preLoaderRoute: typeof ReleasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/replay': {
+      id: '/replay'
+      path: '/replay'
+      fullPath: '/replay'
+      preLoaderRoute: typeof ReplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resilience': {
       id: '/resilience'
       path: '/resilience'
@@ -511,6 +1568,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rollback-planner': {
+      id: '/rollback-planner'
+      path: '/rollback-planner'
+      fullPath: '/rollback-planner'
+      preLoaderRoute: typeof RollbackPlannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routing': {
+      id: '/routing'
+      path: '/routing'
+      fullPath: '/routing'
+      preLoaderRoute: typeof RoutingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/science': {
       id: '/science'
       path: '/science'
@@ -518,11 +1589,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScienceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/secrets': {
+      id: '/secrets'
+      path: '/secrets'
+      fullPath: '/secrets'
+      preLoaderRoute: typeof SecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/self-healing': {
+      id: '/self-healing'
+      path: '/self-healing'
+      fullPath: '/self-healing'
+      preLoaderRoute: typeof SelfHealingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/specifications': {
+      id: '/specifications'
+      path: '/specifications'
+      fullPath: '/specifications'
+      preLoaderRoute: typeof SpecificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super-builder': {
+      id: '/super-builder'
+      path: '/super-builder'
+      fullPath: '/super-builder'
+      preLoaderRoute: typeof SuperBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams': {
       id: '/teams'
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visual-builder': {
+      id: '/visual-builder'
+      path: '/visual-builder'
+      fullPath: '/visual-builder'
+      preLoaderRoute: typeof VisualBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workflow': {
@@ -537,29 +1657,85 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentSwarmRoute: AgentSwarmRoute,
+  AgentWatchdogRoute: AgentWatchdogRoute,
+  ArbitrageRouterRoute: ArbitrageRouterRoute,
   ArtifactsRoute: ArtifactsRoute,
+  AuditExportRoute: AuditExportRoute,
   BillingRoute: BillingRoute,
+  BrowserQaRoute: BrowserQaRoute,
+  BusinessDossierRoute: BusinessDossierRoute,
+  BusinessReadinessRoute: BusinessReadinessRoute,
   CapabilitiesRoute: CapabilitiesRoute,
+  ChangesRoute: ChangesRoute,
   CheckoutRoute: CheckoutRoute,
+  ClientDeliveryRoute: ClientDeliveryRoute,
+  ComparativeValidationRoute: ComparativeValidationRoute,
   ComparisonsRoute: ComparisonsRoute,
+  ConnectionsRoute: ConnectionsRoute,
   CouncilRoute: CouncilRoute,
+  CustomerOperationsRoute: CustomerOperationsRoute,
+  CustomerOpsRoute: CustomerOpsRoute,
+  DatabaseStudioRoute: DatabaseStudioRoute,
   DeliveryRoute: DeliveryRoute,
+  DemandRoute: DemandRoute,
+  DeploymentPlannerRoute: DeploymentPlannerRoute,
   DevelopersRoute: DevelopersRoute,
+  DiagnosticsRoute: DiagnosticsRoute,
+  EconomicsRoute: EconomicsRoute,
+  EnvironmentsRoute: EnvironmentsRoute,
+  EvaluationsRoute: EvaluationsRoute,
+  EventScrubberRoute: EventScrubberRoute,
   EvidenceRoute: EvidenceRoute,
+  EvidenceGraphRoute: EvidenceGraphRoute,
+  EvolutionRoute: EvolutionRoute,
+  ExpansionRoute: ExpansionRoute,
+  ExperimentsRoute: ExperimentsRoute,
+  ExportExitRoute: ExportExitRoute,
+  FeatureBuilderRoute: FeatureBuilderRoute,
+  FeatureRegisterRoute: FeatureRegisterRoute,
   GeneralityRoute: GeneralityRoute,
+  GrowthRoute: GrowthRoute,
+  ImportsRoute: ImportsRoute,
   IncidentsRoute: IncidentsRoute,
+  IntegrationContractsRoute: IntegrationContractsRoute,
+  IntegrationOptionsRoute: IntegrationOptionsRoute,
+  KnowledgeRoute: KnowledgeRoute,
   LearningRoute: LearningRoute,
   ManifestRoute: ManifestRoute,
+  MemoryGovernanceRoute: MemoryGovernanceRoute,
   MissionRoute: MissionRoute,
+  MissionGraphsRoute: MissionGraphsRoute,
+  MonetizationRoute: MonetizationRoute,
+  NotificationsRoute: NotificationsRoute,
+  NoveltyRoute: NoveltyRoute,
   OrchestratorRoute: OrchestratorRoute,
+  OwnershipRoute: OwnershipRoute,
+  PaymentReadinessRoute: PaymentReadinessRoute,
   PortfolioRoute: PortfolioRoute,
+  PortfolioDecisionsRoute: PortfolioDecisionsRoute,
+  PreviewFactoryRoute: PreviewFactoryRoute,
+  PreviewsRoute: PreviewsRoute,
   PricingRoute: PricingRoute,
   ProvidersRoute: ProvidersRoute,
   ReadinessRoute: ReadinessRoute,
+  RecoveryRoute: RecoveryRoute,
+  ReleaseEvidenceRoute: ReleaseEvidenceRoute,
+  ReleasesRoute: ReleasesRoute,
+  ReplayRoute: ReplayRoute,
   ResilienceRoute: ResilienceRoute,
   RoadmapRoute: RoadmapRoute,
+  RollbackPlannerRoute: RollbackPlannerRoute,
+  RoutingRoute: RoutingRoute,
   ScienceRoute: ScienceRoute,
+  SecretsRoute: SecretsRoute,
+  SelfHealingRoute: SelfHealingRoute,
+  SkillsRoute: SkillsRoute,
+  SpecificationsRoute: SpecificationsRoute,
+  SuperBuilderRoute: SuperBuilderRoute,
   TeamsRoute: TeamsRoute,
+  TemplatesRoute: TemplatesRoute,
+  VisualBuilderRoute: VisualBuilderRoute,
   WorkflowRoute: WorkflowRoute,
 }
 export const routeTree = rootRouteImport

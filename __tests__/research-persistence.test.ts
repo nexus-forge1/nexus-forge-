@@ -1,3 +1,4 @@
+import {ollamaFixture} from './helpers/ollama-fixture'
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "../convex/schema";
@@ -84,8 +85,8 @@ describe("Research Oracle persistence", () => {
         body: "<html><body>Verified source content</body></html>",
         truncated: false,
       }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: providerResult } }] }), { status: 200, headers: { "content-type": "application/json" } }));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+      .mockResolvedValueOnce(new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: providerResult } }] })), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     stubGateway();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -134,8 +135,8 @@ describe("Research Oracle persistence", () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(html, { status: 200, headers: { "content-type": "text/html" } }))
       .mockResolvedValueOnce(gatewayResponse({ ok: false, error: "redirect_destination_rejected" }, 403))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: providerResult } }] }), { status: 200, headers: { "content-type": "application/json" } }));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+      .mockResolvedValueOnce(new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: providerResult } }] })), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     stubGateway();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -173,8 +174,8 @@ describe("Research Oracle persistence", () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(html, { status: 200, headers: { "content-type": "text/html" } }))
       .mockResolvedValueOnce(gatewayResponse({ ok: false, error: "redirect_limit" }, 422))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: providerResult } }] }), { status: 200, headers: { "content-type": "application/json" } }));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+      .mockResolvedValueOnce(new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: providerResult } }] })), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     stubGateway();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -208,8 +209,8 @@ describe("Research Oracle persistence", () => {
       return id;
     });
     const synthesis = "SIGNALS: customer pain point. UNCERTAINTY: sample size. OPPORTUNITIES: validate demand. RISKS: weak evidence. NEXT QUESTION: will customers pay?";
-    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: synthesis } }] }), { status: 200, headers: { "content-type": "application/json" } }));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: synthesis } }] })), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await t.withIdentity(identity(owner)).action(api.research.synthesize, { missionId, ownerKey: owner });
@@ -299,7 +300,7 @@ describe("Research Oracle persistence", () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(html, { status: 200, headers: { "content-type": "text/html" } }))
       .mockResolvedValueOnce(gatewayResponse({ ok: false, error: "unauthorized" }, 401));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     stubGateway();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -341,8 +342,8 @@ describe("Research Oracle persistence", () => {
         body: "<html><body>should never be used</body></html>",
         truncated: false,
       }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: providerResult } }] }), { status: 200, headers: { "content-type": "application/json" } }));
-    vi.stubEnv("GROQ_API_KEY", "test-provider-key");
+      .mockResolvedValueOnce(new Response(JSON.stringify(ollamaFixture({ choices: [{ message: { content: providerResult } }] })), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubEnv('OLLAMA_API_KEY', "test-provider-key");
     stubGateway();
     vi.stubGlobal("fetch", fetchMock);
 

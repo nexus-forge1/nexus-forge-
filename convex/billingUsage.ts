@@ -1,6 +1,8 @@
+import { aiAllowanceEnforced } from './aiAllowance'
 import { RATE_VERSION, reportCost, chargeCents } from './billingRates'
 import { currentPaymentMode } from './billingModel'
 import { accountFor } from './billing'
+import { enforceMissionUsageBudget } from './missionUsageBudget'
 
 // Cloud runtime has a built-in URL. Offline unit fixtures have no deployed payment environment.
 export function executionMode() {
@@ -10,6 +12,7 @@ export function executionMode() {
   return mode
 }
 export async function reserveUsage(ctx:any,invocationId:any,ownerKey:string) {
+  if(!aiAllowanceEnforced())return
   const mode=executionMode();if(!mode)return
   const previous=await ctx.db.query('billingHolds').withIndex('by_invocation_mode',(q:any)=>q.eq('invocationId',invocationId).eq('mode',mode)).unique()
   if(previous)return
@@ -17,6 +20,7 @@ export async function reserveUsage(ctx:any,invocationId:any,ownerKey:string) {
   if(!account||account.frozen||account.unresolved>0)throw new Error('Paid usage is unavailable. Open Billing to fund the account or resolve its billing review.')
   const included=account.expiresAt>Date.now()?account.included:0,reserved=100
   if(included+account.prepaid<reserved)throw new Error('At least $1 available usage credit is required per AI step. Subscribe or add prepaid credit in Billing.')
+  await enforceMissionUsageBudget(ctx,invocationId,ownerKey,mode,reserved)
   const includedReserved=Math.min(included,reserved),prepaidReserved=reserved-includedReserved
   await ctx.db.patch(account._id,{included:included-includedReserved,prepaid:account.prepaid-prepaidReserved,held:account.held+reserved})
   await ctx.db.insert('billingHolds',{ownerKey,mode,invocationId,reserved,includedReserved,prepaidReserved,includedExpires:account.expiresAt,rateVersion:RATE_VERSION,status:'held',createdAt:Date.now()})

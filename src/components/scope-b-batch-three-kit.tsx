@@ -1,0 +1,5 @@
+import type { ReactNode } from 'react'
+export function BPanel({title,children}:{title:string;children:ReactNode}){return <section className="glass-card research-card" aria-label={title}><div className="panel-title"><span>ROADMAP B13–B24</span><span className="live-pill">OPERATOR UI</span></div><h2>{title}</h2>{children}</section>}
+export function BField({label,value,onChange,type='text'}:{label:string;value:string|number;onChange:(v:string)=>void;type?:string}){return <label className="scope-a-field">{label}<input type={type} value={value} onChange={e=>onChange(e.target.value)} required/></label>}
+export function BResult({error,result}:{error:string;result:string}){return <div aria-live="polite">{error&&<p role="alert" className="scope-a-error">{error}</p>}{result&&<p role="status" className="scope-a-result">{result}</p>}</div>}
+export function BSubmit({busy,label}:{busy:boolean;label:string}){return <button className="primary-button" type="submit" disabled={busy}>{busy?'Saving…':label}</button>}

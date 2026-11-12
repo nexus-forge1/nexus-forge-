@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
@@ -5,8 +6,10 @@ import { api } from "../../convex/_generated/api";
 import { useActiveMission } from "../hooks/use-active-mission";
 import type { Id } from "../../convex/_generated/dataModel";
 import { WorkspaceLayout } from "../components/workspace-layout";
+import { OrchestratorPipelineView } from "../components/orchestrator-pipeline-view";
+import { OrchestrationStageStepper } from "../components/orchestration-stage-stepper";
 
-export const Route = createFileRoute("/orchestrator")({ component: IntelligenceOrchestratorPage });
+export const Route = createFileRoute("/orchestrator")({ head: () => routeHead("/orchestrator"), component: IntelligenceOrchestratorPage });
 
 type Strategy = { name: string; rationale: string; tradeoff: string; expectedOutcome: string };
 type Specification = {
@@ -46,6 +49,33 @@ function IntelligenceOrchestratorPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [constraintOverrides, setConstraintOverrides] = useState<string[]>([]);
+  const intentAst = (() => {
+    const lines = intent.split(/\n+/).map(line => line.trim()).filter(Boolean);
+    const budgetMatch = intent.match(/(?:budget|spend|cost)\s*(?:cap|limit|of|is|:)?\s*\$?\s*(\d+(?:\.\d+)?)/i);
+    const timeMatch = intent.match(/\b(\d+\s*(?:hours?|days?|weeks?|months?))\b/i);
+    const signals = [/\bmust\b/i, /\bnever\b/i, /\bdo not\b/i, /\bwithout\b/i, /\bonly\b/i, /\bavoid\b/i, /\brequire(?:s|d)?\b/i, /\bprivacy\b/i, /\bapproval\b/i];
+    const extracted = lines.filter(line => signals.some(pattern => pattern.test(line)));
+    return { objective: lines[0] ?? '', sourceLines: lines.length, constraints: [...new Set([...extracted, ...constraintOverrides])].slice(0, 20), budgetMention: budgetMatch?.[1] ?? null, timeMention: timeMatch?.[1] ?? null, chars: intent.trim().length };
+  })();
+  const orchestrationStages = [
+    { key: 'intent', label: 'Intent received', state: intent.trim().length >= 12 ? 'READY' : 'NEEDS INPUT' },
+    { key: 'ast', label: 'Structured AST & constraints', state: intentAst.chars >= 12 ? 'DERIVED · REVIEW' : 'WAITING' },
+    { key: 'compile', label: 'AI specification', state: specification ? 'SAVED' : 'WAITING' },
+    { key: 'strategy', label: 'Strategy tradeoff review', state: specification && selectedStrategy !== null ? 'OPERATOR SELECTED' : specification ? 'REVIEW REQUIRED' : 'WAITING' },
+    { key: 'mission', label: 'Governed draft mission', state: notice.includes('Governed draft mission created') ? 'CREATED · NOT APPROVED' : 'GATED' },
+  ];
+  const strategyTradeoffs = (specification?.strategies ?? []).map((s, i) => {
+    const text = `${s.name} ${s.rationale} ${s.tradeoff} ${s.expectedOutcome}`.toLowerCase();
+    const dimensions = [
+      { label: 'Cost / budget', match: /cost|budget|spend|price|cheap|expense/.test(text) },
+      { label: 'Speed / time', match: /speed|fast|time|deadline|hours|days|quick/.test(text) },
+      { label: 'Risk / reversibility', match: /risk|failure|rollback|revers|uncertain|safe/.test(text) },
+      { label: 'Evidence / measurement', match: /evidence|measure|metric|validate|experiment|signal/.test(text) },
+      { label: 'Scale / maintainability', match: /scale|maintain|reliab|support|growth|complex/.test(text) },
+    ];
+    return { ...s, index: i, signalCount: [s.rationale, s.tradeoff, s.expectedOutcome].filter(value => value.trim().length >= 20).length, dimensions, dimensionCount: dimensions.filter(d => d.match).length, chosen: i === selectedStrategy, recommended: i === specification?.recommendedStrategy };
+  });
 
   const compile = async () => {
     setError(""); setNotice("");
@@ -55,6 +85,7 @@ function IntelligenceOrchestratorPage() {
       const result = await compileIntent({ intent: intent.trim(), domain, budget, horizon });
       const compiled = result.specification as Specification;
       setSpecification(compiled);
+      setConstraintOverrides(compiled.constraints);
       setSourceMemoryId(result.sourceMemoryId);
       setSelectedStrategy(compiled.recommendedStrategy);
       setNotice("Mission specification saved. Review the alternatives and select the strategy to carry into the governed draft.");
@@ -92,7 +123,7 @@ function IntelligenceOrchestratorPage() {
   };
 
   const history = (savedRows ?? []) as SavedSpec[];
-  return <WorkspaceLayout title="Intelligence Orchestrator" eyebrow="STAGE 02 / STRUCTURE → STRATEGY → GOVERNED MISSION">
+  return <WorkspaceLayout title="Intelligence Orchestrator" eyebrow="STAGE 02 / STRUCTURE → STRATEGY → GOVERNED MISSION"><OrchestratorPipelineView/><OrchestrationStageStepper/>
     <section className="workspace">
       <div className="hero-grid">
         <div className="hero-copy">
@@ -107,6 +138,7 @@ function IntelligenceOrchestratorPage() {
           <p className="muted-copy">Execution and production delivery remain separate, explicitly governed steps.</p>
         </div>
       </div>
+      <div className="glass-card research-card" id="orchestration-pipeline" aria-live="polite"><div className="panel-title"><span>PIPELINE EXECUTION VISUALIZER</span><span className="live-pill">{orchestrationStages.filter(stage => stage.state !== 'WAITING' && stage.state !== 'GATED' && stage.state !== 'NEEDS INPUT').length}/{orchestrationStages.length} STAGES ACTIVE</span></div><div className="workflow-step-list">{orchestrationStages.map((stage, index) => <article className={`workflow-step ${stage.state === 'SAVED' || stage.state === 'CREATED · NOT APPROVED' || stage.state === 'OPERATOR SELECTED' ? 'is-done' : 'is-current'}`} key={stage.key}><span className="workflow-step-mark">{String(index + 1).padStart(2, '0')}</span><span className="workflow-step-copy"><strong>{stage.label}</strong><small>{stage.state}</small></span><span className="workflow-step-state">{stage.state}</span></article>)}</div><p className="muted-copy">Stages reflect this page's real UI state and saved mutation receipts. They do not imply provider execution, mission approval, deployment, or payment activation.</p></div>
       <div className="console-grid">
         <div className="glass-card research-card">
           <div className="panel-title"><span>INTENT COMPILER</span><span className="live-pill">BOUNDED AI RUN</span></div>
@@ -119,15 +151,16 @@ function IntelligenceOrchestratorPage() {
           <label htmlFor="orchestrator-horizon">TIME HORIZON</label>
           <select id="orchestrator-horizon" value={horizon} onChange={e => setHorizon(e.target.value)}>{["48 hours", "7 days", "14 days", "30 days", "90 days", "Exploratory / no fixed deadline"].map(x => <option key={x}>{x}</option>)}</select>
           <button className="primary-button" disabled={busy} onClick={() => void compile()}>{busy ? "Compiling intent…" : "Compile mission specification ↗"}</button>
-          <p className="muted-copy">Uses the configured provider router and saves a private specification. No mission is created until you choose to create a draft.</p>
+          <p className="muted-copy">Uses the configured provider router and saves a private specification. No mission is created until you choose to create a draft.</p><details id="intent-ast-panel"><summary>Inspect structured intent AST and extracted constraints</summary><p><strong>Objective node</strong>: {intentAst.objective || 'No objective line yet'}</p><p>Source lines: {intentAst.sourceLines} · Characters: {intentAst.chars} · Budget mention: {intentAst.budgetMention ?? 'not detected'} · Time mention: {intentAst.timeMention ?? 'not detected'}</p><h4>Constraint nodes</h4>{intentAst.constraints.length ? <ul>{intentAst.constraints.map((constraint, index) => <li key={`${index}-${constraint}`}>{constraint}</li>)}</ul> : <p>No explicit constraint language detected. Add constraints to the intent or review the AI-extracted list after compilation.</p>}<label htmlFor="intent-constraint-override">Add a manually confirmed constraint</label><input id="intent-constraint-override" maxLength={300} value={constraintOverrides.filter(value => !specification?.constraints.includes(value)).join(' · ')} onChange={e => setConstraintOverrides(current => [...new Set([...current.filter(value => specification?.constraints.includes(value)), ...e.target.value.split('·').map(value => value.trim()).filter(Boolean)])].slice(0, 20))} placeholder="Privacy, budget, approval, platform boundary…" /><p className="muted-copy">This is a local structured preview until Compile mission specification saves the AI-generated contract. Review the saved specification separately.</p></details>
         </div>
         <div className="glass-card research-card">
           <div className="panel-title"><span>MISSION SPECIFICATION</span><span className="live-pill">{specification ? "REVIEW REQUIRED" : "AWAITING INTENT"}</span></div>
           {specification ? <>
             <h3>{specification.objective}</h3>
             <div className="decision-line"><span>DEADLINE TARGET</span><strong>{specification.deadline}</strong></div>
-            <h4>Competing strategies</h4>
-            {specification.strategies.map((s, i) => <div className="decision-line" key={s.name}><span>{i === selectedStrategy ? "SELECTED" : i === specification.recommendedStrategy ? "AI RECOMMENDED" : `OPTION ${i + 1}`}</span><div><strong>{s.name}</strong><p>{s.rationale} Trade-off: {s.tradeoff} Expected: {s.expectedOutcome}</p><button type="button" className={i === selectedStrategy ? "secondary-button small" : "secondary-button small"} aria-pressed={i === selectedStrategy} onClick={() => setSelectedStrategy(i)}>{i === selectedStrategy ? "Selected strategy ✓" : "Choose this strategy"}</button></div></div>)}
+            <h4>Competing strategies and tradeoff evaluation</h4><p>Compare the stated rationale, tradeoff and expected outcome. Completeness is a contract signal only, not a quality score or proof that a strategy will succeed.</p>
+            {strategyTradeoffs.map(s => <div className="decision-line" key={s.name}><span>{s.chosen ? "OPERATOR SELECTED" : s.recommended ? "AI RECOMMENDED" : `OPTION ${s.index + 1}`}</span><div><strong>{s.name}</strong><p>{s.rationale} Trade-off: {s.tradeoff} Expected: {s.expectedOutcome}</p><small>Tradeoff fields present: {s.signalCount}/3 · detected dimensions: {s.dimensionCount}/5 · recommendation remains advisory</small><small>{s.dimensions.map(d => `${d.label}: ${d.match ? 'mentioned' : 'not detected'}`).join(' · ')}</small><button type="button" className="secondary-button small" aria-pressed={s.chosen} onClick={() => setSelectedStrategy(s.index)}>{s.chosen ? "Selected strategy ✓" : "Choose this strategy"}</button></div></div>)}
+            <div className="glass-card research-card" id="task-aware-model-assignment"><h4>Task-aware model assignment</h4><p>Model assignment uses the existing provider execution contracts and evidence-scoped routing policy. No arbitrary model name is sent from the browser, and a chosen strategy does not bypass mission approval.</p><div className="hero-actions"><Link className="secondary-button" to="/routing">Compare models using measured routing evidence →</Link><Link className="secondary-button" to="/mission-graphs">Assign a provider to a frozen task graph →</Link><Link className="secondary-button" to="/providers">Inspect provider health and latency →</Link></div></div>
             <h4>Acceptance criteria</h4><ul>{specification.acceptanceCriteria.map(x => <li key={x}>{x}</li>)}</ul>
             <h4>Constraints</h4><ul>{specification.constraints.map(x => <li key={x}>{x}</li>)}</ul>
             <h4>Dependencies and risks</h4><ul>{[...specification.dependencies.map(x => `Dependency: ${x}`), ...specification.risks.map(x => `Risk: ${x}`)].map(x => <li key={x}>{x}</li>)}</ul>

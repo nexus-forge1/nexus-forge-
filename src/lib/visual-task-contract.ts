@@ -1,0 +1,28 @@
+export type VisualConfig={heading:string;buttonLabel:string;headingSize:'small'|'standard'|'large';buttonStyle:'primary'|'secondary';density:'compact'|'comfortable'|'roomy';width:'narrow'|'standard'|'wide';columns:'single'|'two-desktop'}
+export const visualChoices={headingSize:['small','standard','large'],buttonStyle:['primary','secondary'],density:['compact','comfortable','roomy'],width:['narrow','standard','wide'],columns:['single','two-desktop']} as const
+export function defaultVisual(title:string):VisualConfig{return{heading:title,buttonLabel:'Create task',headingSize:'standard',buttonStyle:'primary',density:'comfortable',width:'standard',columns:'single'}}
+export function visualScope(key:string){if(!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(key)||key.length>32||key.length<3)throw Error('Unsupported feature key');return'vf_'+key.replaceAll('-','_')}
+export function visualCss(scope:string,c:VisualConfig){
+ if(!/^vf_[a-z][a-z0-9_]{2,31}$/.test(scope))throw Error('Invalid visual scope')
+ const pad={compact:'.75rem',comfortable:'1.25rem',roomy:'2rem'}[c.density],size={small:'1.25rem',standard:'1.75rem',large:'2.25rem'}[c.headingSize],width={narrow:'42rem',standard:'60rem',wide:'80rem'}[c.width]
+ return[
+ '.'+scope+'{width:100%;max-width:'+width+';margin-inline:auto;}',
+ '.'+scope+'>.glass-card{padding:'+pad+';}',
+ '.'+scope+'>.glass-card>h2{font-size:'+size+';line-height:1.2;overflow-wrap:anywhere;}',
+ '.'+scope+' .visual-task-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:'+pad+';margin-top:'+pad+';}',
+ '.'+scope+' .visual-task-grid>article{min-width:0;overflow-wrap:anywhere;}',
+ c.columns==='two-desktop'?'@media(min-width:48rem){.'+scope+' .visual-task-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}':'',
+ ].filter(Boolean).join('\n')
+}
+export function escapeVisualHtml(s:string){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;")}
+export type PreviewState='live'|'loading'|'empty'|'error'|'denied'
+export type PreviewTask={title:string;status:string;archived:boolean}
+export function visualPreviewDocument(c:VisualConfig,scope:string,nonce:string,state:PreviewState,rows:PreviewTask[],theme:Record<string,string>){
+ if(!/^[a-zA-Z0-9]{16,64}$/.test(nonce))throw Error('Invalid preview nonce')
+ const e=escapeVisualHtml,keys=['ink','ink-soft','paper','card','cyan','line','secondary'],tokens=keys.map(k=>{const value=theme[k];if(!value||!/^[0-9. %/\-]+$/.test(value))throw Error('Unavailable preview theme');return'--'+k+':'+value+';'}).join('')
+ const data=state==='live'?rows:[],status=state==='loading'?'Loading tasks…':state==='empty'||state==='live'&&!data.length?'No tasks yet.':state==='error'?'Task action refused.':state==='denied'?'Authenticated owner session required.':''
+ const cards=data.map(r=>'<article><h3>'+e(r.title)+'</h3><p>'+e(r.status)+' · '+(r.archived?'archived':'active')+'</p><label>Title<input disabled value="'+e(r.title)+'"/></label><button type="button" disabled>Save task</button><button type="button" disabled>Archive</button></article>').join('')
+ const css=':root{'+tokens+'}*{box-sizing:border-box}body{margin:0;padding:1rem;background:hsl(var(--paper));color:hsl(var(--ink));font:14px system-ui,sans-serif}.glass-card{border:1px solid hsl(var(--line));border-radius:14px;background:hsl(var(--card))}label{display:block;margin:.75rem 0}input{display:block;width:100%;padding:.6rem;border:1px solid hsl(var(--line));border-radius:8px;background:hsl(var(--card));color:hsl(var(--ink))}button{padding:.65rem .9rem;border:1px solid hsl(var(--line));border-radius:8px;font:inherit;cursor:pointer}.primary-button{background:hsl(var(--ink));color:hsl(var(--cyan))}.secondary-button{background:hsl(var(--secondary));color:hsl(var(--ink))}article{padding:1rem;border:1px solid hsl(var(--line));border-radius:10px}button:disabled{cursor:default;opacity:.65}[data-vb-id]{outline-offset:4px;cursor:pointer}[data-vb-id]:focus{outline:2px solid hsl(var(--cyan))}'+visualCss(scope,c)
+ const script='document.addEventListener("click",function(e){var t=e.target instanceof Element?e.target.closest("[data-vb-id]"):null;if(t){parent.postMessage({type:"nexus-visual-select",nonce:'+JSON.stringify(nonce)+',element:t.getAttribute("data-vb-id")},"*")}});document.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){var t=e.target instanceof Element?e.target.closest("[data-vb-id]"):null;if(t){e.preventDefault();t.click()}}});'
+ return'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; script-src \'nonce-'+nonce+'\'; connect-src \'none\'; form-action \'none\'; base-uri \'none\'"><style>'+css+'</style></head><body><section class="'+scope+'"><div class="glass-card" data-vb-id="card" tabindex="0" aria-label="Select card"><h2 data-vb-id="heading" tabindex="0" role="button" aria-label="Select heading">'+e(c.heading)+'</h2><p>Read-only visual model. Click supported elements to edit their source settings.</p><label>Creation key<input disabled value="Preview only"/></label><label>Task title<input disabled value="Owner-private task"/></label><button type="button" class="'+c.buttonStyle+'-button" data-vb-id="button">'+e(c.buttonLabel)+'</button>'+(status?'<p role="status">'+e(status)+'</p>':'')+'<div class="visual-task-grid" data-vb-id="layout" tabindex="0" aria-label="Select task layout">'+cards+'</div></div></section><script nonce="'+nonce+'">'+script+'</script></body></html>'
+}

@@ -1,0 +1,11 @@
+import { useState } from 'react'
+import { useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import { useMissionGuide } from '../lib/use-mission-guide'
+import { ScopeAPanel, ScopeAResult, ScopeASubmit } from './scope-a-ui-kit'
+
+export function RoadmapAcceptanceMatrix(){const {missionId}=useMissionGuide(),resolve=useMutation(api.scopeAFunctions.resolveRoadmapAcceptance)
+ const [milestoneKey,setMilestoneKey]=useState('phase-1'),[accepted,setAccepted]=useState(false),[expectedRevision,setExpectedRevision]=useState('0'),[evidence,setEvidence]=useState(''),[note,setNote]=useState('Reviewed milestone criteria and current evidence.'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState('')
+ async function submit(e:React.FormEvent){e.preventDefault();if(!missionId)return;setBusy(true);setError('');setResult('');try{const out=await resolve({missionId,milestoneKey,accepted,expectedRevision:Number(expectedRevision),evidenceReferences:evidence.split('\n').map(x=>x.trim()).filter(Boolean),note});setResult(`Acceptance ${out.accepted?'recorded':'not accepted'} · revision ${out.revision} · blockers: ${out.blockers.join(', ')||'none returned'}`)}catch(x){setError(x instanceof Error?x.message:'Acceptance resolution failed')}finally{setBusy(false)}}
+ return <ScopeAPanel title="Roadmap acceptance matrix" eyebrow="A4 · MILESTONE GATES"><form onSubmit={submit}><label className="scope-a-field">Milestone key<input value={milestoneKey} onChange={e=>setMilestoneKey(e.target.value)} required/></label><label className="scope-a-field">Expected revision<input type="number" min="0" value={expectedRevision} onChange={e=>setExpectedRevision(e.target.value)} required/></label><label className="scope-a-field">Evidence references (one per line)<textarea value={evidence} onChange={e=>setEvidence(e.target.value)}/></label><label className="scope-a-field">Acceptance note<textarea value={note} onChange={e=>setNote(e.target.value)} required/></label><label><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)}/> Request acceptance (backend may reject if criteria are unmet)</label><ScopeASubmit busy={busy} label="Resolve acceptance"/></form><ScopeAResult value={result} error={error}/></ScopeAPanel>
+}

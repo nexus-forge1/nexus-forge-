@@ -1,0 +1,12 @@
+# NEXUS FORGE
+
+> A governed AI workspace for research, creation, verification and measured outcomes.
+
+## Public pages
+
+- [Welcome](https://www.network-x-ai.com/): Product entry and account access.
+- [Pricing](https://www.network-x-ai.com/pricing): Paid subscriptions and prepaid usage credits.
+
+## Access and evidence
+
+Workspace pages require authentication. Mission records, provider ledgers, invoice comparisons and billing receipts are private. Public login shells do not expose workspace data. Capability and readiness claims depend on their recorded evidence; the platform does not claim AGI or superintelligence.

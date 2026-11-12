@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { routeHead } from '../lib/route-metadata'
 import { WorkspaceLayout } from '../components/workspace-layout'
-import { ExpansionGuide } from '../components/expansion-guide'
 import { ExperimentLab } from '../components/experiment-lab'
-import metadata from '../metadata.json'
-export const Route=createFileRoute('/generality')({head:()=>{const p=metadata['/generality'];return{meta:[{title:p.title},{name:'description',content:p.description}],links:[{rel:'canonical',href:'https://bphntw8kdojl9qvuifywyjtk.macaly.app/generality'}]}},component:Page})
-function Page(){return <WorkspaceLayout title="Generality Research" eyebrow="EXPANDED CAPABILITIES"><ExpansionGuide path="/generality"/><ExperimentLab kind="generality"/></WorkspaceLayout>}
+import { GeneralityContainmentWorkbench } from '../components/roadmap-batch-four'
+import { GeneralizationResearchVisuals } from '../components/expanded-capabilities'
+import { GeneralityContainmentInspector } from '../components/generality-containment-inspector'
+import { GeneralityAdaptationVisualizer } from '../components/generality-adaptation-visualizer'
+export const Route = createFileRoute('/generality')({ head: () => routeHead('/generality'), component: Page })
+function Page() {
+  return <WorkspaceLayout title="Generality & Alignment Research" eyebrow="ROADMAP B24 / CONTAINED EVALUATION"><GeneralityContainmentWorkbench /><GeneralityContainmentInspector /><GeneralityAdaptationVisualizer /><GeneralizationResearchVisuals /><ExperimentLab kind="generality" /></WorkspaceLayout>
+}

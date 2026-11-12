@@ -1,3 +1,4 @@
+import { routeHead } from '../lib/route-metadata'
 import { useCallback,useEffect,useMemo,useState } from 'react'
 import { createFileRoute,Link } from '@tanstack/react-router'
 import { useAction } from 'convex/react'
@@ -5,7 +6,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider,EmbeddedCheckout } from '@stripe/react-stripe-js'
 import { api } from '../../convex/_generated/api'
 import { AuthWrapper } from '../components/auth-wrapper'
-export const Route=createFileRoute('/checkout')({validateSearch:(search:Record<string,unknown>)=>({product:typeof search.product==='string'?search.product:''}),component:Checkout})
+export const Route=createFileRoute('/checkout')({ head: () => routeHead("/checkout"),validateSearch:(search:Record<string,unknown>)=>({product:typeof search.product==='string'?search.product:''}),component:Checkout})
 function Content(){
  const {product}=Route.useSearch(),create=useAction(api.payments.checkout)
  const [requestKey,setRequestKey]=useState(''),[error,setError]=useState(''),[complete,setComplete]=useState(false)
