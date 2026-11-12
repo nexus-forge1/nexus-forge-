@@ -1,15 +1,21 @@
 # GitHub reconciliation — November 12, 2026
 
-PR #152 reconciles the deployed Macaly application with GitHub. The initial 828-file source/configuration inventory matched the candidate branch exactly. The subsequent TypeScript checker setting is included on both sides. Cloudflare workers and all seven tracked static assets also match. The two Python backup verification helpers match the current operational repository, nexus-forge1/no-dispatch, and are included in this follow-up.
+PR #152 reconciles the current NEXUS FORGE application, validation fixtures, operational scripts and build configuration with GitHub. Environment/platform files and private backup or billing material are excluded. Existing GitHub workflows and historical delivery/outcome evidence are retained. Both Python backup verification helpers match the operational repository nexus-forge1/no-dispatch.
 
-The first candidate CI run installed locked dependencies successfully but stopped at four production dependency advisories. Applying pnpm's audit fixes added seven scoped transitive overrides, including development dependency repairs, and regenerated pnpm-lock.yaml. The subsequent production audit reports zero findings at every severity. The project .sandbox/check-errors --strict command passes. No automated test runner was invoked during this follow-up; existing GitHub CI runs automatically on PR updates.
+## Resulting behavior
 
-pnpm-lock.yaml and pnpm-workspace.yaml are authoritative for the existing GitHub CI, which uses the packageManager declared in package.json. The historical npm lockfile is retained; it does not encode pnpm overrides. Use pnpm for a reproducible CI installation.
+The app uses the selected six Ollama Cloud models. Controlled provider fixtures now emit Ollama's completed-message and usage-count protocol. Graph tests use the V2 read contracts while legacy API compatibility remains intact. Comparison fixtures cover all twelve model/prompt requests, immutable checkpoints, missing usage and admission failures. Diagnostics verify bounded responses, secret-free errors, retired-provider rejection and account-wide stop behavior. Ownership, replay, resource and billing invariants remain asserted.
 
-A clean GitHub type check then exposed two existing test modules importing esbuild without a direct development dependency. The sandbox had a hoisted copy, masking that missing declaration. Declare esbuild 0.27.0 explicitly and regenerate the pnpm importer; this uses the same compiler version already present in the validated sandbox.
+UI fixtures match current document labels, notification acknowledgment language, authentication query identities, archive lifecycle and registered workspace count. Six existing dedicated routes now have metadata, and three duplicate page titles are distinct. The sixteen-page operating guide remains intact; retired multimodal features remain absent.
 
-The latest completed full GitHub CI run on cc8c579 passed locked installation, production audit and type checking, then reported 1,208 passing and 98 failing tests across 22 failing files; another suite could not load its mixed-workload profile, which is now included in the branch. Several fixtures still target the retired provider routing or older UI/metadata contracts. Do not merge this PR or call full regression acceptance complete until those failures are resolved. DOM benchmarks, exact Chromium checks and Live public probes passed in that run.
+The research text extractor handles whitespace in script/style end tags and truncated blocks, and decodes supported entities once. Provider fixture URL checks use exact hostnames. CodeQL cleared the four earlier findings on the security repair; final-head GitHub validation is required before merge.
 
-CodeQL reported four high-severity patterns: URL substring comparisons in provider fixtures, permissive script closing tags and repeated entity decoding in research text extraction. Exact hostname comparisons and bounded block removal with one-pass entity decoding are patched in the candidate. Type checking and production build pass after these edits; the independent CodeQL rerun remains required. These backend source repairs have not been deployed to Live while release checks are blocked.
+## Validation
 
-This reconciliation does not establish representative service capacity, full-service recovery, invoice reconciliation or payment activation. Database target remains Live; no load or restore work was run against Live. B17 remains locked.
+The user authorized targeted tests and further regression validation on November 12. Full isolated suite: 1,311 passed, zero failed, 208 files. Targeted follow-up: 55 passed, zero failed. TypeScript compilation and the production build pass. No test called a real AI provider or modified Live data.
+
+Clean-install repairs declare esbuild 0.27.0 directly and apply scoped pnpm overrides for audited transitive dependencies. The production audit reports zero findings at every severity. Frozen pnpm installation succeeds without regenerating its lockfile. pnpm-lock.yaml and pnpm-workspace.yaml are authoritative for existing CI; the retained historical npm lockfile does not encode pnpm overrides.
+
+## Operational limits
+
+These software checks do not establish current-release representative capacity, full-service recovery or provider invoice reconciliation. Historical bounded workload and isolated restore receipts remain valid only for their recorded scopes. Both current sandbox and publish targets report Live; no production load or data restore was performed. B17 payment activation remains locked. Merge and deployment status are reported separately after exact-head checks complete.

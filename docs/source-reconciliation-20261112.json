@@ -4153,29 +4153,28 @@
     "convex/macaly.ts"
   ],
   "followup": {
-    "macalySourceHead": "7743574b8af9036c537cf2bbd3aebff3a269c07a",
-    "checkedGithubHead": "61be229394bdc92d0dc40bc890c0e97309769b52",
-    "selectedSourceFiles": 830,
+    "macalySourceHead": "753f5cd2352166deada72d2f7ef24342a00ea1e3",
+    "checkedGithubHead": "c066e132aada30d9a29f05f986f4bfc05fbaf212",
+    "selectedSourceFiles": 831,
     "mismatches": 0,
-    "productionAudit": {
-      "info": 0,
-      "low": 0,
-      "moderate": 0,
-      "high": 0,
-      "critical": 0
+    "validation": {
+      "passedTests": 1311,
+      "failedTests": 0,
+      "testFiles": 208,
+      "targetedPassed": 55,
+      "typecheck": "passed",
+      "productionBuild": "passed",
+      "frozenPnpmInstall": "passed",
+      "productionAudit": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0
+      }
     },
-    "typecheck": "passed",
-    "productionBuild": "passed",
-    "releaseStatus": "blocked",
-    "latestCompletedCi": {
-      "head": "cc8c579048d75bac5ea40dbfff5a91c983c24f55",
-      "passedTests": 1208,
-      "failedTests": 98,
-      "failedFiles": 22,
-      "missingProfile": "subsequently restored",
-      "runUrl": "https://github.com/nexus-forge1/nexus-forge-/actions/runs/43163557417"
-    },
-    "security": "Four reported CodeQL patterns patched in candidate; independent re-verification pending; backend repairs not deployed.",
+    "githubChecks": "Final-head CI must complete before merging; prior CodeQL security repair passed.",
+    "operationalLimits": "Software validation does not establish current-release capacity, full-service recovery or provider billing reconciliation. B17 remains locked.",
     "inventory": [
       {
         "path": "__tests__/active-mission-selection.test.tsx",
@@ -4323,7 +4322,7 @@
       },
       {
         "path": "__tests__/convex/comparison-progress.test.ts",
-        "sha": "2be8264ca8c84d1c08be65982c7a5ca340740f26"
+        "sha": "9f382d951bfce52d7e7d61a4babb18c94614e817"
       },
       {
         "path": "__tests__/convex/continuation-history.test.ts",
@@ -4335,7 +4334,7 @@
       },
       {
         "path": "__tests__/convex/council-continuation.test.ts",
-        "sha": "9ee1061a6c38c80f3e7e25e8f2930143ca9a1b2f"
+        "sha": "57f001c73315cbf1f3fea57ff42310c066e1efcc"
       },
       {
         "path": "__tests__/convex/delivery-dispatch-safety.test.ts",
@@ -4379,7 +4378,7 @@
       },
       {
         "path": "__tests__/convex/live-comparisons.test.ts",
-        "sha": "e0bf8cb0b652e366dc39eb732f33598c72efba98"
+        "sha": "61169583f4fd55ff3ae0405a0977e39bb2a57f90"
       },
       {
         "path": "__tests__/convex/measured-outcome-replay.test.ts",
@@ -4415,7 +4414,7 @@
       },
       {
         "path": "__tests__/convex/provider-response-bounds.test.ts",
-        "sha": "35c04ee0fa73c7230a03971e7eece817c50f9748"
+        "sha": "d53f7cca321cbcac9d28f006d7d1d9196c5142e1"
       },
       {
         "path": "__tests__/convex/readiness-egress.test.ts",
@@ -4539,7 +4538,7 @@
       },
       {
         "path": "__tests__/execution-claims.test.ts",
-        "sha": "a259b60e94229826353aaeb36c2fc7924e0bbe90"
+        "sha": "b1f321b06bcb38d0440e14ebe977f07684511d3f"
       },
       {
         "path": "__tests__/execution-review-ui.test.tsx",
@@ -4551,7 +4550,7 @@
       },
       {
         "path": "__tests__/expansion-guide.test.ts",
-        "sha": "bb827eef5fdde9732713e5ced5d28faac9d02638"
+        "sha": "5f2a530f9bf1ddd012eb2107ad5d066b74f715f9"
       },
       {
         "path": "__tests__/experiment-contracts.test.ts",
@@ -4579,7 +4578,7 @@
       },
       {
         "path": "__tests__/graph-provider-execution.test.ts",
-        "sha": "67e3d7b8eeaa7338267c95ba0a1f57aac701ccc4"
+        "sha": "741b42426bc273815a1424bbd20ea0fb55a20e8f"
       },
       {
         "path": "__tests__/incident-parser.test.ts",
@@ -4619,7 +4618,7 @@
       },
       {
         "path": "__tests__/manifest-persistence.test.ts",
-        "sha": "a9f94ca53af8db3128be6ee67d07c62f9a23dbf2"
+        "sha": "29d9d1497aa55407c6b527bda03adfab6c597b79"
       },
       {
         "path": "__tests__/manifest-receipt.test.ts",
@@ -4643,7 +4642,7 @@
       },
       {
         "path": "__tests__/memory-governance.test.ts",
-        "sha": "bb17d99a32ae01715fa298895bf533fa21e7793e"
+        "sha": "db8ff1bbccf4bf91598420f0080694adfb4abe47"
       },
       {
         "path": "__tests__/memory-retrieval-evaluation.test.ts",
@@ -4687,7 +4686,7 @@
       },
       {
         "path": "__tests__/mission-runtime.test.ts",
-        "sha": "066f9ceae1be4d16898b8a5e47f12087558b1c01"
+        "sha": "5782fde20ebdcca1e341d6a24a0da394970218a0"
       },
       {
         "path": "__tests__/mission-selection.test.ts",
@@ -4703,7 +4702,7 @@
       },
       {
         "path": "__tests__/notification-center.test.tsx",
-        "sha": "44ece329521736a903538c6beec6fcccc44bded8"
+        "sha": "41e7904d896282e788a3199eb75cf5cee5abc2df"
       },
       {
         "path": "__tests__/ollama-provider.test.ts",
@@ -4739,7 +4738,7 @@
       },
       {
         "path": "__tests__/outcome-routing.test.ts",
-        "sha": "ce77390e3a16364fb8185432d8365e29cb16cb2b"
+        "sha": "65acca9f2105719bf47ddad46dd63585c64cd00b"
       },
       {
         "path": "__tests__/ownership-isolation.test.ts",
@@ -4815,7 +4814,7 @@
       },
       {
         "path": "__tests__/project-studio-ui.test.tsx",
-        "sha": "0dc05b3ea8b9e88805261ecaa1d3ae091863e75b"
+        "sha": "b14122e13e61264bc8e497111b5a4e534dd41d3c"
       },
       {
         "path": "__tests__/project-studio.test.ts",
@@ -4855,7 +4854,7 @@
       },
       {
         "path": "__tests__/release-evidence-auth.test.tsx",
-        "sha": "d83e99fcfed0cace64c960dd92d90861ddfaedce"
+        "sha": "3c5c1b49f8aad06b1e057b94d7ade264db20e3ae"
       },
       {
         "path": "__tests__/release-evidence-ledger.test.ts",
@@ -4883,7 +4882,7 @@
       },
       {
         "path": "__tests__/research-evaluation-ui.test.tsx",
-        "sha": "38bd9f7ac2bcd032e2cc31bab88091a9ad833a06"
+        "sha": "2bd6c6d9d8a9c4bb5d6a86a59c0e7bd170a911a0"
       },
       {
         "path": "__tests__/research-gateway-bounds.test.ts",
@@ -4895,7 +4894,7 @@
       },
       {
         "path": "__tests__/research-persistence.test.ts",
-        "sha": "5c0acc9c00236e5bdec8a4531dd69d6f079cc352"
+        "sha": "013eed129a2617c8c38c4708fffcc83350ff780e"
       },
       {
         "path": "__tests__/research-response.test.ts",
@@ -4919,7 +4918,7 @@
       },
       {
         "path": "__tests__/roadmap-release-integration.test.tsx",
-        "sha": "eadeff2bc0669d64916e92821df8d34705bc45df"
+        "sha": "fb6f0268fe90fb559ea817227d3d11f9ceda365a"
       },
       {
         "path": "__tests__/route-access.test.tsx",
@@ -4995,11 +4994,11 @@
       },
       {
         "path": "__tests__/workflow-e2e.test.tsx",
-        "sha": "d658c1f402fba71fcd525e7b62e7225e4a34f534"
+        "sha": "e205089e45b364ec4a9584c12390a532be040c0e"
       },
       {
         "path": "__tests__/workflow-source-audit.test.tsx",
-        "sha": "c0be47d97798ca23c940a4a3cad40fcb40a1fe5a"
+        "sha": "a4b15c89a2899e6a884196747ec719dd04cb3a64"
       },
       {
         "path": "__tests__/workspace-loading.test.tsx",
@@ -5007,7 +5006,7 @@
       },
       {
         "path": "__tests__/workspace-registry.test.ts",
-        "sha": "f335ccce782593202457010c584489b09b569c99"
+        "sha": "8d50e4ec74922dacd282ec8a5836fd5618e7aec2"
       },
       {
         "path": "components.json",
@@ -7131,7 +7130,7 @@
       },
       {
         "path": "src/metadata.json",
-        "sha": "7776b2845f939058f071cde007f9e75c36632d5a"
+        "sha": "c2d7a6439951eb8ca68ad398445d23a3983077a6"
       },
       {
         "path": "src/routeTree.gen.ts",
@@ -7496,6 +7495,10 @@
       {
         "path": "scripts/check-recovery-point.py",
         "sha": "192bbbdf0457f117773d70800e97b5ec00a78bf9"
+      },
+      {
+        "path": "__tests__/helpers/ollama-fixture.ts",
+        "sha": "3056d3554caf8c57ff0f68d3c3a4e07adb267e64"
       }
     ]
   }
