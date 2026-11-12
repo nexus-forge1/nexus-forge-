@@ -6,4 +6,6 @@ The first candidate CI run installed locked dependencies successfully but stoppe
 
 pnpm-lock.yaml and pnpm-workspace.yaml are authoritative for the existing GitHub CI, which uses the packageManager declared in package.json. The historical npm lockfile is retained; it does not encode pnpm overrides. Use pnpm for a reproducible CI installation.
 
+A clean GitHub type check then exposed two existing test modules importing esbuild without a direct development dependency. The sandbox had a hoisted copy, masking that missing declaration. Declare esbuild 0.27.0 explicitly and regenerate the pnpm importer; this uses the same compiler version already present in the validated sandbox.
+
 This reconciliation does not establish representative service capacity, full-service recovery, invoice reconciliation or payment activation. Database target remains Live; no load or restore work was run against Live. B17 remains locked.
