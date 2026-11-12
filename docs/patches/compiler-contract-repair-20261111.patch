@@ -1,0 +1,185 @@
+diff --git a/convex/scopeAFunctions.ts b/convex/scopeAFunctions.ts
+index 03f6a8a..c328798 100644
+--- a/convex/scopeAFunctions.ts
++++ b/convex/scopeAFunctions.ts
+@@ -419,7 +419,7 @@ export const validateSkillContract = query({
+ export const appendReplayEvent = mutation({
+   args: { replayId: v.id('runtimeReplays'), eventKey: v.string(), expectedRevision: v.number(), operation: v.union(v.literal('advance'), v.literal('pause'), v.literal('resume')), reason: v.string() },
+   returns: v.id('runtimeReplayEvents'),
+-  handler: async (ctx, args) => {
++  handler: async (ctx, args): Promise<Id<'runtimeReplayEvents'>> => {
+     const eventKey = boundedKey(args.eventKey, 'Replay event key', 100)
+     if (!Number.isSafeInteger(args.expectedRevision) || args.expectedRevision < 0 || args.expectedRevision > 32) throw new ConvexError('Expected replay revision must be an integer from 0 to 32')
+     const reason = bounded(args.reason, 'Replay control reason', 800, 8)
+@@ -431,7 +431,7 @@ export const appendReplayEvent = mutation({
+ export const purgeGovernedMemory = mutation({
+   args: { memoryId: v.id('memories'), expectedRevision: v.number(), expectedSourceDigest: v.string(), consentKey: v.string(), reason: v.string() },
+   returns: v.id('memoryGovernanceReviews'),
+-  handler: async (ctx, args) => {
++  handler: async (ctx, args): Promise<Id<'memoryGovernanceReviews'>> => {
+     if (!Number.isSafeInteger(args.expectedRevision) || args.expectedRevision < 0 || args.expectedRevision > 30) throw new ConvexError('Memory lifecycle revision must be an integer from 0 to 30')
+     const reason = bounded(args.reason, 'Purge reason', 1200, 12)
+     const consentKey = bounded(args.consentKey, 'Purge consent confirmation', 200)
+diff --git a/convex/scopeEFunctions.ts b/convex/scopeEFunctions.ts
+index 3a8b8fb..99c45bd 100644
+--- a/convex/scopeEFunctions.ts
++++ b/convex/scopeEFunctions.ts
+@@ -501,7 +501,7 @@ export const recordComplianceDossierSeal = mutation({
+ export const generateComplianceExportBundle = action({
+   args: { missionKey: v.string(), dossierKey: v.string(), manifest: v.string(), provenanceJson: v.string() },
+   returns: v.object({ bundleJson: v.string(), bundleDigest: v.string(), fileName: v.string(), evidenceDigest: v.string() }),
+-  handler: async (ctx, a) => {
++  handler: async (ctx, a): Promise<{ bundleJson: string; bundleDigest: string; fileName: string; evidenceDigest: string }> => {
+     const ownerKey = await requireOperator(ctx), missionKey = key(a.missionKey, 'Mission key'), dossierKey = key(a.dossierKey, 'Dossier key'), manifest = parseObject(text(a.manifest, 'Compliance manifest', 100000), 'Compliance manifest'), provenance = parseObject(text(a.provenanceJson, 'Provenance', 20000), 'Provenance')
+     const seals = await ctx.runQuery(internal.scopeEFunctions._getComplianceExportContext, { missionKey, dossierKey })
+     if (seals.ownerKey !== ownerKey) throw new ConvexError('Compliance export context is not available')
+diff --git a/src/components/council-consensus-view.tsx b/src/components/council-consensus-view.tsx
+index ffe1baf..1488b65 100644
+--- a/src/components/council-consensus-view.tsx
++++ b/src/components/council-consensus-view.tsx
+@@ -4,4 +4,4 @@ import { useMissionGuide } from '../lib/use-mission-guide'
+ import { ScopeAPanel } from './scope-a-ui-kit'
+ 
+ export function CouncilConsensusView(){const {missionId}=useMissionGuide();const data=useQuery(api.scopeAFunctions.evaluateCouncilConsensus,missionId?{missionId}:'skip')
+- return <ScopeAPanel title="Council consensus" eyebrow="A6 · VOTE BREAKDOWN">{!missionId?<p>Select a mission to inspect consensus.</p>:data===undefined?<p role="status">Loading council votes…</p>:<><div className="decision-line"><span>CONSENSUS</span><strong>{data.consensus?'REACHED':'NOT REACHED'}</strong></div><p>Quorum: {data.quorumReached?'met':'not met'} · {data.approvalCount} approvals / {data.voteCount} votes</p><progress max={Math.max(1,data.voteCount)} value={data.approvalCount} aria-label="Council approval votes"/><h3>Dissent and blockers</h3><ul>{data.dissent.map((item,i)=><li key={i}>{item}</li>)}</ul></>}</ScopeAPanel>}
++ return <ScopeAPanel title="Council consensus" eyebrow="A6 · CONSENSUS EVIDENCE">{!missionId?<p>Select a mission to inspect consensus.</p>:data===undefined?<p role="status">Loading council consensus…</p>:<><div className="decision-line"><span>CONSENSUS</span><strong>{data.consensus}</strong></div><p>Quorum: {data.quorumReached?'met':'not met'} · {data.completedAgents} / {data.totalAgents} agents complete · Evidence score: {data.averageEvidenceScore}</p><progress max={Math.max(1,data.totalAgents)} value={data.completedAgents} aria-label="Completed council agents"/><h3>Dissent and blockers</h3><ul>{data.dissent.map((item,i)=><li key={i}>{item}</li>)}</ul></>}</ScopeAPanel>}
+diff --git a/src/components/feature-builder-scaffold-viewer.tsx b/src/components/feature-builder-scaffold-viewer.tsx
+index 91dc388..d3c77aa 100644
+--- a/src/components/feature-builder-scaffold-viewer.tsx
++++ b/src/components/feature-builder-scaffold-viewer.tsx
+@@ -3,8 +3,8 @@ import { useAction, useMutation, useQuery } from 'convex/react';
+ import { api } from '../../convex/_generated/api';
+ export function FeatureBuilderScaffoldViewer() {
+  const [featureKey,sFeature]=useState('feature-example'),[language,sLanguage]=useState('typescript'),[depsText,sDeps]=useState('react'),[filesText,sFiles]=useState('[{"path":"src/features/example.ts","content":"export const example = true;"}]'),[requestKey,sRequest]=useState('handoff-feature-example'),[artifactKey,sArtifact]=useState('artifact-example'),[handoffState,sHandoff]=useState<'draft'|'ready'|'accepted'|'blocked'>('draft'),[result,sResult]=useState(''),[error,sError]=useState(''),[busy,sBusy]=useState(false);
+- const dependencies=depsText.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),files=(()=>{try{const x:unknown=JSON.parse(filesText);return Array.isArray(x)?x as Array<{path:string;content:string}>:[]}catch{return []}})();
+- const graph=useQuery(api.scopeDFunctionsBatchTwo.validateFeatureDependencyMap,dependencies.length?{nodes:dependencies.map(key=>({key,dependencies:[]}))}:'skip'),compile=useAction(api.scopeDFunctionsBatchTwo.compileFeatureScaffold),handoff=useMutation(api.scopeDFunctionsBatchTwo.handoffFeatureArtifact);
++ const dependencies=depsText.split(/[\n,]/).map(x=>x.trim()).filter(Boolean),files=(()=>{try{const x:unknown=JSON.parse(filesText);return Array.isArray(x)?(x as Array<{path:string;content:string;language?:string}>).map(file=>({...file,language:file.language||language})):[]}catch{return []}})();
++ const graph=useQuery(api.scopeDFunctionsBatchTwo.validateFeatureDependencyMap,dependencies.length?{nodes:dependencies.map(key=>({key,dependsOn:[]}))}:'skip'),compile=useAction(api.scopeDFunctionsBatchTwo.compileFeatureScaffold),handoff=useMutation(api.scopeDFunctionsBatchTwo.handoffFeatureArtifact);
+  async function run(fn:()=>Promise<unknown>){sBusy(true);sError('');sResult('');try{sResult(JSON.stringify(await fn(),null,2))}catch(e){sError(e instanceof Error?e.message:'Operation failed')}finally{sBusy(false)}}
+  return <section className="glass-card research-card" aria-labelledby="d19-title"><p className="section-kicker">SCOPE D · D19</p><h2 id="d19-title">Feature scaffold and artifact handoff</h2><label>Feature key<input value={featureKey} onChange={e=>sFeature(e.target.value)} required/></label><label>Language<input value={language} onChange={e=>sLanguage(e.target.value)} required/></label><label>Dependencies (one per line or comma separated)<textarea value={depsText} onChange={e=>sDeps(e.target.value)}/></label><div aria-live="polite"><strong>Dependency graph validation</strong><p>{graph===undefined?'Loading validation…':JSON.stringify(graph)}</p></div><label>Scaffold files JSON<textarea rows={5} value={filesText} onChange={e=>sFiles(e.target.value)}/></label><button type="button" disabled={busy||!featureKey.trim()||!files.length} onClick={()=>void run(()=>compile({featureKey,dependencies,files,language}))}>Compile scaffold</button><hr/><h3>Artifact handoff</h3><label>Request key<input value={requestKey} onChange={e=>sRequest(e.target.value)} required/></label><label>Artifact key<input value={artifactKey} onChange={e=>sArtifact(e.target.value)} required/></label><label>Handoff state<select value={handoffState} onChange={e=>sHandoff(e.target.value as typeof handoffState)}>{['draft','ready','accepted','blocked'].map(x=><option key={x}>{x}</option>)}</select></label><button type="button" disabled={busy||!requestKey.trim()||!artifactKey.trim()||!files.length} onClick={()=>void run(()=>handoff({requestKey,featureKey,artifactKey,dependencies,files,handoffState}))}>Record artifact handoff</button>{error&&<p role="alert">{error}</p>}{result&&<pre aria-live="polite">{result}</pre>}</section>;
+ }
+\ No newline at end of file
+diff --git a/src/components/guided-workflow-gate.tsx b/src/components/guided-workflow-gate.tsx
+index 88f4db5..03cad52 100644
+--- a/src/components/guided-workflow-gate.tsx
++++ b/src/components/guided-workflow-gate.tsx
+@@ -4,4 +4,4 @@ import { useMissionGuide } from '../lib/use-mission-guide'
+ import { ScopeAPanel } from './scope-a-ui-kit'
+ 
+ export function GuidedWorkflowGate(){const {missionId}=useMissionGuide();const gate=useQuery(api.scopeAFunctions.guidedWorkflowGate,missionId?{missionId}:'skip')
+- return <ScopeAPanel title="Guided workflow gate" eyebrow="A5 · ELIGIBILITY"><p role="status">{!missionId?'Select a mission to inspect gate eligibility.':gate===undefined?'Loading gate evaluation…':gate===null?'No gate result returned.':gate.eligible?'Eligible to continue':'Blocked until required evidence is recorded.'}</p>{gate&&<><div className="decision-line"><span>ELIGIBILITY</span><strong>{gate.eligible?'ELIGIBLE':'BLOCKED'}</strong></div><ul>{gate.blockers.map((b,i)=><li key={i}>{b}</li>)}</ul></>}</ScopeAPanel>}
++ return <ScopeAPanel title="Guided workflow gate" eyebrow="A5 · ELIGIBILITY"><p role="status">{!missionId?'Select a mission to inspect gate eligibility.':gate===undefined?'Loading gate evaluation…':gate===null?'No gate result returned.':gate.executionAllowed?'Eligible to continue':'Blocked until required evidence is recorded.'}</p>{gate&&<><div className="decision-line"><span>ELIGIBILITY</span><strong>{gate.executionAllowed?'ELIGIBLE':'BLOCKED'}</strong></div><p>Next gate: {gate.nextGate}</p><p>Mission approval: {gate.approved?'approved':'required'} · Latest guide: {gate.latestGuideStatus??'not recorded'} · Roadmap: {gate.roadmapAccepted} accepted, {gate.roadmapOpen} open</p></>}</ScopeAPanel>}
+diff --git a/src/components/portfolio-criteria-evaluator.tsx b/src/components/portfolio-criteria-evaluator.tsx
+index eb919ea..7724471 100644
+--- a/src/components/portfolio-criteria-evaluator.tsx
++++ b/src/components/portfolio-criteria-evaluator.tsx
+@@ -4,4 +4,4 @@ import { useMissionGuide } from '../lib/use-mission-guide'
+ import { ScopeAPanel } from './scope-a-ui-kit'
+ 
+ export function PortfolioCriteriaEvaluator(){const {missionId}=useMissionGuide(),data=useQuery(api.scopeAFunctions.evaluatePortfolioCriteria,missionId?{missionId}:'skip')
+- return <ScopeAPanel title="Portfolio criteria evaluator" eyebrow="A12 · STRATEGY TRADEOFFS">{!missionId?<p>Select a mission to evaluate portfolio criteria.</p>:data===undefined?<p role="status">Evaluating saved portfolio criteria…</p>:<><div className="decision-line"><span>RECOMMENDATION</span><strong>{data.recommendation}</strong></div><ul>{data.criteria.map((item,i)=><li key={i}><strong>{item.key}</strong> · {item.score}/100 — {item.detail}</li>)}</ul></>}</ScopeAPanel>}
++ return <ScopeAPanel title="Portfolio criteria evaluator" eyebrow="A12 · STRATEGY TRADEOFFS">{!missionId?<p>Select a mission to evaluate portfolio criteria.</p>:data===undefined?<p role="status">Evaluating saved portfolio criteria…</p>:<><div className="decision-line"><span>RECOMMENDATION</span><strong>{data.recommendation}</strong></div><p>Verifications: {data.passingVerifications} passed, {data.failedVerifications} failed · Open incidents: {data.openIncidents}</p><ul>{data.rationale.map((item,i)=><li key={i}>{item}</li>)}</ul></>}</ScopeAPanel>}
+diff --git a/src/components/visual-builder-sync-inspector.tsx b/src/components/visual-builder-sync-inspector.tsx
+index 640151b..9817522 100644
+--- a/src/components/visual-builder-sync-inspector.tsx
++++ b/src/components/visual-builder-sync-inspector.tsx
+@@ -1,9 +1,62 @@
+ import { useState } from 'react';
+ import { useAction, useMutation, useQuery } from 'convex/react';
+ import { api } from '../../convex/_generated/api';
+-export function VisualBuilderSyncInspector(){
+- const [stateText,sState]=useState('{"component":"Card","density":"comfortable"}'),[astText,sAst]=useState('{"type":"Card","props":{"density":"comfortable"}}'),[requestKey,sRequest]=useState('visual-sync-1'),[projectKey,sProject]=useState('nexus-forge'),[revision,sRevision]=useState(1),[filesText,sFiles]=useState('[{"path":"src/generated/Component.tsx","content":"export const Component = () => null;"}]'),[excludeText,sExclude]=useState('node_modules\n.env'),[result,sResult]=useState(''),[error,sError]=useState(''),[busy,sBusy]=useState(false);
+- const diff=useQuery(api.scopeDFunctionsBatchTwo.diffVisualStateToAst,stateText.trim()&&astText.trim()?{state:stateText,ast:astText}:'skip'),sync=useMutation(api.scopeDFunctionsBatchTwo.syncVisualCodeRevision),exportCode=useAction(api.scopeDFunctionsBatchTwo.generateCleanCodeExport),files=(()=>{try{const x:unknown=JSON.parse(filesText);return Array.isArray(x)?x as Array<{path:string;content:string}>:[]}catch{return []}})();
+- async function run(fn:()=>Promise<unknown>){sBusy(true);sError('');sResult('');try{sResult(JSON.stringify(await fn(),null,2))}catch(e){sError(e instanceof Error?e.message:'Operation failed')}finally{sBusy(false)}}
+- return <section className="glass-card research-card" aria-labelledby="d20-title"><p className="section-kicker">SCOPE D · D20</p><h2 id="d20-title">Visual state and AST synchronization</h2><label>Visual state JSON<textarea rows={4} value={stateText} onChange={e=>sState(e.target.value)}/></label><label>AST JSON<textarea rows={4} value={astText} onChange={e=>sAst(e.target.value)}/></label><div aria-live="polite"><h3>Reactive diff</h3><p>{diff===undefined?'Loading diff…':JSON.stringify(diff,null,2)}</p></div><label>Request key<input value={requestKey} onChange={e=>sRequest(e.target.value)} required/></label><label>Project key<input value={projectKey} onChange={e=>sProject(e.target.value)} required/></label><label>Revision<input type="number" min={0} value={revision} onChange={e=>sRevision(Number(e.target.value))}/></label><button type="button" disabled={busy||!requestKey.trim()||!projectKey.trim()} onClick={()=>void run(()=>sync({requestKey,projectKey,revision,stateDigest:stateText,astDigest:astText,diff:[]}))}>Sync revision</button><label>Export files JSON<textarea rows={4} value={filesText} onChange={e=>sFiles(e.target.value)}/></label><label>Exclude patterns<textarea value={excludeText} onChange={e=>sExclude(e.target.value)}/></label><button type="button" disabled={busy||!files.length} onClick={()=>void run(()=>exportCode({files,excludePatterns:excludeText.split('\n').map(x=>x.trim()).filter(Boolean)}))}>Generate clean code export</button>{error&&<p role="alert">{error}</p>}{result&&<pre aria-live="polite">{result}</pre>}</section>;
+-}
+\ No newline at end of file
++
++function parsePaths(text: string): string[] | null {
++ try {
++  const value: unknown = JSON.parse(text);
++  return Array.isArray(value) && value.every((item): item is string => typeof item === 'string') ? value : null;
++ } catch { return null; }
++}
++function parseFiles(text: string): Array<{path: string; content: string; language: string}> {
++ try {
++  const value: unknown = JSON.parse(text);
++  if (!Array.isArray(value)) return [];
++  return value.map((item: unknown) => {
++   if (!item || typeof item !== 'object') throw new Error('Invalid file');
++   const file = item as Record<string, unknown>;
++   if (typeof file.path !== 'string' || typeof file.content !== 'string' || (file.language !== undefined && typeof file.language !== 'string')) throw new Error('Invalid file');
++   return {path: file.path, content: file.content, language: typeof file.language === 'string' ? file.language : 'typescript'};
++  });
++ } catch { return []; }
++}
++
++export function VisualBuilderSyncInspector() {
++ const [stateText,sState]=useState('["Card","Card.props.density"]');
++ const [astText,sAst]=useState('["Card","Card.props.density"]');
++ const [requestKey,sRequest]=useState('visual-sync-1'),[projectKey,sProject]=useState('nexus-forge'),[revision,sRevision]=useState(1);
++ const [filesText,sFiles]=useState('[{"path":"src/generated/Component.tsx","content":"export const Component = () => null;","language":"typescript"}]');
++ const [excludeText,sExclude]=useState('node_modules\n.env');
++ const [result,sResult]=useState(''),[error,sError]=useState(''),[busy,sBusy]=useState(false);
++ const state=parsePaths(stateText),ast=parsePaths(astText),files=parseFiles(filesText);
++ const diff=useQuery(api.scopeDFunctionsBatchTwo.diffVisualStateToAst,state&&ast?{state,ast}:'skip');
++ const sync=useMutation(api.scopeDFunctionsBatchTwo.syncVisualCodeRevision),exportCode=useAction(api.scopeDFunctionsBatchTwo.generateCleanCodeExport);
++ async function run(fn:()=>Promise<unknown>) {
++  sBusy(true);sError('');sResult('');
++  try {sResult(JSON.stringify(await fn(),null,2));}
++  catch(e) {sError(e instanceof Error?e.message:'Operation failed');}
++  finally {sBusy(false);}
++ }
++ async function recordSync() {
++  if (!diff || !state || !ast) throw new Error('Wait for a valid path comparison before recording a revision.');
++  return sync({requestKey,projectKey,revision,stateDigest:diff.stateDigest,astDigest:diff.astDigest,diff:[
++   ...diff.additions.map(path=>({path,kind:'add' as const,summary:'Present in AST paths only'})),
++   ...diff.removals.map(path=>({path,kind:'remove' as const,summary:'Present in visual state paths only'})),
++  ]});
++ }
++ return <section className="glass-card research-card" aria-labelledby="d20-title">
++  <p className="section-kicker">SCOPE D · D20</p><h2 id="d20-title">Visual state and AST synchronization</h2>
++  <label>Visual state paths (JSON array)<textarea rows={4} value={stateText} onChange={e=>sState(e.target.value)}/></label>
++  <label>AST paths (JSON array)<textarea rows={4} value={astText} onChange={e=>sAst(e.target.value)}/></label>
++  <div aria-live="polite"><h3>Reactive diff</h3><p>{!state||!ast?'Enter JSON arrays containing path strings.':diff===undefined?'Loading diff…':JSON.stringify(diff,null,2)}</p></div>
++  <label>Request key<input value={requestKey} onChange={e=>sRequest(e.target.value)} required/></label>
++  <label>Project key<input value={projectKey} onChange={e=>sProject(e.target.value)} required/></label>
++  <label>Revision<input type="number" min={0} value={revision} onChange={e=>sRevision(Number(e.target.value))}/></label>
++  <button type="button" disabled={busy||!requestKey.trim()||!projectKey.trim()||!state||!ast||!diff||!Number.isSafeInteger(revision)||revision<0} onClick={()=>void run(recordSync)}>Sync revision</button>
++  <label>Export files JSON<textarea rows={4} value={filesText} onChange={e=>sFiles(e.target.value)}/></label>
++  {!files.length&&<p>Enter a non-empty array of files with path and content strings; language defaults to typescript.</p>}
++  <label>Exclude patterns<textarea value={excludeText} onChange={e=>sExclude(e.target.value)}/></label>
++  <button type="button" disabled={busy||!files.length} onClick={()=>void run(()=>exportCode({files,excludePatterns:excludeText.split('\n').map(x=>x.trim()).filter(Boolean)}))}>Generate clean code export</button>
++  {error&&<p role="alert">{error}</p>}{result&&<pre aria-live="polite">{result}</pre>}
++ </section>;
++}
+diff --git a/src/components/visual-diff-inspector.tsx b/src/components/visual-diff-inspector.tsx
+index 50763c4..e6cf154 100644
+--- a/src/components/visual-diff-inspector.tsx
++++ b/src/components/visual-diff-inspector.tsx
+@@ -6,4 +6,4 @@ import { ScopeAPanel } from './scope-a-ui-kit'
+ 
+ export function VisualDiffInspector(){const [baseline,setBaseline]=useState(''),[candidate,setCandidate]=useState(''),[run,setRun]=useState(false)
+  const data=useQuery(api.scopeAFunctions.diffVisualRevisions,run&&baseline&&candidate?{baselineId:baseline as Id<'visualRevisions'>,candidateId:candidate as Id<'visualRevisions'>}:'skip')
+- return <ScopeAPanel title="Visual revision diff inspector" eyebrow="A9 · AST / CANVAS DIFF"><form onSubmit={e=>{e.preventDefault();setRun(true)}}><label className="scope-a-field">Baseline revision ID<input value={baseline} onChange={e=>{setBaseline(e.target.value);setRun(false)}} required/></label><label className="scope-a-field">Candidate revision ID<input value={candidate} onChange={e=>{setCandidate(e.target.value);setRun(false)}} required/></label><button className="primary-button" type="submit">Compare revisions</button></form>{run&&data===undefined?<p role="status">Loading revision diff…</p>:data&&<><div className="decision-line"><span>CHANGE COUNT</span><strong>{data.changes.length}</strong></div><ul>{data.changes.map((change,i)=><li key={i}><strong>{change.kind}</strong> · {change.path} — {change.summary}</li>)}</ul></>}</ScopeAPanel>}
++ return <ScopeAPanel title="Visual revision diff inspector" eyebrow="A9 · AST / CANVAS DIFF"><form onSubmit={e=>{e.preventDefault();setRun(true)}}><label className="scope-a-field">Baseline revision ID<input value={baseline} onChange={e=>{setBaseline(e.target.value);setRun(false)}} required/></label><label className="scope-a-field">Candidate revision ID<input value={candidate} onChange={e=>{setCandidate(e.target.value);setRun(false)}} required/></label><button className="primary-button" type="submit">Compare revisions</button></form>{run&&data===undefined?<p role="status">Loading revision diff…</p>:data&&<><div className="decision-line"><span>CHANGE COUNT</span><strong>{data.changedFields.length}</strong></div><ul>{data.changedFields.map(field=><li key={field}>{field}</li>)}</ul><h3>Baseline diff</h3><pre>{data.baselineDiff}</pre><h3>Candidate diff</h3><pre>{data.candidateDiff}</pre></>}</ScopeAPanel>}
+diff --git a/src/lib/capabilities/resilience-incident-coordinator.ts b/src/lib/capabilities/resilience-incident-coordinator.ts
+index e7b6117..a021961 100644
+--- a/src/lib/capabilities/resilience-incident-coordinator.ts
++++ b/src/lib/capabilities/resilience-incident-coordinator.ts
+@@ -1,5 +1,5 @@
+ import type { ConvexReactClient } from "convex/react";
+-import type { FunctionArgs } from "convex/server";
++import type { FunctionArgs, FunctionReturnType } from "convex/server";
+ import { api } from "../../../convex/_generated/api";
+ 
+ type RateArgs = FunctionArgs<typeof api.scopeBFunctionsBatchTwo.ingestRateLimitEvent>;
+@@ -32,7 +32,7 @@ export async function coordinateIncidentContainment(
+     evidence: [...input.incident.evidence, ...(rateLimitEventId ? [String(rateLimitEventId)] : []), ...thresholds.reasons],
+   });
+ 
+-  let lockdownId = null;
++  let lockdownId: FunctionReturnType<typeof api.scopeCFunctions.triggerEmergencyLockdown> | null = null;
+   if (thresholds.policyTriggered) {
+     lockdownId = await client.mutation(api.scopeCFunctions.triggerEmergencyLockdown, {
+       ...input.lockdown,
