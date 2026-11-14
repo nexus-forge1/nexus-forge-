@@ -62,7 +62,8 @@ export default defineSchema({
   ...billingTables,
   ...businessTables,
   ...releaseTables,
-  providerReconciliations: defineTable(reconciliationFields).index('by_owner', ['ownerKey']),
+  // Legacy stored snapshots predate modelTotals; history normalizes it to a required array.
+  providerReconciliations: defineTable({ ...reconciliationFields, modelTotals: v.optional(reconciliationFields.modelTotals) }).index('by_owner', ['ownerKey']),
   platformTaskRuns: defineTable(taskFields).index('by_owner', ['ownerKey']).index('by_mission', ['missionId']).index('by_source', ['sourceRef']),
   ...frontierTables,
   providerInvocations: defineTable(invocationFields).index('by_owner_started', ['ownerKey', 'startedAt']).index('by_owner', ['ownerKey']).index('by_mission', ['missionId']).index('by_missionRunId_and_stage_and_role_and_outcome', ['missionRunId', 'stage', 'role', 'outcome']),
