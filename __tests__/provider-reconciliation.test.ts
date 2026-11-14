@@ -74,6 +74,19 @@ describe('private provider invoice comparisons', () => {
     expect(normalizeModelTotals({ _id: 'legacy', status: 'incomplete' } as any)).toEqual({ _id: 'legacy', status: 'incomplete', modelTotals: [] })
     expect(normalizeModelTotals({ _id: 'current', modelTotals: [{ model: 'm', reportCount: 1, knownUsd: 0.25, unknownCharges: 0 }] })).toMatchObject({ _id: 'current', modelTotals: [{ model: 'm', knownUsd: 0.25 }] })
   })
+  it('reads a stored legacy snapshot without mutating it or exposing another owner', async () => {
+    const { t, history } = await fixture()
+    const id = await t.run(ctx => ctx.db.insert('providerReconciliations', {
+      ...input, scopeConfirmed: false, ownerKey: 'owner-a', createdAt: Date.now(),
+      status: 'scope-mismatch', ledgerUsd: 0, varianceUsd: .25,
+      invocationCount: 0, matchedReports: 0, missingCharges: 0,
+      unresolvedInvocations: 0, invocationIds: [], reports: [],
+    }))
+    expect((await history())[0]).toMatchObject({ _id: id, modelTotals: [], status: 'scope-mismatch', scopeConfirmed: false })
+    expect(await t.run(ctx => ctx.db.get(id))).not.toHaveProperty('modelTotals')
+    const other = t.withIdentity(identity('owner-b'))
+    expect((await other.query(api.providerReconciliation.history, { paginationOpts: page })).page).toEqual([])
+  })
   it('enforces ownership and authentication on both write and paginated history', async () => {
     const { t, owner, insert } = await fixture()
     await insert()
